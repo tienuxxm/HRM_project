@@ -1,8 +1,11 @@
-# Manual UAT & Process Report — Phase 3A: Position Master Data & Employee PositionId Migration
+﻿# Manual UAT & Process Report — Phase 3A: Position Master Data & Employee PositionId Migration
 
 - **Date:** 2026-06-30
 - **Phase:** Phase 3A (Position Master Data + Employee PositionId migration)
-- **Status:** Built successfully, Database migrated. Ready for manual UAT.
+- **Status:** BUILD PASS / CHỜ USER UAT
+
+> [!WARNING]
+> Commit `34636e4` ("fix: stabilize phase 3a position master data") đã lỡ bị push lên `origin/main` trước khi UAT/User phê duyệt (vi phạm quy trình mới). Commit này hiện đang ở nhánh `main` trên remote và đang chờ ý kiến quyết định của User xem có giữ nguyên hay cần thực hiện rollback/reset nhánh `main`.
 
 ---
 
@@ -20,13 +23,13 @@
 
 ---
 
-## 3. Step-by-Step Test Cases (Các bước thao tác chi tiết)
+## 3. Step-by-Step Test Cases (Các bước thao tác chi tiết dành cho User)
 
 ### Test Case 1: Verification of Database Seed Data & Sidebar Link
 * **Steps:**
   1. Chạy ứng dụng Web bằng lệnh: `dotnet run --project Web.Backend`
   2. Mở trình duyệt và truy cập `http://localhost:5000` (hoặc URL dev server hiển thị trên terminal).
-  3. Đăng nhập bằng tài khoản **Test Account** ở trên.
+  3. Đăng nhập bằng tài khoản **Test Account** ở trên thông qua Keycloak thật.
   4. Quan sát thanh Sidebar menu bên trái dưới mục **HRM MANAGEMENT**.
 * **Expected Result:**
   * Có mục liên kết **Positions** xuất hiện ngay dưới **Employees**.
@@ -65,26 +68,40 @@
   3. Click **Save**.
 * **Expected Result:**
   * Xuất hiện thông báo toast "Position updated successfully".
-  * Trang tự động reload lại và thông tin đã cập nhật được hiển thị chính xác. (Sử dụng `UpdatePositionCommandHandler` mới thêm).
+  * Trang tự động reload lại và thông tin đã cập nhật được hiển thị chính xác.
 
-### Test Case 5: Link Position with Employee
+### Test Case 5: Link Position with Employee & Verify PositionId Migration
 * **Steps:**
   1. Click vào mục **Employees** trên Sidebar (`/employee`).
-  2. Chọn một nhân viên và click **Edit** (hoặc click **Add Employee**).
-  3. Tại trường **Position (Optional)**, click mở select dropdown.
+  2. Chọn một nhân viên bất kỳ (đặc biệt là các nhân viên đã có sẵn trước Phase 3A) và click **Edit**.
+  3. Quan sát select dropdown **Position (Optional)**.
+  4. Chọn chức vụ `Human Resources Manager` vừa tạo và bấm **Save**.
 * **Expected Result:**
-  * Select dropdown hiển thị đầy đủ danh sách chức vụ động từ database: `Employee`, `Department Manager`, `CEO`, `Human Resources Manager`.
-  * Chọn một chức vụ và lưu lại thành công, không gặp lỗi hệ thống.
+  * Các nhân viên cũ đã được migrate thành công sang cột `PositionId` mới (có thể xác nhận trực tiếp bằng cách kiểm tra giá trị chức danh cũ của họ được map tương ứng sang `Employee`, `Department Manager`, hoặc `CEO`).
+  * Dropdown chức danh chỉ hiển thị danh sách chức vụ hoạt động động từ database (ví dụ: `Employee`, `Department Manager`, `CEO`, `Human Resources Manager`).
+  * Gán chức danh mới và lưu lại thành công mà không gặp lỗi hệ thống.
 
-### Test Case 6: Remove/Delete Position (Soft-Delete Verification)
+### Test Case 6: Delete Unused Position (Soft-Delete Verification)
 * **Steps:**
   1. Quay lại trang `/position`.
-  2. Click **Remove** bên cạnh dòng chức vụ `HR_MANAGER` (`Human Resources Manager`).
-  3. Trên modal xác nhận xóa, click **Delete**.
+  2. Tạo một chức danh tạm thời (ví dụ: Code `TEMP_ROLE`, Name `Temp Role`, Level `1`) và Save.
+  3. Click **Remove** bên cạnh dòng chức danh `TEMP_ROLE` vừa tạo.
+  4. Trên modal xác nhận xóa, click **Delete**.
 * **Expected Result:**
   * Xuất hiện thông báo toast xóa thành công.
-  * Chức vụ biến mất khỏi danh sách (Do `GetAllPositionsQueryHandler` đã được cấu hình lọc `IsActive = true`).
+  * Chức danh biến mất khỏi danh sách (Do `GetAllPositionsQueryHandler` đã được cấu hình lọc `IsActive = true`).
   * Thực tế trong Database: Cột `is_active` của chức vụ này chuyển sang `false` (Soft-delete thay vì hard-delete).
+
+### Test Case 7: Delete Position in Use (Bị chặn khi đang được gán cho nhân viên)
+* **Steps:**
+  1. Hãy chắc chắn rằng chức vụ `Human Resources Manager` vừa tạo ở Test Case 4 vẫn đang được gán cho nhân viên ở Test Case 5.
+  2. Truy cập trang `/position`.
+  3. Tìm chức danh `Human Resources Manager` và click **Remove**.
+  4. Trên modal xác nhận xóa, click **Delete**.
+* **Expected Result:**
+  * Thao tác xóa **phải bị chặn**.
+  * Hệ thống hiển thị thông báo lỗi cảnh báo: "Cannot delete position that has assigned employees" (mã lỗi `Position.HasEmployees`).
+  * Chức danh `Human Resources Manager` vẫn tồn tại nguyên vẹn trong danh sách.
 
 ---
 
