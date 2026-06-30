@@ -129,11 +129,15 @@ description: Quy tac lam viec cho du an HRM/Leave Management tach tu Project LUC
   - Neu da stage, chay `git diff --cached --name-status`.
   - Chay build/test/encoding scan theo phase.
   - Chay `git status --short`.
-- Sau khi phase/fix da verify va user/codex cho phep checkpoint:
+- Sau khi phase/fix da verify va user/codex cho phep checkpoint local:
   - `git add -- <explicit files only>`
   - `git diff --cached --name-status`
   - `git commit -m "<type>: <short phase/fix summary>"`
-  - `git push origin main`
+- Quy tac push:
+  - `main` la nhanh on dinh.
+  - Khong push code ung dung len `origin/main` neu phase/fix chua UAT pass hoac user chua phe duyet push ro rang.
+  - Neu can backup remote truoc UAT, phai hoi user truoc va dung nhanh WIP ro rang, vi du `wip/phase-3a-position`, khong push vao `main`.
+  - Commit chi sua tai lieu/rule co the push neu muc dich la tang an toan va khong doi runtime.
 - Neu lenh Git loi, phai bao nguyen van loi va khong tiep tuc code vong qua loi do.
 
 ## Nguyen Tac Debug Va Fix Loi

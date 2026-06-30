@@ -47,7 +47,7 @@ Before claiming done:
 4. Run the required build/test/encoding checks for the phase.
 5. Run `git status --short`.
 
-Checkpoint after a verified phase or fix:
+Local checkpoint after a verified build/fix:
 
 ```powershell
 git status --short
@@ -56,8 +56,14 @@ git diff --name-status
 git add -- <explicit files only>
 git diff --cached --name-status
 git commit -m "<type>: <short phase/fix summary>"
-git push origin main
 ```
+
+Push rule:
+
+- `main` is the stable branch.
+- Do not push application code to `origin/main` until the phase/fix has passed UAT or the user explicitly approves the push.
+- If remote backup is needed before UAT, ask the user first and use a clearly named WIP branch, for example `wip/phase-3a-position`, never `main`.
+- Documentation/rule-only commits may be pushed when they improve safety and do not change runtime behavior.
 
 If a Git command fails, report the exact error and do not continue coding around it.
 
