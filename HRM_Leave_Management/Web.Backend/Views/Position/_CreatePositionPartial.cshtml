@@ -1,0 +1,90 @@
+<div id="createPositionModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="createPositionModal">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add Position</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="posCode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position Code</label>
+                        <input type="text" placeholder="e.g. CEO, DEPT_MANAGER" id="posCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        <p id="posCodeError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                    <div>
+                        <label for="posName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position Name</label>
+                        <input type="text" placeholder="Enter Position Name" id="posName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        <p id="posNameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                    <div>
+                        <label for="posLevel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Level (Hierarchy/Approval Level)</label>
+                        <input type="number" min="1" max="100" placeholder="e.g. 1" id="posLevel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        <p id="posLevelError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                    <button type="button" id="savePosButton" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    const toastContainer = $('#toast-container')
+    const posCodeError = $('#posCodeError')
+    const posNameError = $('#posNameError')
+    const posLevelError = $('#posLevelError')
+    posCodeError.hide();
+    posNameError.hide();
+    posLevelError.hide();
+
+    $('#savePosButton').on('click', function (){
+        posCodeError.hide();
+        posNameError.hide();
+        posLevelError.hide();
+        const posCode = $('#posCode').val()
+        const posName = $('#posName').val()
+        const posLevel = $('#posLevel').val()
+        
+        if(!posCode || posCode.trim() === ''){
+            posCodeError.show();
+            posCodeError.text("Please enter position code")
+            return;
+        }
+        if(!posName || posName.trim() === ''){
+            posNameError.show();
+            posNameError.text("Please enter position name")
+            return;
+        }
+        if(!posLevel || isNaN(posLevel) || parseInt(posLevel) < 1){
+            posLevelError.show();
+            posLevelError.text("Please enter a valid level (>= 1)")
+            return;
+        }
+    
+        const formData = new FormData()
+        formData.append('Code', posCode)
+        formData.append('Name', posName)
+        formData.append('Level', parseInt(posLevel))
+        $.ajax({
+            type: "POST",
+            url: `/position/create`,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (e) {
+                toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Position created successfully" }, null)')
+                setTimeout(() => {
+                    location.href="/position"
+                }, 1500)
+            },
+            error: function (error){
+                toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Position creation failed" }, null)')
+            },
+        })
+    })
+</script>

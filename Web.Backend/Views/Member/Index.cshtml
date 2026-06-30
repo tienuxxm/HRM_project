@@ -1,0 +1,567 @@
+﻿@model MemberViewModel
+@{
+  ViewBag.Title = "Customer List";
+  Layout = "_Layout";
+}
+
+
+<div class="w-full">
+  <div class="w-full flex flex-col">
+    <nav class="flex" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+            <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Account</span>
+          </div>
+        </li>
+        <li aria-current="page">
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Customer List</a>
+          </div>
+        </li>
+      </ol>
+    </nav>
+    <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg mt-5  flex flex-col justify-content-between">
+      <div class="w-full">
+        <div class="flex justify-content-between items-center">
+          <div>
+                        <h1 class="text-black font-semibold text-xl mt-2 mb-3">Customer List</h1>
+            <div class="w-64 h-12">
+              <div>
+                <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                  </div>
+                  <input value="@Model.SearchTerm" type="search" id="search" class="block w-full pl-11 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search...">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <a data-modal-target="file-import-modal" data-modal-toggle="file-import-modal" type="button"
+               class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+              Import
+            </a>
+            <button id="exportMember" type="button"
+                    class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+              <svg id="spinnerLabel" aria-hidden="true" role="status" class="inline w-3 h-3 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
+                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
+              </svg>
+              <span id="exportLabel">
+                Export
+              </span>
+            </button>
+            <div id="file-import-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+              <div class="relative p-4 w-full max-w-md max-h-full">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                  <!-- Modal header -->
+                  <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                      Import Data Customer
+                    </h3>
+                    <button type="button" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="file-import-modal">
+                      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                      </svg>
+                      <span class="sr-only">Close modal</span>
+                    </button>
+                  </div>
+                  <!-- Modal body -->
+                  <div class="p-4 flex flex-col">
+                    <div class="flex items-center justify-center w-full">
+                      <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                          </svg>
+                          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Nhấn để upload</span> or kéo thả file vào</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">xlsx, csv</p>
+                          <p id="file-name" class="text-xs text-blue-600"></p>
+                          <p id="file-name-error" class="text-xs text-red-500">
+                            No Yes file
+                          </p>
+                        </div>
+                        <input name="MemberFile" id="dropzone-file" type="file" class="hidden"/>
+                      </label>
+                    </div>
+                    <div class="flex justify-content-between items-center mt-3">
+                      <button id="downloadExampleData" class="w-[172px] py-2.5 px-2 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                        Download Template 
+                      </button>
+                      <button id="submitImport" type="button" class="w-[172px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                        Enter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="@Url.Action("ManageMemberView", "Member")" type="button"
+               class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+              Add Customer
+            </a>
+          </div>
+        </div>
+        <div class="overflow-x-auto w-full h-full overflow-y-auto mt-3">
+          <table id="table" class="min-w-full divide-y-2 divide-gray-200 text-sm">
+            <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                NO
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Customer Code
+              </th>
+              <th style="min-width: 140px" class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Full Name
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Email
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Phone Number
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                Address
+              </th>
+              <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 flex justify-content-end">
+                <div class="h-[24px] w-[24px] flex justify-center items-center">
+                  <svg width="5" height="17" viewBox="0 0 5 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="fill-gray-500" d="M4.28571 13.2539V15.3967C4.28571 15.9882 3.8058 16.4681 3.21429 16.4681H1.07143C0.479911 16.4681 0 15.9882 0 15.3967V13.2539C0 12.6623 0.479911 12.1824 1.07143 12.1824H3.21429C3.8058 12.1824 4.28571 12.6623 4.28571 13.2539ZM4.28571 7.53957V9.68243C4.28571 10.2739 3.8058 10.7539 3.21429 10.7539H1.07143C0.479911 10.7539 0 10.2739 0 9.68243V7.53957C0 6.94805 0.479911 6.46814 1.07143 6.46814H3.21429C3.8058 6.46814 4.28571 6.94805 4.28571 7.53957ZM4.28571 1.82528V3.96814C4.28571 4.55966 3.8058 5.03957 3.21429 5.03957H1.07143C0.479911 5.03957 0 4.55966 0 3.96814V1.82528C0 1.23376 0.479911 0.753853 1.07143 0.753853H3.21429C3.8058 0.753853 4.28571 1.23376 4.28571 1.82528Z"/>
+                  </svg>
+                </div>
+              </th>
+            </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ol class="flex justify-center gap-2 text-xs font-medium mt-2">
+  <li class="text-gray-500 flex justify-center items-center mr-2">
+    <span id="pageInfo"></span>
+  </li>
+  <li>
+    <a
+      id="prevPage"
+      class="inline-flex h-5 w-5 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180">
+      <span class="sr-only">Prev Page</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-3 w-3"
+        viewBox="0 0 20 20"
+        fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+          clip-rule="evenodd"/>
+      </svg>
+    </a>
+  </li>
+  <li class="text-gray-500 flex justify-center items-center">
+    <span class="font-medium" id="currentPage">
+    </span>
+  </li>
+  <li>
+    <a
+      id="nextPage"
+      class="inline-flex h-5 w-5 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180">
+      <span class="sr-only">Next Page</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-3 w-3"
+        viewBox="0 0 20 20"
+        fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+          clip-rule="evenodd"/>
+      </svg>
+    </a>
+  </li>
+</ol>
+
+@section Scripts
+{
+  <script>
+       $(document).ready( function () {
+           $('#file-name-error').hide();
+           const uploadFileInput = document.getElementById('dropzone-file')
+        
+        uploadFileInput.addEventListener('change', (event) => {
+          handleFileInput(event)
+        });
+        
+        let fileUpload = null;
+        function handleFileInput(event){
+            const file = event.target.files[0];
+            if (file) {
+                $('#file-name-error').hide();
+                fileUpload = file;
+                $('#file-name').text(file.name)
+            }else{
+                $('#file-name-error').show();
+            }
+        }
+        
+        $('#spinnerLabel').hide();
+        
+        $('#exportMember').on('click', function (e){
+            $('#spinnerLabel').show();
+            $('#exportLabel').text('Exporting');
+            $('#exportMember').prop( "disabled", true )
+            
+            $.ajax({
+                url: '/Member/Export',
+                method: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    const a = document.createElement('a');
+                    const url = window.URL.createObjectURL(data);
+                    a.href = url;
+                    a.download = `member-data-${Date.now()}.xlsx`;
+                    document.body.append(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    $('#spinnerLabel').hide();
+                    $('#exportLabel').text('Export');
+                    $('#exportMember').prop( "disabled", false )
+                },
+                error: function (error){
+                    $('#spinnerLabel').hide();
+                    $('#exportLabel').text('Export');
+                    $('#exportMember').prop( "disabled", false )
+                    showToast('Yes lỗi xảy ra', false)
+                }
+            });
+        })
+       
+        
+        $('#submitImport').on('click', function (e){
+           if (!fileUpload) {
+               $('#file-name-error').show();
+               return
+           }
+           
+           const loadingOverlay = $('#loadingOverlay');
+           const formData = new FormData();
+           formData.append('MemberFile', fileUpload)
+            loadingOverlay.show();
+           
+           $.ajax({
+                type: "POST",
+                url: '/Member/Import',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    loadingOverlay.hide();
+                    showToast('Import Success')
+                    setTimeout(() => {
+                        loadingOverlay.show();
+                        location.href="/member"
+                    }, 1500)
+                },
+                error: function (error){
+                    loadingOverlay.hide();
+                    showToast('Failed')
+                },
+            })
+        })
+        
+        $('#downloadExampleData').on('click', function (e){
+            $.ajax({
+                type: "GET",
+                url: '/Member/Example-Import',
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    $.ajax({
+                            url: res,
+                            method: 'GET',
+                            xhrFields: {
+                                responseType: 'blob'
+                            },
+                            success: function (data) {
+                                const a = document.createElement('a');
+                                const url = window.URL.createObjectURL(data);
+                                a.href = url;
+                                a.download = 'MemberExampleImport.xlsx';
+                                document.body.append(a);
+                                a.click();
+                                a.remove();
+                                window.URL.revokeObjectURL(url);
+                            }
+                        });
+                },
+                error: function (error){
+                    showToast('Yes lỗi xảy ra', false)
+                },
+            })
+            
+        })
+      
+           const table = $('#table').DataTable({
+                 lengthChange: false,
+                 paging: false,
+                 pageResize: true,
+                 processing: true,
+                 serverSide: true,
+                 info: false,
+                 dom: '<"top"l>rt<"bottom"ip><"clear">',
+                 pageLength: 10,
+                 ajax: {
+                     url: "@Url.Action("LoadData", "Member")",
+                     type: "POST",
+                     dataFilter: function(data){
+                         const dataJson = JSON.parse(data)
+                         return JSON.stringify( {
+                            draw: dataJson.draw,
+                            data: dataJson.data,
+                            recordsFiltered: dataJson.recordsFiltered,
+                            recordsTotal: dataJson.recordsTotal
+                         } ); // return JSON string
+                     },
+                     dataSrc: function (json) {
+                         const data = json.data.map((item, index) => ({
+                             ...item,
+                             index: index + 1
+                         }));
+                         return data;
+                     }
+                 },
+                 order: [[1, 'desc']],
+                 columnDefs: [
+                     {
+                         "targets": 1, // Index of the column
+                         "data": "name",
+                         "render": function (data, type, row, meta) {
+                             return `
+                                <a href="/Member/${row.id}?tab=vouchers" class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                                    ${data}
+                                </a>
+                             `
+                         }
+                     },
+                     {
+                         "targets": 6, // Index of the column
+                         "data": "name",
+                         "render": function (data, type, row, meta) {
+                             return `
+                                <div class="whitespace-nowrap px-4 py-2 text-gray-700 flex justify-content-end relative">
+                                    <div class="h-[24px] w-[24px] flex justify-center items-end cursor-pointer hover:scale-110">
+                                           <span  data-dropdown-trigger="hover" id="dropdownHoverButton${row.id}" class="text-blue-500">Customize</span>
+                                    </div>
+                                    <div id="dropdownHover${row.id}" class="z-50 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute">
+                                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton${row.id}">
+                                            <li>
+                                                <a href="/Member/manage-member/${row.id}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Update</a>
+                                            </li>
+                                            <li>
+                                                    <a href="/Member/${row.id}?tab=vouchers" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Voucher wallet</a>
+                                            </li>
+                                            <li>
+                                                    <a href="/Member/${row.id}?tab=point-histories" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Points accumulation history</a>
+                                            </li>
+                                            <li>
+                                                    <a href="/Member/${row.id}?tab=invoice-histories" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Invoice history</a>
+                                            </li>
+                                            <!--<li>
+                                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Update Account</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Delete Account</a>
+                                            </li>-->
+                                        </ul>
+                                    </div>
+                                </div>
+                             `
+                         }
+                     },
+                     {
+                         "targets": 2, // Index of the column
+                         "data": "name",
+                         "render": function (data, type, row, meta) {
+                             return `
+                                <div class="flex justify-start items-center">
+                                    ${row.avatarUrl ? `
+                                        <img class="w-10 h-10 rounded-full" src="${row.avatarUrl}" alt="Rounded avatar">
+                                     `: `
+                                        <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                                <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                                </svg>
+                                        </div>
+                                     `}
+                                        <span class="ml-2 font-medium">${row.fullName}</span>
+                                </div>
+                             `;
+                         }
+                     },
+                     { "className": "text-center", "targets": [0]},
+                     { "className": "text-center", "targets": [2]},
+                     { "className": "text-left", "targets": [3]},
+                     { "className": "text-left", "targets": [4]},
+                     { "className": "text-left", "targets": [5]},
+                     { "orderable": false, "targets": [6, 0] },
+                     { 
+                         "targets": [3,4,5], 
+                         "defaultContent": "--" // Text to display for null or undefined data
+                     },
+                 ],
+                 columns: [
+                         // Define columns based on your data structure
+                         { "data": "index" },
+                         { "data": "memberCode" },
+                         { "data": "fullName" },
+                         { "data": "email" },
+                         { "data": "phoneNumber" },
+                         { "data": "address" },
+                         { "data": null },
+                 ]
+           });
+           
+           $('#nextPage').on('click', function() {
+               table.page('next').draw('page');
+               loadPage()
+           });
+           
+           $('#prevPage').on('click', function() {
+               table.page('previous').draw('page');
+               loadPage()
+           });
+           
+           table.on('draw', function() {
+               loadPage()
+           });
+           
+           function loadPage(){
+               const pageInfo = table.page.info();
+               $('#pageInfo').html(
+                   (pageInfo.start + 1) + ' - ' + pageInfo.end +
+                   ' of ' + pageInfo.recordsDisplay + ' entries'
+               );
+               
+               const currentPage = Math.ceil(pageInfo.end / 10);
+               const pages = Math.ceil(pageInfo.recordsDisplay / 10);
+               $('#currentPage').html(currentPage + ' / ' + pages);
+
+               //const data = table.rows( {page:'current'} ).data()
+               const allData = table.rows().data().toArray();
+               allData.forEach(obj => {
+                   const element = $(`#dropdownHoverButton${obj.id}`);
+                   element.on('click', function (){
+                       openUserDropdown(obj.id)
+                   })
+               })
+           }
+           
+           $('#search').on('keyup', function() {
+               table.search(this.value).draw();
+           });
+       } ); 
+       
+       function openUserDropdown(id) {
+          $(`#dropdownHover${id}`).removeClass('hidden')
+              setTimeout(() => {
+                  function windowClickEvent(event){
+                    $(`#dropdownHover${id}`).addClass('hidden')  
+                    
+                  setTimeout(() => {
+                        window.removeEventListener('click', windowClickEvent)
+                    }, 100)
+                  }
+                  window.addEventListener('click', windowClickEvent)
+          }, 100)
+          
+       }
+       
+       function getBookingDetailUrl(id) {
+           return `/Booking/${id}`
+       }
+       
+       const data = @Json.Serialize(Model.Response.Data)
+       
+       function openUpdateStatusModal(id) {
+         
+           const $targetEl = document.getElementById(`popup-modal${id}`);
+       
+           const instanceOptions = {
+             id: `popup-modal${id}`,
+             override: true
+           };
+           const modal = new Modal($targetEl, null, instanceOptions);
+           modal.show()
+       }
+       
+       
+        
+       const loadingBookingOverlay = $('#loadingOverlay');
+       
+       
+       function updateStatusForBookingItem(id){
+        const status = $(`#statusSelect${id}`).val()
+        if (!id){
+            return;
+        }
+        
+        
+        loadingBookingOverlay.show();
+        
+        
+        $.ajax({
+            type: "POST",
+            url: `/Booking/UpdateBookingStatus/`,
+            data: {
+                status,
+                bookingId: id
+            },
+            dataType: 'multipart/form-data',
+            success: function () {
+                showToast('Update Successful')
+                loadingBookingOverlay.hide();
+                location.reload();
+            },error: function (error){
+                if (error.status === 200){
+                    showToast('Update Successful')
+                    setTimeout(() => {
+                        loadingBookingOverlay.hide();
+                        //location.reload()
+                        table.ajax.reload();
+                    }, 2000)
+                }else{
+                    loadingBookingOverlay.hide();
+                    showToast('Update Failed: ' + error.message, false)
+                }
+            }
+        })
+    }
+    </script>
+}

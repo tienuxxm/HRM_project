@@ -1,0 +1,494 @@
+﻿@using Domain.Orders
+@model OrderAndDeliveryViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">General Management</span>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                        </svg>
+                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Delivery list</a>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <div class="w-full d-flex justify-content-between items-center py-2">
+            <div>
+                <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                        </svg>
+                    </div>
+                    <input autofocus value="@Model.SearchTerm" type="search" id="search" class="block w-full pl-11 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tìm kiếm...">
+                </div>
+            </div>
+            <a href="@Url.Action("ManageOrderView", "OrderAndDelivery")" type="button"
+               class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+                Add Order
+            </a>
+        </div>
+        <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg">
+
+            <div class="overflow-x-auto w-full h-full overflow-y-auto">
+                <table id="table" class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                    <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+                        <tr>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-left">
+                                Code
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-right">
+                                Total Price
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                                Total Quantity
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                                Order Date
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                                Delivery Date
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                                Status
+                            </th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                                Update
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<ol class="flex justify-center gap-2 text-xs font-medium mt-2">
+    <li class="text-gray-500 flex justify-center items-center mr-2">
+        <span id="pageInfo"></span>
+    </li>
+    <li>
+        <a id="prevPage"
+           class="inline-flex h-5 w-5 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180">
+            <span class="sr-only">Prev Page</span>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-3 w-3"
+                 viewBox="0 0 20 20"
+                 fill="currentColor">
+                <path fill-rule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clip-rule="evenodd" />
+            </svg>
+        </a>
+    </li>
+    <li class="text-gray-500 flex justify-center items-center">
+        <span class="font-medium" id="currentPage">
+        </span>
+    </li>
+    <li>
+        <a id="nextPage"
+           class="inline-flex h-5 w-5 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180">
+            <span class="sr-only">Next Page</span>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-3 w-3"
+                 viewBox="0 0 20 20"
+                 fill="currentColor">
+                <path fill-rule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clip-rule="evenodd" />
+            </svg>
+        </a>
+    </li>
+</ol>
+
+@section Scripts
+{
+    <script>
+           $(document).ready( function () {
+               const table = $('#table').DataTable({
+                     lengthChange: false,
+                     paging: false,
+                     pageResize: true,
+                     processing: true,
+                     serverSide: true,
+                     info: false,
+                     dom: '<"top"l>rt<"bottom"ip><"clear">',
+                     pageLength: 10,
+                     ajax: {
+                         url: "@Url.Action("LoadData", "OrderAndDelivery")",
+                         type: "POST",
+                         dataFilter: function(data){
+                             const dataJson = JSON.parse(data)
+                             return JSON.stringify( {
+                                draw: dataJson.draw,
+                                data: dataJson.data,
+                                recordsFiltered: dataJson.recordsFiltered,
+                                recordsTotal: dataJson.recordsTotal
+                             } ); // return JSON string
+                         },
+                         dataSrc: function (json) {
+                             console.log(json)
+                             const data = json.data.map((item, index) => ({
+                                 ...item,
+                                 index: index + 1
+                             }));
+                             return data;
+                         }
+                     },
+                     order: [[0, 'desc']],
+                     columnDefs: [
+                         {
+                             "targets": 0, // Index of the column
+                             "data": "name",
+                             "render": function (data, type, row, meta) {
+                                 return `<div title="chi tiết" onclick="location.href='/delivery/Delivery/${row.id}'" class="flex text-blue-600 text-center gap-2 cursor-pointer items-center">
+                                    <span>${data}</span>
+                                    <svg title="chi tiết" class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
+                                        <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                            <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z"/>
+                                        </g>
+                                    </svg>
+                            </div>
+
+                            <div id="popup-modal-update-order-status${row.id}" tabindex="-1" class="z-50 hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                <div class="relative w-full max-w-md max-h-full">
+                                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                        <button onclick="toggleCloseOrderStatusModel('${row.id}')" type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal-update-order-status${row.id}">
+                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                            </svg>
+                                            <span class="sr-only">Close modal</span>
+                                        </button>
+                                        <div class="p-6 text-center">
+                                            <h3 class="text-lg font-normal text-gray-500 dark:text-gray-400 text-wrap mb-5">
+                                                Update Order Status ${row.orderCode}
+                                            </h3>
+
+                                            <div class="mb-5">
+                                                <label for="statusSelect${row.id}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Status Order</label>
+                                                <select id="statusSelect${row.id}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    ${row.status !== 2 ? '<option value="2">Processing</option>' : ''}
+
+                                                    ${row.status !== 3 ? '<option value="3">Shipping</option>' : ''}
+
+                                                    <option value="${row.status}">
+                                                        Completed
+                                                    </option>
+                                                    <option value="${row.status}">
+                                                        Reject
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="w-full flex gap-2 justify-center items-center">
+                                                <button onclick="updateOrderStatusItem('${row.id}')" class="text-white bg-blue-500  hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                                    Save
+                                                </button>
+                                                <button onclick="toggleCloseOrderStatusModel('${row.id}')" data-modal-hide="popup-modal-update-order-status" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                        `;
+                             }
+                         },
+                         {
+                             "targets": 3, // Index of the column
+                             "data": "name",
+                             "render": function (data, type, row, meta) {
+                                 return formatDate(new Date(data), false);
+                             }
+                         },
+                         {
+                             "targets": 1, // Index of the column
+                             "data": "name",
+                             "render": function (data, type, row, meta) {
+                                 return row.totalPriceDisplay
+                             }
+                         },
+                         {
+                             "targets": 4, // Index of the column
+                             "data": "name",
+                             "render": function (data, type, row, meta) {
+                                 return data ?  formatDate(new Date(data), false) : '--';
+                             }
+                         },
+                         {
+                             "targets": 5, // Index of the column
+                             "data": "name",
+                             "render": function (data, type, row, meta) {
+                                 switch (data)
+                            {
+                                case 0:
+                                   return `
+                                    <div onclick="openUpdateStatusModal('${row.id}')" data-modal-target="popup-modal-update-order-status${row.id}" data-modal-toggle="popup-modal-update-order-status${row.id}" class="p-1 cursor-pointer hover:scale-110 transition ease-in-out shadow-sm border border-1  rounded-lg bg-slate-100 text-slate-600 shadow-sm flex justify-center items-center w-[100px]">
+                                        <span>Created</span>
+                                    </div>`
+                                case 2:
+                                   return `
+                                    <div onclick="openUpdateStatusModal('${row.id}')" data-modal-target="popup-modal-update-order-status${row.id}" data-modal-toggle="popup-modal-update-order-status${row.id}" class="p-1 cursor-pointer hover:scale-110 transition ease-in-out shadow-sm border border-1  rounded-lg bg-blue-100 text-blue-600 flex shadow-sm justify-center items-center w-[100px]">
+                                        <span>Processing</span>
+                                    </div>`
+                                case 3:
+                                   return `
+                                    <div onclick="openUpdateStatusModal('${row.id}')" data-modal-target="popup-modal-update-order-status${row.id}" data-modal-toggle="popup-modal-update-order-status${row.id}" class="p-1 cursor-pointer hover:scale-110 transition ease-in-out shadow-sm border border-1  rounded-lg bg-blue-100 text-blue-600 flex shadow-sm justify-center items-center w-[100px]">
+                                        <span>Shipping</span>
+                                    </div>`
+                                case 5:
+                                   return `
+                                    <div class="p-1 rounded-lg bg-red-100 text-red-600 flex justify-center items-center w-[100px]">
+                                        <span>Canceled </span>
+                                    </div>`
+                                case 4:
+                                   return `
+                                    <div class="p-1 rounded-lg bg-green-100 text-green-600 flex justify-center items-center w-[100px]">
+                                        <span>Completed</span>
+                                    </div>`
+                            }
+                             }
+                         },
+                         { "className": "text-center", "targets": [0]},
+                         { "className": "text-right", "targets": [1]},
+                         { "className": "text-center", "targets": [2]},
+                         { "className": "text-center", "targets": [3]},
+                         { "className": "text-center", "targets": [4]},
+                         { "className": "text-center", "targets": [5]},
+                         { "orderable": false, "targets": [6] },
+                         {
+                             "targets": [1],
+                             "defaultContent": "" // Text to display for null or undefined data
+                         },
+                         {
+                                     "targets": [6], // Index of the column where you want to add the button
+                                     "render": function(data, type, row, meta) {
+                                         return `
+                                        <div style="width: 100px" onclick="location.href='delivery/ManageOrderView?id=${row.id}'" class="mx-1 flex justify-center items-center cursor-pointer">
+                                            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M9.91071 12.0714L11.2054 10.7768L9.50893 9.08036L8.21429 10.375V11H9.28571V12.0714H9.91071ZM14.8103 4.40402C14.9368 4.27753 14.9405 4.15476 14.8214 4.03571C14.7024 3.91667 14.5796 3.92039 14.4531 4.04688L10.5469 7.95312C10.4204 8.07961 10.4167 8.20238 10.5357 8.32143C10.6548 8.44048 10.7775 8.43676 10.904 8.31027L14.8103 4.40402ZM15.7143 10.6652V12.7857C15.7143 13.6711 15.3981 14.4301 14.7656 15.0625C14.1406 15.6875 13.3854 16 12.5 16H3.21429C2.32887 16 1.56994 15.6875 0.9375 15.0625C0.3125 14.4301 0 13.6711 0 12.7857V3.5C0 2.61458 0.3125 1.85937 0.9375 1.23437C1.56994 0.601934 2.32887 0.285713 3.21429 0.285713H12.5C12.9688 0.285713 13.404 0.378719 13.8058 0.564731C13.9174 0.616814 13.9844 0.70238 14.0067 0.821428C14.029 0.947916 13.9955 1.0558 13.9063 1.14509L13.3594 1.69196C13.2552 1.79613 13.1362 1.82589 13.0022 1.78125C12.8311 1.73661 12.6637 1.71429 12.5 1.71429H3.21429C2.72321 1.71429 2.30283 1.88914 1.95313 2.23884C1.60342 2.58854 1.42857 3.00893 1.42857 3.5V12.7857C1.42857 13.2768 1.60342 13.6972 1.95313 14.0469C2.30283 14.3966 2.72321 14.5714 3.21429 14.5714H12.5C12.9911 14.5714 13.4115 14.3966 13.7612 14.0469C14.1109 13.6972 14.2857 13.2768 14.2857 12.7857V11.3795C14.2857 11.2827 14.3192 11.2009 14.3862 11.1339L15.1004 10.4196C15.2121 10.308 15.3423 10.282 15.4911 10.3415C15.6399 10.401 15.7143 10.5089 15.7143 10.6652ZM14.6429 2.42857L17.8571 5.64286L10.3571 13.1429H7.14286V9.92857L14.6429 2.42857ZM19.5982 3.90179L18.5714 4.92857L15.3571 1.71429L16.3839 0.687499C16.5923 0.479165 16.8452 0.374999 17.1429 0.374999C17.4405 0.374999 17.6935 0.479165 17.9018 0.687499L19.5982 2.38393C19.8065 2.59226 19.9107 2.84524 19.9107 3.14286C19.9107 3.44048 19.8065 3.69345 19.5982 3.90179Z" fill="#3059EC"/>
+                                            </svg>
+                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Update</a>
+                                        </div>
+                                    `; // HTML for the button
+                                     }
+                                 }
+                     ],
+                     columns: [
+                             // Define columns based on your data structure
+                             { "data": "orderCode" },
+                             { "data": "totalPrice" },
+                             { "data": "totalQuantity" },
+                             { "data": "createdDate" },
+                             { "data": "completedDate" },
+                             { "data": "status" },
+                             { "data": null },
+                     ]
+               });
+
+               $('#nextPage').on('click', function() {
+                   table.page('next').draw('page');
+                   loadPage()
+               });
+
+               $('#prevPage').on('click', function() {
+                   table.page('previous').draw('page');
+                   loadPage()
+               });
+
+               table.on('draw', function() {
+                   loadPage()
+               });
+
+               function loadPage(){
+                   const pageInfo = table.page.info();
+                   $('#pageInfo').html(
+                       (pageInfo.start + 1) + ' - ' + pageInfo.end +
+                       ' of ' + pageInfo.recordsDisplay + ' entries'
+                   );
+
+
+                   const currentPage = Math.ceil(pageInfo.end / 10);
+                   const pages = Math.ceil(pageInfo.recordsDisplay / 10);
+                   $('#currentPage').html(currentPage + ' / ' + pages);
+               }
+
+               $('#search').on('keyup', function() {
+                   table.search(this.value).draw();
+               });
+           } );
+
+
+           const data = @Json.Serialize(Model.Response.Data)
+
+           function openUpdateStatusModal(id) {
+
+               const $targetEl = document.getElementById(`popup-modal-update-order-status${id}`);
+
+               const instanceOptions = {
+                 id: `popup-modal-update-order-status${id}`,
+                 override: true
+               };
+               const modal = new Modal($targetEl, null, instanceOptions);
+               modal.show()
+           }
+
+            const loadingBookingOverlay = $('#loadingOverlay');
+
+            function updateOrderStatusItem(id){
+
+            const orderId = id
+            const status = $(`#statusSelect${id}`).val()
+            if (!orderId){
+                return;
+            }
+
+
+            loadingBookingOverlay.show();
+
+
+            $.ajax({
+                type: "PUT",
+                url: `/delivery/update-order-status`,
+                data: {
+                    status,
+                    orderId
+                },
+                dataType: 'multipart/form-data',
+                success: function () {
+                    loadingBookingOverlay.hide();
+                    showToast('Update Successful')
+                    location.reload();
+                },error: function (error){
+                    console.log(error)
+                    if (error.status === 200){
+                        showToast('Update Successful')
+                        loadingBookingOverlay.hide();
+                        location.reload();
+                    }else{
+                        const response = JSON.parse(error.responseText);
+                        loadingBookingOverlay.hide();
+                        showToast('Update Failed: ' + response.name, false)
+                    }
+                }
+            })
+        }
+
+        function toggleCloseOrderStatusModel(id) {
+            const $targetEl = document.getElementById(`popup-modal-update-order-status${id}`);
+
+            const instanceOptions = {
+                id: `popup-modal-update-order-status${id}`,
+                override: true
+            };
+            const modal = new Modal($targetEl, {closable: true}, instanceOptions);
+            $('[modal-backdrop]').remove()
+            modal.hide()
+        }
+    </script>
+}
+
+
+
+
+@*@Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model.Response.CurrentPage, TotalPage = Model.Response.TotalPages, PageSize = Model.Response.PageSize, HasNext = Model.Response.HasNext, HasPrevious = Model.Response.HasPrevious, TotalItem = Model.Response.TotalCount })
+
+@section Scripts
+{
+    <script>
+
+        $('#search').on('keyup', function (e){
+            if (e.keyCode !== 13){
+                return
+            }
+            const value = e.target.value.trim()
+            const url = new URL(location.href);
+            if (url.searchParams.has('SearchTerm')){
+                url.searchParams.set('SearchTerm', value)
+            }else{
+                url.searchParams.append('SearchTerm',value);
+            }
+
+            if (value === ''){
+                url.searchParams.delete('SearchTerm')
+            }
+
+            if (url.searchParams.has('Page')){
+                url.searchParams.delete('Page')
+            }
+            location.href = url.toString()
+        })
+
+        $(document).ready(function (){
+            searchValue = $('#search').val()
+            $('#search').val('')
+            $('#search').val(searchValue)
+        })
+
+        const loadingBookingOverlay = $('#loadingOverlay');
+        function updateOrderStaweaItem(id){
+
+        const orderId = id
+        const status = $(`#statusSelect${id}`).val()
+        if (!orderId){
+            return;
+        }
+
+
+        loadingBookingOverlay.show();
+
+
+        $.ajax({
+            type: "PUT",
+            url: `/delivery/update-order-status`,
+            data: {
+                status,
+                orderId
+            },
+            dataType: 'multipart/form-data',
+            success: function () {
+                loadingBookingOverlay.hide();
+                showToast('Update Successful')
+                location.reload();
+            },error: function (error){
+                console.log(error)
+                if (error.status === 200){
+                    showToast('Update Successful')
+                    loadingBookingOverlay.hide();
+                    location.reload();
+                }else{
+                    const response = JSON.parse(error.responseText);
+                    loadingBookingOverlay.hide();
+                    showToast('Update Failed: ' + response.name, false)
+                }
+            }
+        })
+    }
+    </script>
+}*@

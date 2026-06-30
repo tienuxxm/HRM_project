@@ -1,0 +1,750 @@
+﻿@using Microsoft.EntityFrameworkCore
+@model ManageVoucherViewModel
+
+@{
+    ViewBag.Title = "Add Voucher";
+    Layout = "_Layout";
+}
+<nav class="flex mb-4" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                </svg>
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                </svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Marketing</span>
+            </div>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                </svg>
+                <a href="/voucher" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">The Vouchers</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                </svg>
+                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">@Model.ManageVoucherModel.PageTitle</a>
+            </div>
+        </li>
+    </ol>
+</nav>
+<div style="min-height: 550px" class="w-full bg-white p-4 rounded-md flex flex-col justify-between">
+    <div class="w-full flex flex-col">
+        <h1 class="text-black font-semibold text-xl">@Model.ManageVoucherModel.PageTitle</h1>
+        <div class="grid grid-cols-12 gap-2 mt-3">
+            <div class="@(!Model.ManageVoucherModel.VoucherDefaultType.HasValue && !Model.PartnerId.HasValue ? "col-span-6" : "col-span-12")">
+                <label for="voucherTitle" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Voucher Name</label>
+                <input onchange="inputChange('title')" asp-for="ManageVoucherModel.Title" value="@Model.ManageVoucherModel.Title" name="Title" type="text" id="voucherTitle" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Title" required>
+                <p id="voucherTitleError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            @if (!Model.ManageVoucherModel.VoucherDefaultType.HasValue && !Model.PartnerId.HasValue)
+            {
+                @if (!Model.ManageVoucherModel.Id.HasValue)
+                {
+                    <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                        <label for="dynamic-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Customer</label>
+                        <select id="dynamic-select" multiple>
+                        </select>
+                    </div>
+                    <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                        <label for="voucherMembership" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Membership</label>
+                        <select multiple id="voucherMembership">
+                            @foreach (var op in Model.MembershipClassResponses)
+                            {
+                                <option value="@op.Id">@op.ClassName</option>
+                            }
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                        <label for="dynamic-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Customers</label>
+                        @if (!string.IsNullOrEmpty(Model.ManageVoucherModel.MemberIdsString))
+                        {
+                            <input disabled readonly value="@Model.ManageVoucherModel.MemberIdsString" name="Title" type="text" class="disabled bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Title" required>
+                        }
+                        else
+                        {
+                            <input disabled readonly value="" name="Title" type="text" class="disabled bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Title" required>
+                        }
+                    </div>
+                    <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                        <label for="voucherMembership" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Membership</label>
+                        @if (!string.IsNullOrEmpty(Model.ManageVoucherModel.MemberClassIdsString))
+                        {
+                            <input disabled readonly value="@Model.ManageVoucherModel.MemberClassIdsString" name="Title" type="text" class="disabled bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Title" required>
+                        }
+                        else
+                        {
+                            <input disabled readonly value="" name="Title" type="text" class="disabled bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Title" required>
+                        }
+                    </div>
+                }
+            }
+
+            @if (Model.PartnerId.HasValue && !Model.ManageVoucherModel.Id.HasValue)
+            {
+                <div class="col-span-12">
+                    <label for="voucherTitle" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đối tác</label>
+                    <input disabled readonly value="@Model.PartnerName" name="Title" type="text" id="voucherTitle" class="disabled bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter tiêu đề" required>
+                </div>
+            }
+            @if (Model.ManageVoucherModel.PartnerId.HasValue)
+            {
+                <div class="col-span-12">
+                    <label for="voucherTitle" class="disabled required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đối tác</label>
+                    <input readonly value="@Model.ManageVoucherModel.PartnerName" disabled name="Title" type="text" id="voucherPartner" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter tiêu đề" required>
+                </div>
+            }
+
+            @if (!Model.ManageVoucherModel.VoucherDefaultType.HasValue)
+            {
+                <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                    <label class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Redemption time</label>
+                    <div class="flex justify-between items-center">
+                        <input required asp-for="ManageVoucherModel.StartDate"
+                               value="@Model.ManageVoucherModel.StartDateDefault.Value.ToLocalTime().ToString("dd/MM/yyyy")"
+                               name="StartDate" datepicker datepicker-format="dd/mm/yyyy"
+                               type="text"
+                               onchange="inputChange('date')"
+                               id="voucherStartDate"
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="dd/mm/yyyy">
+                        <span class="mx-3">To</span>
+                        <input required asp-for="ManageVoucherModel.EndDate"
+                               value="@Model.ManageVoucherModel.EndedDateDefault.Value.ToLocalTime().ToString("dd/MM/yyyy")"
+                               name="EndDate" datepicker datepicker-format="dd/mm/yyyy"
+                               type="text"
+                               id="voucherEndDate"
+                               onchange="inputChange('date')"
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="dd/mm/yyyy">
+                    </div>
+                    <p id="voucherDateError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                </div>
+            }
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="voucherPlace" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location</label>
+                <select onchange="inputChange('role')" multiple asp-for="ManageVoucherModel.Restaurants" id="voucherPlace">
+                    @foreach (var op in Model.RestaurantResponses)
+                    {
+                        <option value="@op.RestaurantName">@op.RestaurantName</option>
+                    }
+                </select>
+                <p id="voucherPlaceError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            @if (!Model.ManageVoucherModel.IsDefault.HasValue)
+            {
+                @if (!Model.ManageVoucherModel.VoucherDefaultType.HasValue)
+                {
+                    <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                        <label for="voucherPoint" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Points Exchange</label>
+                        <input onchange="inputChange('point')" required value="@Model.ManageVoucherModel.Point" name="Point" type="number" id="voucherPoint" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Point Exchange">
+                        <p id="voucherPointError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                }
+
+                <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                    <label for="voucherQuantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Limited quantity</label>
+                    <input onchange="inputChange('quantity')" required value="@Model.ManageVoucherModel.LimitQuantity" type="number" id="voucherQuantity" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Litmit Voucher">
+                    <p id="voucherQuantityError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                </div>
+                <div class="2xl:col-span-3 xl:col-span-3 lg:col-span-3 md:col-span-3 col-span-6">
+                    <label for="voucherIndex" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Order (min->max)</label>
+                    <input onchange="inputChange('voucherIndex')" required value="@Model.ManageVoucherModel.Index" type="number" id="voucherIndex" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Index">
+                </div>
+            }
+
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="discountValue" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount amount</label>
+                <input onchange="inputChange('discountValue')" required value="@Model.ManageVoucherModel.DiscountValue" type="number" id="discountValue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter price Discount">
+                <p id="discountValueError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+
+            @if (!Model.ManageVoucherModel.VoucherDefaultType.HasValue)
+            {
+                <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                    <label for="discountPercent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">% discount</label>
+                    <input onchange="inputChange('discountPercent')" required value="@Model.ManageVoucherModel.DiscountPercent" type="number" id="discountPercent" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter % Discount">
+                    <p id="discountPercentError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                </div>
+            }
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="minOrderValue" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Minimum amount required for application</label>
+                <input onchange="inputChange('minOrderValue')" required value="@Model.ManageVoucherModel.MinOrderValue" type="number" id="minOrderValue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter the minimum amount to be applied">
+                <p id="minOrderValueError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="maxDiscountValue" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Maximum discount amount</label>
+                <input onchange="inputChange('maxDiscountValue')" required value="@Model.ManageVoucherModel.MaxDiscountValue" type="number" id="maxDiscountValue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter the maximum discount amount">
+                <p id="maxDiscountValueError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            <div class="col-span-12">
+                <label for="voucherConditions" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content</label>
+                <textarea onchange="inputChange('content')" rows="3" required name="Content" type="text" id="voucherContent" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Content">@Model.ManageVoucherModel.Content</textarea>
+                <p id="voucherContentError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            <div class="col-span-12">
+                <label for="voucherContent" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Conditions of application</label>
+                <textarea onchange="inputChange('conditions')" rows="3" required name="Condition" type="text" id="voucherConditions" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Conditions of application">@Model.ManageVoucherModel.Conditions</textarea>
+                <p id="voucherConditionsError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            <div class="2xl:col-span-12 xl:col-span-12 lg:col-span-12 md:col-span-12 col-span-12">
+                <label class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Image voucher (640 x 360)</label>
+                <section class="container w-full mx-auto items-center">
+                    <div class="w-full bg-white rounded-lg shadow-sm overflow-hidden items-center relative">
+                        <label id="imageOverlayLabel" class="w-full h-full bg-white absolute opacity-0" for="voucher-upload"></label>
+                        <div class="px-4 py-6">
+                            <div id="voucher-image-preview" class="w-full min-h-[16rem] p-6 bg-gray-100 border-dashed border-2 border-gray-400 rounded-lg items-center mx-auto text-center flex justify-content-center cursor-pointer">
+                                @if (!string.IsNullOrEmpty(Model.ManageVoucherModel.VoucherImage))
+                                {
+                                    <img id="defaultVoucherImage" src="@Model.ManageVoucherModel.VoucherImage" class="max-h-48 rounded-lg mx-auto" alt="Image preview" />
+                                }
+                                <input id="voucher-upload" type="file" class="hidden" accept="image/*" />
+                                <label for="voucher-upload" class="cursor-pointer w-full h-full">
+                                    @if (string.IsNullOrEmpty(Model.ManageVoucherModel.VoucherImage))
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-700 mx-auto mb-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                        </svg>
+                                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-700">Upload</h5>
+                                        <p class="font-normal text-sm text-gray-400 md:px-6">The image must be Yes and smaller in size <b class="text-gray-600">3mb</b></p>
+                                        <p class="font-normal text-sm text-gray-400 md:px-6">And must have a format <b class="text-gray-600">JPG, PNG, or JPEG</b>.</p>
+                                    }
+                                    <span id="voucher-filename" class="text-gray-500 bg-gray-200 z-50"></span>
+                                </label>
+                            </div>
+                            <p id="voucher-image-error" class="text-center mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="w-full flex justify-content-end mt-4">
+        <a href="/voucher" type="button" class="mx-1 border border-wnz-yellow block rounded bg-white px-3 py-2 text-sm font-medium text-black transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.8887 8.41675C14.8887 9.28133 14.5579 10.4558 13.8965 11.9402C13.8809 11.9766 13.8522 12.0391 13.8105 12.1277C13.7741 12.2162 13.7402 12.2944 13.709 12.3621C13.6777 12.4298 13.6439 12.4871 13.6074 12.5339C13.5449 12.6225 13.472 12.6667 13.3887 12.6667C13.3105 12.6667 13.248 12.6407 13.2012 12.5886C13.1595 12.5365 13.1387 12.4714 13.1387 12.3933C13.1387 12.3464 13.1439 12.2761 13.1543 12.1824C13.1699 12.0938 13.1777 12.0339 13.1777 12.0027C13.2038 11.6485 13.2168 11.3282 13.2168 11.0417C13.2168 10.5157 13.1699 10.0444 13.0762 9.62769C12.9876 9.21102 12.8626 8.85164 12.7012 8.54956C12.5397 8.24227 12.3314 7.97925 12.0762 7.7605C11.821 7.53654 11.5449 7.35425 11.248 7.21362C10.9564 7.073 10.61 6.96362 10.209 6.8855C9.81315 6.80216 9.41211 6.74487 9.00586 6.71362C8.60482 6.68237 8.14909 6.66675 7.63867 6.66675H5.88867V8.66675C5.88867 8.80216 5.83919 8.91935 5.74023 9.01831C5.64128 9.11727 5.52409 9.16675 5.38867 9.16675C5.25326 9.16675 5.13607 9.11727 5.03711 9.01831L1.03711 5.01831C0.938151 4.91935 0.888672 4.80216 0.888672 4.66675C0.888672 4.53133 0.938151 4.41414 1.03711 4.31519L5.03711 0.315185C5.13607 0.216227 5.25326 0.166748 5.38867 0.166748C5.52409 0.166748 5.64128 0.216227 5.74023 0.315185C5.83919 0.414143 5.88867 0.531331 5.88867 0.666747V2.66675H7.63867C11.3522 2.66675 13.6309 3.71623 14.4746 5.81519C14.7507 6.5131 14.8887 7.38029 14.8887 8.41675Z" fill="black" />
+                </svg>
+                <span class="mx-1">Cancel</span>
+            </div>
+        </a>
+        <button id="saveButton" class="mx-1 block rounded bg-wnz-yellow px-3 py-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 11.6667H9V8.66675H3V11.6667ZM10 11.6667H11V4.66675C11 4.59383 10.974 4.49487 10.9219 4.36987C10.8698 4.23966 10.8177 4.14852 10.7656 4.09644L8.57031 1.90112C8.51823 1.84904 8.42969 1.79696 8.30469 1.74487C8.17969 1.69279 8.07813 1.66675 8 1.66675V4.91675C8 5.12508 7.92708 5.30216 7.78125 5.448C7.63542 5.59383 7.45833 5.66675 7.25 5.66675H2.75C2.54167 5.66675 2.36458 5.59383 2.21875 5.448C2.07292 5.30216 2 5.12508 2 4.91675V1.66675H1V11.6667H2V8.41675C2 8.20841 2.07292 8.03133 2.21875 7.8855C2.36458 7.73966 2.54167 7.66675 2.75 7.66675H9.25C9.45833 7.66675 9.63542 7.73966 9.78125 7.8855C9.92708 8.03133 10 8.20841 10 8.41675V11.6667ZM7 4.41675V1.91675C7 1.84904 6.97396 1.79175 6.92188 1.74487C6.875 1.69279 6.81771 1.66675 6.75 1.66675H5.25C5.18229 1.66675 5.1224 1.69279 5.07031 1.74487C5.02344 1.79175 5 1.84904 5 1.91675V4.41675C5 4.48446 5.02344 4.54435 5.07031 4.59644C5.1224 4.64331 5.18229 4.66675 5.25 4.66675H6.75C6.81771 4.66675 6.875 4.64331 6.92188 4.59644C6.97396 4.54435 7 4.48446 7 4.41675ZM12 4.66675V11.9167C12 12.1251 11.9271 12.3022 11.7813 12.448C11.6354 12.5938 11.4583 12.6667 11.25 12.6667H0.75C0.541667 12.6667 0.364583 12.5938 0.21875 12.448C0.0729167 12.3022 0 12.1251 0 11.9167V1.41675C0 1.20841 0.0729167 1.03133 0.21875 0.885497C0.364583 0.739664 0.541667 0.666747 0.75 0.666747H8C8.20833 0.666747 8.4375 0.718831 8.6875 0.822998C8.9375 0.927165 9.13542 1.05216 9.28125 1.198L11.4688 3.3855C11.6146 3.53133 11.7396 3.72925 11.8438 3.97925C11.9479 4.22925 12 4.45841 12 4.66675Z" fill="white" />
+                </svg>
+                <span class="mx-1">Save</span>
+            </div>
+        </button>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+          function debounce(func, timeout = 500){
+              let timer;
+              return (...args) => {
+                  clearTimeout(timer);
+                  timer = setTimeout(() => { func.apply(this, args); }, timeout);
+              };
+          }
+
+          $(document).ready(function (){
+              $('#voucherPlace').SumoSelect({
+                placeholder: 'Select location',
+              });
+
+              $('#voucherMembership').on('change', function (){
+                  let select = $('#dynamic-select');
+                  select.val([])
+                  select[0].sumo.reload()
+                  attachSearchHandler()
+              })
+
+
+              $('#voucherMembership').SumoSelect({
+                  placeholder: 'Select membership',
+              });
+
+              $('#dynamic-select').SumoSelect({
+                  placeholder: 'Search Customer...',
+                  search: true,
+                  searchText: 'Search...',
+                  csvDispCount: 3,
+                  noMatch: 'Customer not found', // Custom message when no match is found
+
+              });
+
+              $('#dynamic-select').on('change', function (){
+                  let select = $('#voucherMembership');
+                  select.val([])
+                  select[0].sumo.reload()
+              })
+
+              function searchMember(){
+                  let select = $('#dynamic-select');
+                  const val = $('.SumoSelect .search input').val()
+                  let selectedOptions = [];
+                  $('#dynamic-select option:selected').each(function() {
+                      selectedOptions.push({
+                          value: $(this).val(),
+                          text: $(this).text()
+                      });
+                  });
+                  select.empty(); // Clear existing options
+                  if (selectedOptions.length > 0) {
+                      $.each(selectedOptions, function (key, value) {
+                          let option = $('<option/>', {
+                              value: value.value,
+                              text: value.text,
+                              selected: true // Mark as selected
+                          });
+                          select.append(option); // Append previously selected option
+                      });
+                  }
+
+
+                  $.ajax({
+                      type: "GET",
+                      url: `/Member/SearchMember?searchValue=${val}`,
+                      success: function (customers) {
+                          $.each(customers, function (i, member) {
+                              select.append(`<option value="${member.id}"> ${(member.firstName + ' ' + member.lastName + ' - '+ member.phoneNumber)} </option>`);
+                          });
+                      },error: function (){
+                          //select.empty(); // Clear existing options
+                      }
+                  }).done(function (){
+                      select[0].sumo.reload()
+                      setTimeout(function() {
+                          select[0].sumo.showOpts(); // This method opens the dropdown
+                          $('.SumoSelect .search input').val(val); // Restore search value
+                      }, 0);
+                      attachSearchHandler()
+                  })
+              }
+              function attachSearchHandler(){
+                  $('.SumoSelect .search input').off('keyup').on('keyup', debounce(() => searchMember()))
+              }
+
+              attachSearchHandler()
+          })
+
+
+          $(document).on('click', function (event) {
+              const target = $(event.target);
+              // Check if the clicked element is outside the SumoSelect dropdown
+              if('@Model.ManageVoucherModel.VoucherDefaultType.HasValue' !== 'True'){
+                if (!target.closest('.SumoSelect').length && $('.optWrapper').is(':visible')) {
+                    // Close the dropdown if it's open
+                    $('#dynamic-select')[0].sumo.hideOpts();
+                }
+              }
+          });
+
+
+
+          const defaultVoucherImage = $('#defaultVoucherImage')
+          const defaultQrImage = $('#defaultQrImage')
+          const saveButton = $('#saveButton')
+          let isFormValid = false;
+          let voucherImage = null;
+          const voucherTitleError =  $('#voucherTitleError')
+          const voucherDateError  =  $('#voucherDateError')
+          const voucherPlaceError =  $('#voucherPlaceError')
+          const voucherPointError =  $('#voucherPointError')
+          const voucherQuantityError =  $('#voucherQuantityError')
+          const voucherContentError =  $('#voucherContentError')
+          const voucherConditionsError =  $('#voucherConditionsError')
+          const voucherImageError =  $('#voucher-image-error')
+          const discountValueError = $('#discountValueError')
+          const discountPercentError = $('#discountPercentError')
+          const maxDiscountValueError = $('#maxDiscountValueError')
+          const minOrderValueError = $('#minOrderValueError')
+
+          function resetFormError(){
+              voucherTitleError.hide();
+              voucherDateError.hide();
+              voucherPlaceError.hide();
+              voucherPointError.hide();
+              voucherImageError.hide();
+              voucherContentError.hide();
+              voucherConditionsError.hide();
+              discountValueError.hide();
+              discountPercentError.hide();
+              maxDiscountValueError.hide();
+              minOrderValueError.hide();
+          }
+
+          function inputChange(inputName){
+              switch (inputName){
+                  case 'title':
+                      voucherTitleError.hide();
+                      break;
+                  case 'date':
+                      voucherDateError.hide();
+                      break;
+                  case 'place':
+                      voucherPlaceError.hide();
+                      break;
+                  case 'point':
+                      voucherPointError.hide();
+                      break;
+                  case 'content':
+                      voucherContentError.hide();
+                      break;
+                  case 'conditions':
+                      voucherConditionsError.hide();
+                      break;
+                  case 'discountValue':
+                      discountValueError.hide();
+                      break;
+                  case 'discountPercent':
+                      discountPercentError.hide();
+                      break;
+                  case 'maxDiscountValue':
+                      maxDiscountValueError.hide();
+                      break;
+                  case 'minOrderValue':
+                      minOrderValueError.hide();
+                      break;
+
+              }
+          }
+
+          $('#imageOverlayLabel').on('click', function (){
+              voucherUploadInput.click();
+          })
+
+          resetFormError()
+
+          function formValidate(){
+
+              resetFormError();
+
+              const isVoucherDefautl = @(Model.ManageVoucherModel.IsDefault.HasValue ? "true" : "false");
+
+
+              const voucherTitle = $('#voucherTitle').val();
+              const voucherStartDate = '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? parseDate($('#voucherStartDate').val()) : null
+              const voucherEndDate = '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? parseDate($('#voucherEndDate').val()) : null;
+              const voucherPlace = $('#voucherPlace').val()?.length;
+              const voucherPoint = $('#voucherPoint').val();
+              const voucherQuantity = $('#voucherQuantity').val();
+              const voucherContent = $('#voucherContent').val();
+              const voucherConditions = $('#voucherConditions').val();
+              const hasDefaultVoucherImage = $('#defaultVoucherImage').length > 0
+              const discountValue = $('#discountValue').val();
+              const discountPercent = $('#discountPercent').val();
+              const maxDiscountValue = $('#maxDiscountValue').val();
+              const minOrderValue = $('#minOrderValue').val();
+              const errors = [];
+
+              if (voucherTitle === '' || !voucherTitle){
+                  const error = 'Please Enter The Title'
+                  voucherTitleError.show();
+                  voucherTitleError.text(error);
+                  errors.push(error);
+              }
+
+              if (voucherConditions === '' || !voucherConditions){
+                  const error = 'Please enter the conditions of application'
+                  voucherConditionsError.show();
+                  voucherConditionsError.text(error);
+                  errors.push(error);
+              }
+
+              if ((voucherStartDate === null || !voucherStartDate) && '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True'){
+                  const error = 'Please select the start date'
+                  voucherDateError.show();
+                  voucherDateError.text(error);
+                  errors.push(error);
+              }
+
+              if ((voucherEndDate === null || !voucherEndDate) && '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ){
+                  const error = 'Please select the end date'
+                  voucherDateError.show();
+                  voucherDateError.text(error);
+                  errors.push(error);
+              }
+
+              if (voucherEndDate < voucherStartDate){
+                  const error = 'The end date must be later than the start date'
+                  voucherDateError.show();
+                  voucherDateError.text(error);
+                  errors.push(error);
+              }
+
+              if (voucherPlace === '' || !voucherPlace && !isVoucherDefautl){
+                  const error = 'Please enter the location points'
+                  voucherPlaceError.show();
+                  voucherPlaceError.text(error);
+                  errors.push(error);
+              }
+
+              if (((voucherPoint === '' || !voucherPoint) && !isVoucherDefautl) && '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True'){
+                  const error = 'Please Enter Points'
+                  voucherPointError.show();
+                  voucherPointError.text(error);
+                  errors.push(error);
+              }
+
+              if (voucherQuantity && !isVoucherDefautl){
+                  const quantityValue = parseInt(voucherQuantity)
+                  if (quantityValue < 0){
+                              const error = 'The quantity No cannot be less than 0'
+                      voucherQuantityError.show();
+                      voucherQuantityError.text(error);
+                      errors.push(error);
+                  }
+              }
+
+              if ((!isPositiveInteger(voucherPoint) && !isVoucherDefautl) && '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ){
+                  const error = 'Points must be greater than or equal to 0'
+                  voucherPointError.show();
+                  voucherPointError.text(error);
+                  errors.push(error);
+              }
+
+              if(!hasDefaultVoucherImage &&  !voucherImage){
+                  const error = 'Please Add Image voucher'
+                  voucherImageError.show();
+                  voucherImageError.text(error);
+                  errors.push(error);
+              }
+
+              if(voucherContent === '' || !voucherContent){
+                  const error = 'Please Enter Content'
+                  voucherContentError.show();
+                  voucherContentError.text(error);
+                  errors.push(error);
+              }
+
+              if (discountValue !== ''){
+                  if(parseInt(discountValue) < 0){
+                      const error = 'The entered value must not be less than 0'
+                      discountValueError.show();
+                      discountValueError.text(error);
+                      errors.push(error);
+                  }
+              }
+
+              if (discountPercent !== ''){
+                  if(parseFloat(discountPercent) < 0){
+                      const error = 'The entered value must not be less than 0'
+                      discountPercentError.show();
+                      discountPercentError.text(error);
+                      errors.push(error);
+                  }
+              }
+
+              if (maxDiscountValue !== ''){
+                  if(parseInt(maxDiscountValue) < 0){
+                      const error = 'The entered value must not be less than 0'
+                      maxDiscountValueError.show();
+                      maxDiscountValueError.text(error);
+                      errors.push(error);
+                  }
+              }
+
+              if (minOrderValue !== ''){
+                  if(parseInt(minOrderValue) < 0){
+                      const error = 'The entered value must not be less than 0'
+                      minOrderValueError.show();
+                      minOrderValueError.text(error);
+                      errors.push(error);
+                  }
+              }
+
+
+
+              isFormValid = errors.length === 0;
+
+          }
+
+          defaultVoucherImage.on('click', function (){
+              voucherUploadInput.click();
+          })
+
+          /*defaultQrImage.on('click', function (){
+              qrUploadInput.click();
+          })*/
+          saveButton.on('click', function (event){
+              event.preventDefault();
+              formValidate();
+              if(!isFormValid){
+                  return;
+              }
+
+              const loadingOverlay = $('#loadingOverlay');
+              loadingOverlay.show();
+              const isUpdate = @(Model.ManageVoucherModel.Id.HasValue ? "true" : "false")
+              const formData = new FormData();
+              console.log($('#voucherPlace').val())
+
+              formData.append('Title', $('#voucherTitle').val())
+              formData.append('StartDate', '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ?$('#voucherStartDate').val() : null )
+              formData.append('EndDate', '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ?  $('#voucherEndDate').val() : null)
+              formData.append('Place', $('#voucherPlace').val().join(","))
+              formData.append('Point', '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? $('#voucherPoint').val() : 0)
+              formData.append('Content', $('#voucherContent').val())
+              formData.append('Conditions', $('#voucherConditions').val())
+              formData.append('LimitQuantity', $('#voucherQuantity').val())
+              formData.append('DiscountPercent', '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? $('#discountPercent').val() : 0)
+              formData.append('DiscountValue', $('#discountValue').val())
+              formData.append('MaxDiscountValue', $('#maxDiscountValue').val())
+              formData.append('MinOrderValue', $('#minOrderValue').val())
+              formData.append('Index', $('#voucherIndex').val())
+              formData.append('IsDefault', !!@(Model.ManageVoucherModel.IsDefault.HasValue ? "true" : "false"))
+              formData.append('VoucherDefaultType', @(Model.ManageVoucherModel.VoucherDefaultType.HasValue ? Model.ManageVoucherModel.VoucherDefaultType.Value : "null"))
+              const memberIds = '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? $('#dynamic-select')?.val()?.join(",") ?? [] : []
+              const memberClassIds = '@(Model.ManageVoucherModel.VoucherDefaultType.HasValue)' !== 'True' ? $('#voucherMembership')?.val()?.join(",") ?? [] : []
+              if (memberIds.length > 0){
+                  formData.append('MemberIdsString', memberIds)
+              }
+              if (memberClassIds.length > 0){
+                  formData.append('MemberClassIdsString', memberClassIds)
+              }
+
+              if (voucherImage){
+                  formData.append('VoucherImageUrl', voucherImage)
+              }
+
+              if (!isUpdate){
+                  const partnerId = '@(Model.PartnerId.HasValue ? Model.PartnerId : "")';
+                  formData.append('PartnerId', partnerId)
+              }
+
+              const voucherId = '@(Model.ManageVoucherModel.Id.HasValue ? Model.ManageVoucherModel.Id.Value : "")';
+              if (voucherId){
+                  formData.append('Id', voucherId)
+              }
+
+              const toastContainer = $('#toast-container')
+              const url =  isUpdate ? "/voucher/update" : "/voucher/create";
+              $.ajax({
+                  type: "POST",
+                  url: url,
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function () {
+                      loadingOverlay.hide();
+                      showToast('Save Success')
+                      setTimeout(() => {
+                          loadingOverlay.show();
+                          const partnerId = '@(Model.PartnerId.HasValue ? Model.PartnerId : "")';
+                          if (partnerId){
+                              location.href=`/voucher?partnerId=${partnerId}`
+                          }
+                          else {
+                              location.href="/voucher"
+                          }
+                      }, 1500)
+                  },
+                  error: function (error){
+                      loadingOverlay.hide();
+                      showToast('Save Failed', false)
+                  },
+              })
+        })
+
+
+        // Check if the event listener has been added before
+
+        let isEventListenerAdded = false;
+        let isEventListenerAddedQr = false;
+        const voucherUploadInput = document.getElementById('voucher-upload');
+        const voucherFilenameLabel = document.getElementById('voucher-filename');
+        const voucherImagePreview = document.getElementById('voucher-image-preview');
+
+        /*const qrUploadInput = document.getElementById('qr-upload');*/
+        const qrFilenameLabel = document.getElementById('qr-filename');
+        const qrImagePreview = document.getElementById('qr-image-preview');
+
+        voucherUploadInput.addEventListener('change', (event) => {
+            handleFileInput(event, 'voucher')
+        });
+
+        /*qrUploadInput.addEventListener('change', (event) => {
+            handleFileInput(event, 'qr')
+        });*/
+
+        function handleFileInput(event, fileType){
+            const file = event.target.files[0];
+          if (file) {
+              if(fileType === 'voucher'){
+                  voucherImage = file
+                  voucherImageError.hide()
+              }else{
+                  qrImage = file
+              }
+            /*imageError.hide();*/
+            (fileType === 'voucher' ? voucherFilenameLabel : qrFilenameLabel).textContent  = file.name
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              (fileType === 'voucher' ? voucherImagePreview : qrImagePreview).innerHTML =
+                `<img src="${e.target.result}" class="max-h-48 rounded-lg mx-auto" alt="Image preview" />`;
+              (fileType === 'voucher' ? voucherImagePreview : qrImagePreview).classList.remove('border-dashed', 'border-2', 'border-gray-400');
+              // Add event listener for image preview only once
+              if (fileType === 'voucher'){
+                  if (!isEventListenerAdded) {
+                    voucherImagePreview.addEventListener('click', () => {
+                      voucherUploadInput.click();
+                    });
+
+                    isEventListenerAdded = true;
+                  }
+              }else {
+                  if (!isEventListenerAdded) {
+                    qrImagePreview.addEventListener('click', () => {
+                      /*qrUploadInput.click();*/
+                    });
+                    isEventListenerAddedQr = true;
+                  }
+              }
+
+            };
+            reader.readAsDataURL(file);
+          } else {
+            /*formData.delete("ImageFile")*/
+            (fileType === 'voucher' ? voucherFilenameLabel : qrFilenameLabel).textContent = '';
+            (fileType === 'voucher' ? voucherImagePreview : qrImagePreview).innerHTML =
+              `<div class="bg-gray-200 h-48 rounded-lg flex items-center justify-center text-gray-500">No Yes Image nảo</div>`;
+            (fileType === 'voucher' ? voucherImagePreview : qrImagePreview).classList.add('border-dashed', 'border-2', 'border-gray-400');
+
+            // Remove the event listener when there's no image
+            (fileType === 'voucher' ? voucherImagePreview : qrImagePreview).removeEventListener('click', () => {
+              (fileType === 'voucher' ? voucherUploadInput : qrUploadInput).click();
+            });
+            if(fileType === 'voucher'){
+                  voucherImage = null
+              }else{
+                  qrImage = null
+              }
+
+            isEventListenerAdded = false;
+            isEventListenerAddedQr = false;
+          }
+        }
+
+        voucherUploadInput.addEventListener('click', (event) => {
+          event.stopPropagation();
+        });
+    </script>
+}

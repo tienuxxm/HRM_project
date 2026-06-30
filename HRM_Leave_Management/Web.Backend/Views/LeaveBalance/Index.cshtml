@@ -1,0 +1,210 @@
+@model List<Application.LeaveBalances.LeaveBalanceResponse>
+
+@{
+    ViewBag.Title = "Leave Balance Management";
+    Layout = "_Layout";
+    bool canUpdate = ViewBag.CanUpdate ?? false;
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <!-- Breadcrumb -->
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Leave Management</span>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Leave Balances</a>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Card -->
+        <div style="min-height: 543px" class="bg-white w-full p-4 rounded-lg mt-5 flex flex-col justify-between">
+            <div class="w-full">
+                <!-- Filters and Add Button Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-200">
+                    <form method="get" action="/leave-balance" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        @if (canUpdate)
+                        {
+                            <!-- Employee Filter (Only for Admin/HR) -->
+                            <div>
+                                <label for="filterEmployee" class="sr-only">Employee</label>
+                                <select id="filterEmployee" name="employeeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                                    <option value="">All Employees</option>
+                                    @if (ViewBag.Employees != null)
+                                    {
+                                        foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
+                                        {
+                                            <!option value="@emp.Id.Value" selected="@(ViewBag.CurrentFilterEmployeeId == emp.Id.Value)">
+                                                @emp.FullName (@emp.EmployeeCode)
+                                            </!option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                        <!-- Leave Type Filter -->
+                        <div>
+                            <label for="filterLeaveType" class="sr-only">Leave Type</label>
+                            <select id="filterLeaveType" name="leaveTypeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                                <option value="">All Leave Types</option>
+                                @if (ViewBag.LeaveTypes != null)
+                                {
+                                    foreach (var lt in (List<Domain.LeaveTypes.LeaveType>)ViewBag.LeaveTypes)
+                                    {
+                                        <!option value="@lt.Id.Value" selected="@(ViewBag.CurrentFilterLeaveTypeId == lt.Id.Value)">
+                                            @lt.Name (@lt.Code)
+                                        </!option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div>
+                            <label for="filterYear" class="sr-only">Year</label>
+                            <input type="number" id="filterYear" name="year" value="@ViewBag.CurrentFilterYear" placeholder="Year" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-24">
+                        </div>
+
+                        <button type="submit" class="inline-flex items-center rounded bg-gray-100 border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                            Filter
+                        </button>
+                        <a href="/leave-balance" class="inline-flex items-center text-sm font-medium text-blue-600 hover:underline">
+                            Clear
+                        </a>
+                    </form>
+
+                    @if (canUpdate)
+                    {
+                        <div class="mt-3 md:mt-0 flex justify-end">
+                            <button type="button" data-modal-target="createLeaveBalanceModal" data-modal-toggle="createLeaveBalanceModal"
+                                    class="inline-block rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+                                Allocate Leave Balance
+                            </button>
+                            @Html.Partial("_CreateLeaveBalancePartial")
+                        </div>
+                    }
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto w-full h-full mt-4">
+                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+                            <tr>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-12">No</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-left">Employee</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-left">Leave Type</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-24">Year</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Allocated (Days)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Used (Days)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Remaining (Days)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Pending (Days)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Available (Days)</th>
+                                @if (canUpdate)
+                                {
+                                    <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Actions</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @if (Model == null || !Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="@(canUpdate ? 10 : 9)" class="text-center py-8 text-gray-500 font-medium">
+                                        No leave balances found.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var lb in Model.Select((val, index) => new { val, index = index + 1 }))
+                                {
+                                    <tr class="hover:bg-gray-50 transition duration-150">
+                                        <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-950 text-center">
+                                            @lb.index.ToString()
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-950 font-semibold text-left">
+                                            @lb.val.EmployeeName
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-900 text-left">
+                                            @lb.val.LeaveTypeName
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-medium">
+                                            @lb.val.Year
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold">
+                                            @lb.val.AllocatedDays.ToString("G29")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-amber-600">
+                                            @lb.val.UsedDays.ToString("G29")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-blue-600">
+                                            @lb.val.RemainingDays.ToString("G29")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-amber-500">
+                                            @lb.val.PendingDays.ToString("G29")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-center font-bold @(lb.val.AvailableDays > 0 ? "text-green-600" : "text-red-500")">
+                                            @lb.val.AvailableDays.ToString("G29")
+                                        </td>
+                                        @if (canUpdate)
+                                        {
+                                            <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center">
+                                                <div class="flex justify-center items-center gap-3">
+                                                    <!-- Edit Action -->
+                                                    <div data-modal-target="updateLeaveBalanceModal-@lb.val.Id" data-modal-toggle="updateLeaveBalanceModal-@lb.val.Id" class="inline-flex items-center cursor-pointer text-blue-600 hover:text-blue-800">
+                                                        <svg class="w-4 h-4 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13.835 7.578-.005.007-1.196 1.195 1.2 1.2 1.195-1.196.007-.005a3.11 3.11 0 0 0 0-4.398 3.11 3.11 0 0 0-4.397 0L9.435 5.578l1.2 1.2 1.196-1.195.006-.007a1.11 1.11 0 0 1 1.567 0 1.11 1.11 0 0 1 0 1.567l-6.81 6.81-1.2-1.2 6.81-6.81Zm-7.61 7.61H2v-4.225h4.225V15.19Z"/>
+                                                        </svg>
+                                                        <span class="font-medium text-sm">Edit</span>
+                                                    </div>
+                                                    @Html.Partial("_UpdateLeaveBalancePartial", lb.val)
+
+                                                    <!-- Remove Action -->
+                                                    <div data-modal-target="confirmDelete-@lb.val.Id" data-modal-toggle="confirmDelete-@lb.val.Id" class="inline-flex items-center cursor-pointer text-red-600 hover:text-red-800">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 16 18" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 4h14M3 4v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4M5 4V2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+                                                        </svg>
+                                                        <span class="font-medium text-sm">Remove</span>
+                                                    </div>
+                                                    @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+                                                    {
+                                                        Id = lb.val.Id,
+                                                        Type = "Leave Balance for Employee",
+                                                        Name = lb.val.EmployeeName,
+                                                        ActionName = "Delete",
+                                                        ActionController = "LeaveBalance"
+                                                    })
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,304 @@
+﻿@model ProductDetailViewModel
+
+@{
+    ViewBag.Title = Model.ProductDetail.ProductName;
+    Layout = "_Layout";
+}
+<div style="min-height: 500px" class="w-full bg-white p-4 rounded-md flex flex-col justify-between relative">
+    <div class="w-full flex flex-col">
+        <h1 class="text-black font-semibold text-xl">Update món ăn</h1>
+        <div class="grid grid-cols-12 gap-2 mt-3">
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="productName" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Dish name</label>
+                <input value="@Model.ProductDetail.ProductName" type="text" id="productName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Dish name" required>
+                <p id="productNameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="productCategory" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+                <select required id="productCategory" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    @foreach (var cat in Model.CategoryResponses)
+                    {
+                        if (cat.Id == Model.ProductDetail.CategoryResponse.Id)
+                        {
+                            <option selected value="@cat.Id">@cat.CategoryName</option>
+                        }
+                        else
+                        {
+                            <option value="@cat.Id">@cat.CategoryName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="productPrice" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
+                <div class="relative">
+                    <input type="number" value="@Model.ProductDetail.Price" id="productPrice" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Price" required>
+                    <span class="text-gray-400 absolute top-1/2 transform -translate-y-1/2 right-8">VNĐ</span>
+                </div>
+                <p id="productPriceError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>
+            @*<div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                <label for="sku" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">SKU</label>
+                <input type="text" id="sku" value="@Model.ProductDetail.SKU" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter SKU" required>
+                <p id="skuError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+            </div>*@
+            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12 flex items-center">
+                <div class="flex items-center gap-2 mt-4">
+                    <span>
+                        Available for takeout
+                    </span>
+                    @if (Model.ProductDetail.AllowDelivery)
+                    {
+                        <input id="isAllowDelivery" type="checkbox" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    }
+                    else
+                    {
+                        <input id="isAllowDelivery" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    }
+                </div>
+            </div>
+            @*<div class="2xl:col-span-12 xl:col-span-12 lg:col-span-12 md:col-span-12 col-span-12">
+                <label for="productCategory" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Branch</label>
+                <select required id="restaurant" name="RestaurantId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    @foreach (var res  in Model.RestaurantResponses)
+                    {
+                        <option value="@res.Id">@res.RestaurantName</option>
+                        if (res.Id == Model.ProductDetail.RestaurantId)
+                        {
+                            <option selected value="@res.Id">@res.RestaurantName</option>
+                        }
+                        else
+                        {
+                            <option value="@res.Id">@res.RestaurantName</option>
+                        }
+                    }
+                </select>
+            </div>*@
+            <div class="col-span-12">
+                <label class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="productImage">Image (320 x 320)</label>
+                <section class="container w-full mx-auto items-center">
+                    <div class="max-w-sm mx-auto bg-white rounded-lg shadow-md overflow-hidden items-center relative">
+                        <div class="px-4 py-6">
+                            <div id="image-preview" class="w-full min-h-[16rem] p-6 bg-gray-100 border-dashed border-2 border-gray-400 rounded-lg items-center mx-auto text-center cursor-pointer flex">
+                                @if (!string.IsNullOrEmpty(Model.ProductDetail.ImageUrl))
+                                {
+                                    <img id="defaultProductImage" src="@Model.ProductDetail.ImageUrl" class="max-h-48 rounded-lg mx-auto" alt="Image preview"/>
+                                }
+                                <input id="upload" type="file" class="hidden" accept="image/*"/>
+                                <label for="upload" class="cursor-pointer">
+                                    @if (string.IsNullOrEmpty(Model.ProductDetail.ImageUrl))
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-700 mx-auto mb-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                                        </svg>
+                                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-700">Upload Image</h5>
+                                        <p class="font-normal text-sm text-gray-400 md:px-6">The image must have a smaller size <b class="text-gray-600">3mb</b></p>
+                                        <p class="font-normal text-sm text-gray-400 md:px-6">And must have a format <b class="text-gray-600">JPG, PNG, or JPEG</b>.</p>
+                                    }
+                                    <span id="filename" class="text-gray-500 bg-gray-200 z-50"></span>
+                                </label>
+                            </div>
+                            <p id="imageError" class="text-center mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="w-full flex justify-content-end">
+        <a href="/products" type="button" class="mx-1 border border-wnz-yellow block rounded bg-white px-3 py-2 text-sm font-medium text-black transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.8887 8.41675C14.8887 9.28133 14.5579 10.4558 13.8965 11.9402C13.8809 11.9766 13.8522 12.0391 13.8105 12.1277C13.7741 12.2162 13.7402 12.2944 13.709 12.3621C13.6777 12.4298 13.6439 12.4871 13.6074 12.5339C13.5449 12.6225 13.472 12.6667 13.3887 12.6667C13.3105 12.6667 13.248 12.6407 13.2012 12.5886C13.1595 12.5365 13.1387 12.4714 13.1387 12.3933C13.1387 12.3464 13.1439 12.2761 13.1543 12.1824C13.1699 12.0938 13.1777 12.0339 13.1777 12.0027C13.2038 11.6485 13.2168 11.3282 13.2168 11.0417C13.2168 10.5157 13.1699 10.0444 13.0762 9.62769C12.9876 9.21102 12.8626 8.85164 12.7012 8.54956C12.5397 8.24227 12.3314 7.97925 12.0762 7.7605C11.821 7.53654 11.5449 7.35425 11.248 7.21362C10.9564 7.073 10.61 6.96362 10.209 6.8855C9.81315 6.80216 9.41211 6.74487 9.00586 6.71362C8.60482 6.68237 8.14909 6.66675 7.63867 6.66675H5.88867V8.66675C5.88867 8.80216 5.83919 8.91935 5.74023 9.01831C5.64128 9.11727 5.52409 9.16675 5.38867 9.16675C5.25326 9.16675 5.13607 9.11727 5.03711 9.01831L1.03711 5.01831C0.938151 4.91935 0.888672 4.80216 0.888672 4.66675C0.888672 4.53133 0.938151 4.41414 1.03711 4.31519L5.03711 0.315185C5.13607 0.216227 5.25326 0.166748 5.38867 0.166748C5.52409 0.166748 5.64128 0.216227 5.74023 0.315185C5.83919 0.414143 5.88867 0.531331 5.88867 0.666747V2.66675H7.63867C11.3522 2.66675 13.6309 3.71623 14.4746 5.81519C14.7507 6.5131 14.8887 7.38029 14.8887 8.41675Z" fill="black"/>
+                </svg>
+                <span class="mx-1">Cancel</span>
+            </div>
+        </a>
+        <button id="saveButton" type="button" class="mx-1 block rounded bg-wnz-yellow px-3 py-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 11.6667H9V8.66675H3V11.6667ZM10 11.6667H11V4.66675C11 4.59383 10.974 4.49487 10.9219 4.36987C10.8698 4.23966 10.8177 4.14852 10.7656 4.09644L8.57031 1.90112C8.51823 1.84904 8.42969 1.79696 8.30469 1.74487C8.17969 1.69279 8.07813 1.66675 8 1.66675V4.91675C8 5.12508 7.92708 5.30216 7.78125 5.448C7.63542 5.59383 7.45833 5.66675 7.25 5.66675H2.75C2.54167 5.66675 2.36458 5.59383 2.21875 5.448C2.07292 5.30216 2 5.12508 2 4.91675V1.66675H1V11.6667H2V8.41675C2 8.20841 2.07292 8.03133 2.21875 7.8855C2.36458 7.73966 2.54167 7.66675 2.75 7.66675H9.25C9.45833 7.66675 9.63542 7.73966 9.78125 7.8855C9.92708 8.03133 10 8.20841 10 8.41675V11.6667ZM7 4.41675V1.91675C7 1.84904 6.97396 1.79175 6.92188 1.74487C6.875 1.69279 6.81771 1.66675 6.75 1.66675H5.25C5.18229 1.66675 5.1224 1.69279 5.07031 1.74487C5.02344 1.79175 5 1.84904 5 1.91675V4.41675C5 4.48446 5.02344 4.54435 5.07031 4.59644C5.1224 4.64331 5.18229 4.66675 5.25 4.66675H6.75C6.81771 4.66675 6.875 4.64331 6.92188 4.59644C6.97396 4.54435 7 4.48446 7 4.41675ZM12 4.66675V11.9167C12 12.1251 11.9271 12.3022 11.7813 12.448C11.6354 12.5938 11.4583 12.6667 11.25 12.6667H0.75C0.541667 12.6667 0.364583 12.5938 0.21875 12.448C0.0729167 12.3022 0 12.1251 0 11.9167V1.41675C0 1.20841 0.0729167 1.03133 0.21875 0.885497C0.364583 0.739664 0.541667 0.666747 0.75 0.666747H8C8.20833 0.666747 8.4375 0.718831 8.6875 0.822998C8.9375 0.927165 9.13542 1.05216 9.28125 1.198L11.4688 3.3855C11.6146 3.53133 11.7396 3.72925 11.8438 3.97925C11.9479 4.22925 12 4.45841 12 4.66675Z" fill="white"/>
+                </svg>
+                <span class="mx-1">Save</span>
+            </div>
+        </button>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        const uploadInput = document.getElementById('upload');
+        const filenameLabel = document.getElementById('filename');
+        const imagePreview = document.getElementById('image-preview');
+
+        const defaultProductImage = $('#defaultProductImage')
+        const saveButton = $('#saveButton')
+        const formData = new FormData();
+        const productNameError = $('#productNameError')
+        const productPriceError = $('#productPriceError')
+        const imageError = $('#imageError');
+        let isFormValid = false;
+        
+        function resetFormError(){
+            productNameError.hide();
+            productPriceError.hide();
+            //skuError.hide();
+            imageError.hide();
+        }
+        
+        function inputChange(inputName){
+            switch (inputName){
+                case 'ProductName':
+                    productNameError.hide();
+                    break;
+                case 'ProductPrice':
+                    productPriceError.hide();
+                    break;
+            }
+        }
+        
+        resetFormError()
+        
+        function formValidate(){
+            resetFormError();
+            const productName = $('#productName').val()
+            const productPrice = $('#productPrice').val()
+            
+            let errors = [];
+            
+            
+            if (productName.trim() === '' || !productName){
+                  const error = "Product name cannot be empty";
+                productNameError.show()
+                productNameError.text(error)
+                errors.push(error)
+            }
+            
+            if (productPrice.trim() === '' || !productPrice){
+                  const error = "Product price cannot be empty";
+                productPriceError.show()
+                productPriceError.text(error)
+                errors.push(error)
+            }
+            
+            if (parseInt(productPrice) <= 0){
+                  const error = "Product price cannot be less than 0";
+                productPriceError.show()
+                productPriceError.text(error)
+                errors.push(error)
+            }
+            
+            if (!formData.has("ImageFile") && !$("#defaultProductImage").length){
+                const error = "Please Add Image."
+                imageError.show();
+                imageError.text(error)
+                $("#imageError2").text(error)
+                errors.push(error)
+            }
+            
+            isFormValid = errors.length === 0;
+            
+        }
+
+        defaultProductImage.on('click', function (){
+        uploadInput.click();
+        })
+
+        saveButton.on('click', function (){
+            
+            formValidate();
+            if(!isFormValid){
+                return;
+            }
+        
+            const loadingOverlay = $('#loadingOverlay');
+            loadingOverlay.show();
+
+            const productName = $('#productName').val()
+            const categoryId = $('#productCategory').val()
+            const productPrice = $('#productPrice').val()
+            const isAllowDelivery = $('#isAllowDelivery').is(':checked')
+            //const sku = $('#sku').val()
+            //const restaurantId = $('#restaurant').val()
+            formData.append('ProductName', productName)
+            formData.append('ProductPrice', productPrice)
+            formData.append('CategoryId', categoryId)
+            formData.append('AllowDelivery', isAllowDelivery)
+            //formData.append('RestaurantId', restaurantId)
+            //formData.append('SKU', sku)
+            formData.append('Id', `@Model.ProductDetail.Id`)
+            
+            const toastContainer = $('#toast-container')
+            $.ajax({
+                type: "PUT",
+                url: `/products/Update`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    loadingOverlay.hide();
+                    showToast('Update Successful')
+                    setTimeout(() => {
+                        loadingOverlay.show();
+                        location.href="/products"
+                    }, 1500)
+                },
+                error: function (error){
+                    loadingOverlay.hide();
+                    showToast('Update Failed')
+                },
+            })
+      })
+      
+    
+      // Check if the event listener has been added before
+      let isEventListenerAdded = false;
+    
+      uploadInput.addEventListener('change', (event) => {
+          
+        const file = event.target.files[0];
+    
+        if (file) {
+          formData.delete('ImageFile')
+          formData.append('ImageFile', file)
+          imageError.hide();
+          filenameLabel.textContent = file.name;
+    
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imagePreview.innerHTML =
+              `<img src="${e.target.result}" class="max-h-48 rounded-lg mx-auto" alt="Image preview" />`;
+            imagePreview.classList.remove('border-dashed', 'border-2', 'border-gray-400');
+    
+            // Add event listener for image preview only once
+            if (!isEventListenerAdded) {
+              imagePreview.addEventListener('click', () => {
+                uploadInput.click();
+              });
+    
+              isEventListenerAdded = true;
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          formData.delete("ImageFile")
+          filenameLabel.textContent = '';
+          imagePreview.innerHTML =
+              `<div class="bg-gray-200 h-48 rounded-lg flex items-center justify-center text-gray-500">No image available</div>`;
+          imagePreview.classList.add('border-dashed', 'border-2', 'border-gray-400');
+    
+          // Remove the event listener when there's no image
+          imagePreview.removeEventListener('click', () => {
+            uploadInput.click();
+          });
+    
+          isEventListenerAdded = false;
+        }
+      });
+    
+      uploadInput.addEventListener('click', (event) => {
+        event.stopPropagation();
+      });
+    </script>
+}

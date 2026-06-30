@@ -1,0 +1,169 @@
+﻿@model MemberDetailViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<div class="w-full flex flex-col">
+    <nav class="flex" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                    <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Account</span>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                    </svg>
+                    <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">User List</a>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div style="min-height: 80px" class="w-full  mt-3 flex justify-content-between items-center">
+        <table class="min-w-full">
+            <tbody>
+                <tr class="p-3 h-12">
+                    <td colspan="4">
+                        <h1 class="text-black font-semibold text-xl mt-2 mb-3">Customer</h1>
+                    </td>
+                </tr>
+                <tr class="bg-white p-3 rounded-lg h-20">
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black text-center rounded-lg">
+                        @if (!string.IsNullOrEmpty(Model.Member.AvatarUrl))
+                        {
+                            <img class="w-10 h-10 rounded-full" src="@Model.Member.AvatarUrl" alt="Rounded avatar">
+                        }
+                        else
+                        {
+                            <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        }
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                        <div class="flex items-center">
+                            <strong>Customer Code:</strong>
+                            <span class="ml-1">@Model.Member.MemberCode</span>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                        <div class="flex items-center">
+                            <strong>Full Name:</strong>
+                            <span class="ml-1">@Model.Member.FullName</span>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black rounded-lg">
+                        <div class="flex items-center">
+                            <strong>Phone:</strong>
+                            <span class="ml-1">@Model.Member.PhoneNumber</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="h-3"></tr>
+                <tr class="p-3 h-6">
+                    <td colspan="4">
+                        <h1 class="text-black font-semibold text-xl mt-2 mb-3">Member Rank</h1>
+                    </td>
+                </tr>
+                <tr class="bg-white p-3 rounded- h-20">
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black rounded-lg" colspan="2">
+                        <div class="flex items-center">
+                            <strong>Member Rank:</strong>
+                            <span class="ml-1">@Model.Member.MembershipClass</span>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                        <div class="flex items-center">
+                            <strong>Points:</strong>
+                            <span class="ml-1">@Model.Member.MemberPoint</span>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-black rounded-lg">
+                        <div class="flex items-center">
+                            <strong>Total:</strong>
+                            <span class="ml-1">@Model.Member.TotalPaidDisplay</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="p-3 h-6">
+                    <td colspan="4">
+                        <h1 class="text-black font-semibold text-xl mt-3">Discount Voucher List</h1>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="min-height: 450px" class="bg-white w-full rounded-lg mt-2  flex flex-col justify-content-between mt-3">
+        <div class="w-full">
+            <ul class="bg-wnz-secondary flex flex-wrap text-sm font-medium text-center text-black">
+                <li class="mr-2">
+                    <a href="?tab=vouchers" aria-current="page" class="inline-block p-3 @(Model.Tab == "vouchers" ? "bg-white" : "hover:text-gray-600 hover:bg-white") rounded-t-lg active transition ease-in-out">
+                        Points History
+                    </a>
+                </li>
+                <li class="mr-2">
+                    <a href="?tab=point-histories" class="inline-block p-3 rounded-t-lg @(Model.Tab == "point-histories" ? "bg-white" : "hover:text-gray-600 hover:bg-white") transition ease-in-out">Discount Wallet</a>
+                </li>
+                <li class="mr-2">
+                    <a href="?tab=invoice-histories" class="inline-block p-3 rounded-t-lg @(Model.Tab == "invoice-histories" ? "bg-white" : "hover:text-gray-600 hover:bg-white") transition ease-in-out">Invoice History</a>
+                </li>
+                @*<li class="mr-2">
+                <a href="?tab=management" class="inline-block p-3 rounded-t-lg @(Model.Tab == "management" ? "bg-white" : "hover:text-gray-600 hover:bg-white") transition ease-in-out">Update Account</a>
+                </li>*@
+            </ul>
+            <div class="mt-3 px-3">
+                @switch (Model.Tab.ToLower())
+                {
+                    case "vouchers":
+                        if (Model.MemberVouchers != null)
+                        {
+                            @Html.Partial("_MemberVoucherTab", Model.MemberVouchers)
+                        }
+                        break;
+                    case "point-histories":
+                        @Html.Partial("_MemberPointHistoryTab", Model.PointHistories)
+                        break;
+                        ;
+                    case "invoice-histories":
+                        @Html.Partial("_MemberInvoiceHistoryTab", Model.InvoiceHistories)
+                        break;
+                        ;
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@switch (Model.Tab.ToLower())
+{
+    case "vouchers":
+        if (Model.MemberVouchers != null)
+        {
+            @Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model.MemberVouchers.CurrentPage, TotalPage = Model.MemberVouchers.TotalPages, PageSize = Model.MemberVouchers.PageSize, HasNext = Model.MemberVouchers.HasNext, HasPrevious = Model.MemberVouchers.HasPrevious, TotalItem = Model.MemberVouchers.TotalCount, ExtentQuery = $"&Tab={Model.Tab}" })
+        }
+        break;
+    case "point-histories":
+        @Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model?.PointHistories?.CurrentPage ?? 1, TotalPage = Model.PointHistories.TotalPages, PageSize = Model.PointHistories.PageSize, HasNext = Model.PointHistories.HasNext, HasPrevious = Model.PointHistories.HasPrevious, TotalItem = Model.PointHistories.TotalCount, ExtentQuery = $"&Tab={Model.Tab}" })
+        break;
+        ;
+    case "invoice-histories":
+        @Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model?.InvoiceHistories?.CurrentPage ?? 1, TotalPage = Model.InvoiceHistories.TotalPages, PageSize = Model.InvoiceHistories.PageSize, HasNext = Model.InvoiceHistories.HasNext, HasPrevious = Model.InvoiceHistories.HasPrevious, TotalItem = Model.InvoiceHistories.TotalCount, ExtentQuery = $"&Tab={Model.Tab}" })
+        break;
+        ;
+}

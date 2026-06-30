@@ -1,0 +1,131 @@
+@model Domain.Employees.Employee
+@{
+    var departments = ViewBag.Departments as List<Domain.Departments.Department> ?? new List<Domain.Departments.Department>();
+    var positions = ViewBag.Positions as List<Domain.Positions.Position> ?? new List<Domain.Positions.Position>();
+}
+
+<div id="updateEmployeeModal-@Model.Id.Value" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-lg max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="updateEmployeeModal-@Model.Id.Value">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Edit Employee</h3>
+                <div class="space-y-4">
+                    <input type="hidden" id="empId-@Model.Id.Value" value="@Model.Id.Value">
+                    <div>
+                        <label for="empCode-@Model.Id.Value" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Employee Code</label>
+                        <input type="text" placeholder="e.g. EMP001" id="empCode-@Model.Id.Value" value="@Model.EmployeeCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        <p id="empCodeError-@Model.Id.Value" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                    <div>
+                        <label for="empFullName-@Model.Id.Value" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Full Name</label>
+                        <input type="text" placeholder="Enter Full Name" id="empFullName-@Model.Id.Value" value="@Model.FullName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        <p id="empFullNameError-@Model.Id.Value" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                    </div>
+                    <div>
+                        <label for="empDepartment-@Model.Id.Value" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department (Optional)</label>
+                        <select id="empDepartment-@Model.Id.Value" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                            <option value="">-- Select Department --</option>
+                            @foreach (var dept in departments)
+                            {
+                                if (Model.DepartmentId != null && dept.Id.Value == Model.DepartmentId.Value)
+                                {
+                                    <option value="@dept.Id.Value" selected>@dept.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@dept.Id.Value">@dept.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label for="empPosition-@Model.Id.Value" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position (Optional)</label>
+                        <select id="empPosition-@Model.Id.Value" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                            <option value="">-- Select Position --</option>
+                            @foreach (var pos in positions)
+                            {
+                                if (Model.PositionId != null && pos.Id.Value == Model.PositionId.Value)
+                                {
+                                    <option value="@pos.Id.Value" selected>@pos.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@pos.Id.Value">@pos.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label for="empJoinDate-@Model.Id.Value" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Join Date</label>
+                        <input type="date" id="empJoinDate-@Model.Id.Value" value="@Model.JoinDate.ToString("yyyy-MM-dd")" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                    </div>
+                    <button type="button" id="saveEmpButton-@Model.Id.Value" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        const toastContainer = $('#toast-container')
+        const empCodeError = $('#empCodeError-@Model.Id.Value')
+        const empFullNameError = $('#empFullNameError-@Model.Id.Value')
+        empCodeError.hide();
+        empFullNameError.hide();
+
+        $('#saveEmpButton-@Model.Id.Value').on('click', function (){
+            empCodeError.hide();
+            empFullNameError.hide();
+            const empId = $('#empId-@Model.Id.Value').val()
+            const empCode = $('#empCode-@Model.Id.Value').val()
+            const empFullName = $('#empFullName-@Model.Id.Value').val()
+            const empDepartment = $('#empDepartment-@Model.Id.Value').val()
+            const empPosition = $('#empPosition-@Model.Id.Value').val()
+            const empJoinDate = $('#empJoinDate-@Model.Id.Value').val()
+            
+            if(!empCode || empCode.trim() === ''){
+                empCodeError.show();
+                empCodeError.text("Please enter employee code")
+                return;
+            }
+            if(!empFullName || empFullName.trim() === ''){
+                empFullNameError.show();
+                empFullNameError.text("Please enter full name")
+                return;
+            }
+        
+            const formData = new FormData()
+            formData.append('Id', empId)
+            formData.append('EmployeeCode', empCode)
+            formData.append('FullName', empFullName)
+            if(empDepartment) formData.append('DepartmentId', empDepartment)
+            if(empPosition) formData.append('PositionId', empPosition)
+            formData.append('JoinDate', empJoinDate || new Date().toISOString().split('T')[0])
+
+            $.ajax({
+                type: "POST",
+                url: `/employee/update`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (e) {
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Employee updated successfully" }, null)')
+                    setTimeout(() => {
+                        location.href="/employee"
+                    }, 1500)
+                },
+                error: function (error){
+                    toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Employee update failed" }, null)')
+                },
+            })
+        })
+    });
+</script>

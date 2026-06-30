@@ -1,0 +1,444 @@
+﻿@using Domain.Invoices
+@using Domain.Orders
+@using System.Globalization
+@model OrderAndDeliveryDetailViewModel
+
+@{
+    ViewBag.Title = "Danh sách đặt hàng";
+    Layout = "_Layout";
+}
+
+<nav class="flex mb-4" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                </svg>
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">General Management</span>
+            </div>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="/delivery" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Delivery list</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Delivery details</a>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="w-full flex justify-content-between items-center my-2">
+    <div class="flex justify-content-start items-center gap-2">
+        <span class="text-lg font-medium text-blue-500">
+            Code: @Model.Order.OrderCode
+        </span>
+        @switch (Model.Order.Status)
+        {
+            case OrderStatus.Created:
+                <div class="p-1 rounded-lg bg-slate-100 shadow-sm text-slate-600 flex justify-center items-center">
+                    <span>Created</span>
+                </div>
+                break;
+            case OrderStatus.Process:
+                <div class="p-1 rounded-lg bg-blue-100 shadow-sm text-blue-600 flex justify-center items-center">
+                    <span>Processing</span>
+                </div>
+                break;
+            case OrderStatus.Shipping:
+                <div class="p-1 rounded-lg bg-blue-100 shadow-sm text-blue-600 flex justify-center items-center">
+                    <span>Shipping</span>
+                </div>
+                break;
+            case OrderStatus.Cancel:
+                <div class="p-1 rounded-lg bg-red-100 shadow-sm text-red-600 flex justify-center items-center">
+                    <span>Canceled</span>
+                </div>
+                break;
+            case OrderStatus.Done:
+                <div class="p-1 rounded-lg bg-green-100 shadow-sm text-green-600 flex justify-center items-center">
+                    <span>Completed</span>
+                </div>
+                break;
+        }
+
+        <div class="flex items-center gap-2">
+            @if (Model.Order.Status != OrderStatus.Done && Model.Order.Status != OrderStatus.Cancel)
+            {
+                <a type="button" data-modal-target="popup-modal-update-order-status" data-modal-toggle="popup-modal-update-order-status" class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+                    Update Status
+                </a>
+            }
+            <a type="button" data-modal-target="popup-modal-update-order-payment" data-modal-toggle="popup-modal-update-order-payment" class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+                Payment Information
+            </a>
+        </div>
+        <div id="popup-modal-update-order-status" tabindex="-1" class="z-50 hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal-update-order-status">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-normal text-gray-500 dark:text-gray-400 text-wrap mb-5">
+                            Update Reservation Status
+                        </h3>
+
+                        <div class="mb-5">
+                            <label for="statusSelect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Status đơn hàng</label>
+                            <select id="statusSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                @if (Model.Order.Status != OrderStatus.Process)
+                                {
+                                    <option value="@((int)OrderStatus.Process)">Processing</option>
+                                }
+
+                                @if (Model.Order.Status != OrderStatus.Shipping)
+                                {
+                                    <option value="@((int)OrderStatus.Shipping)">Shipping</option>
+                                }
+
+                                <option value="@((int)OrderStatus.Done)">
+                                    Completed
+                                </option>
+                                <option value="@((int)OrderStatus.Cancel)">
+                                    Reject
+                                </option>
+                            </select>
+                        </div>
+                        <div class="w-full flex gap-2 justify-center items-center">
+                            <button onclick="updateStatus()" class="text-white bg-blue-500  hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                Save
+                            </button>
+                            <button data-modal-hide="popup-modal-update-order-status" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="popup-modal-update-order-payment" tabindex="-1" class="z-50 hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal-update-order-payment">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-normal text-gray-500 dark:text-gray-400 text-wrap mb-5">
+                            Payment Details
+                        </h3>
+                        <div class="mb-5 flex flex-col gap-2 justify-content-center flex-wrap">
+                            <div class="flex gap-2 items-center">
+                                <strong>
+                                    Status:
+                                </strong>
+                                <div class="">
+                                    @if (Model.Order.HasPayment)
+                                    {
+                                        <span class="text-lg text-green-600">Paid</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-lg text-red-500">Unpaid</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <strong>
+                                    Total Order Value:
+                                </strong>
+                                <div class="">
+                                    <span class="text-lg font-medium text-black">
+                                        @(Model.Order.TotalPrice.Amount.ToString("#,###", CultureInfo.GetCultureInfo("vi-VN").NumberFormat) + Model.Order.TotalPrice.Currency.Code)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full flex flex-column gap-2 justify-center items-center">
+                            @if (!Model.Order.HasPayment)
+                            {
+                                <button onclick="confirmOrder()" class="text-white bg-green-500 hover:bg-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                    Confirm Order Payment
+                                </button>
+                            }
+                            <button data-modal-hide="popup-modal-update-order-payment" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <span class="text-lg font-medium">Order Date: @Model.Order.CreatedDate.ToLocalTime().ToString("dd/MM/yyyy")</span>
+</div>
+
+<div class="w-full bg-white p-4 rounded-md flex flex-col justify-between">
+    <div class="grid grid-cols-12 w-full">
+        <div class="col-span-2">
+            <div class="w-[64px] h-[64px] bg-black rounded-circle"></div>
+        </div>
+        <div class="col-span-10">
+            <div class="w-full grid grid-cols-12">
+                <div class="col-span-6">
+                    <strong>Customer Name:</strong>
+                    <span>@Model.Order.Delivery?.ReceiverName</span>
+                </div>
+                <div class="col-span-6">
+                    <strong>Notes:</strong>
+                    <span>@Model.Order.Note</span>
+                </div>
+                <div class="col-span-6">
+                    <strong>Phone Number:</strong>
+                    <span>@Model.Order.Delivery?.PhoneNumber</span>
+                </div>
+                <div class="col-span-6">
+                    <strong>Request Extra Spoon:</strong>
+                    @if (Model.Order.Delivery != null)
+                    {
+                        <span>@(Model.Order.Delivery.HasRequestCutlery ? "Yes" : "No")</span>
+                    }
+                </div>
+                <div class="col-span-6">
+                    <strong>Delivery Address:</strong>
+                    <span>@Model.Order.Delivery?.ReceivingAddress</span>
+                </div>
+                <div class="col-span-6">
+                    <strong>Payment Method:</strong>
+                    @if (Model.Order.PaymentType.HasValue)
+                    {
+                        <span>@(Model.Order.PaymentType == PaymentType.Banking ? "Bank Transfer" : "Cash")</span>
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Order.Delivery is {HasIssueAnInvoice: true })
+{
+    <div class="w-full bg-white p-4 rounded-md flex flex-col justify-between mt-3">
+        <div class="grid grid-cols-12 w-full">
+            <div class="col-span-2 pr-2">
+                <span class="text-lg font-medium text-wnz-yellow text-wrap">
+                    Invoice Information
+                </span>
+            </div>
+            <div class="col-span-10">
+                <div class="w-full grid grid-cols-12">
+                    <div class="col-span-6">
+                        <strong>Tax Code:</strong>
+                        <span>@Model.Order.Delivery.CompanyTaxCode</span>
+                    </div>
+                    <div class="col-span-6">
+                        <strong>Company Email:</strong>
+                        <span>@Model.Order.Delivery.CompanyEmail</span>
+                    </div>
+                    <div class="col-span-6">
+                        <strong>Company Name:</strong>
+                        <span>@Model.Order.Delivery.CompanyName</span>
+                    </div>
+                    <div class="col-span-6">
+                        <strong>Company Address:</strong>
+                        <span>@Model.Order.Delivery.CompanyAddress</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="w-full bg-white p-4 rounded-md flex flex-col justify-between mt-4 overflow-x-auto">
+    <h1 class="text-lg font-medium text-wnz-yellow text-wrap mb-3">
+        Dish Order List
+    </h1>
+    <div style="min-height: 300px">
+        <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+            <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+            <tr>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                    NO
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Món ăn
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-right">
+                    GIÁ
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                    SỐ LƯỢNG
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Notes
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-right">
+                    THÀNH TIỀN
+                </th>
+            </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+
+            @foreach (var v in Model.Order.LineItems.Select((val, index) => new { val, index = index + 1 }))
+            {
+                <tr class="my-2 py-4">
+                    <td class="whitespace-nowrap px-4 py-2 text-gray-900 text-center">
+                        @v.index.ToString()
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-600 text-left cursor-pointer">
+                        @v.val.ProductName
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                        @v.val.PriceDisplay
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-gray-900 text-left text-center">
+                        @v.val.Quantity
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-gray-900 text-left">
+                        @v.val.Note
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                        @v.val.TotalPriceDisplay
+                    </td>
+                </tr>
+            }
+            <tr class="my-2 py-4">
+                <td colspan="5" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                    <strong>TIỀN MÓN ĂN: </strong>
+                </td>
+                <td colspan="1" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                    <strong>@Model.Order.TotalProductPriceDisplay</strong>
+                </td>
+            </tr>
+            @if (Model.Order.OrderFees is not null)
+            {
+                @foreach (var fee in Model.Order.OrderFees)
+                {
+                    <tr class="my-2 py-4">
+                        <td colspan="5" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                            @if (fee.IsPercent)
+                            {
+                                <strong>@fee.FeeName @fee.FeeValue</strong>
+                            }
+                            else
+                            {
+                                <strong>@fee.FeeName</strong>
+                            }
+                        </td>
+                        <td colspan="1" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                            <strong>@fee.ChargeFeeDisplay</strong>
+                        </td>
+                    </tr>
+                }
+            }
+
+            <tr class="my-2 py-4">
+                <td colspan="5" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                    <strong>Thành tiền: </strong>
+                </td>
+                <td colspan="1" class="whitespace-nowrap px-4 py-2 text-gray-900 text-right">
+                    <strong>@Model.Order.TotalPriceDisplay</strong>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+    const loadingBookingOverlay = $('#loadingOverlay');
+    loadingBookingOverlay.hide();
+    const toastContainer = $('#toast-container')
+    function confirmOrder(){
+        
+        const orderId = '@Model.Order.Id'
+        $.ajax({
+            type: "PUT",
+            url: `/delivery/confirm-order`,
+            data: {
+                id: orderId
+            },
+            dataType: 'multipart/form-data',
+            success: function () {
+                loadingBookingOverlay.hide();
+                toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Save Success" }, null)')
+                location.reload();
+            },error: function (error){
+                console.log(error)
+                if (error.status === 200){
+                    loadingBookingOverlay.hide();
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Save Success" }, null)')   
+                    location.reload();
+                }else{
+                    loadingBookingOverlay.hide();
+                    toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Save Failed" }, null)')
+                }
+            }
+        })
+    }
+    function updateStatus(){
+        
+        const orderId = '@Model.Order.Id'
+        const status = $('#statusSelect').val()
+        if (!orderId){
+            return;
+        }
+        
+        
+        loadingBookingOverlay.show();
+        
+        
+        $.ajax({
+            type: "PUT",
+            url: `/delivery/update-order-status`,
+            data: {
+                status,
+                orderId
+            },
+            dataType: 'multipart/form-data',
+            success: function () {
+                loadingBookingOverlay.hide();
+                showToast('Update Successful')
+                location.reload();
+            },error: function (error){
+                console.log(error)
+                if (error.status === 200){
+                    loadingBookingOverlay.hide();
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Save Success" }, null)')   
+                    location.reload();
+                }else{
+                    loadingBookingOverlay.hide();
+                    showToast('Update Failed: ' + error.message, false)
+                }
+            }
+        })
+    }
+    
+    </script>
+}

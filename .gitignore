@@ -1,0 +1,49 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Node / frontend dependencies
+node_modules/
+**/node_modules/
+
+# Visual Studio / Rider / VS Code local state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET / NuGet generated artifacts
+packages/
+*.nupkg
+project.lock.json
+project.assets.json
+artifacts/
+TestResults/
+coverage/
+coverage.*
+
+# Runtime logs and local databases
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated/code intelligence caches
+.gitnexus/
+.understand-anything/
+
+# Local backup/reference copy, do not commit
+HRM_Leave_Management_old/
+
+# Local debug scripts, logs, and seed files may contain passwords/GUIDs
+MD_memory/debug/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

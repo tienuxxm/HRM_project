@@ -1,0 +1,4 @@
+interface:
+  display_name: "LUC HRM Refactor Guard"
+  short_description: "Refactor HRM safely from the copied LUC baseline."
+  default_prompt: "Use this skill before modifying or refactoring the copied LUC/HRM codebase."

@@ -1,0 +1,111 @@
+@model Application.LeaveBalances.LeaveBalanceResponse
+
+<div id="updateLeaveBalanceModal-@Model.Id" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="updateLeaveBalanceModal-@Model.Id">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900">Update Leave Balance</h3>
+                <div class="space-y-4">
+                    <!-- Read-only Employee -->
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-400">Employee</label>
+                        <input type="text" value="@Model.EmployeeName" class="bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg block w-full p-2.5" readonly>
+                    </div>
+
+                    <!-- Read-only Leave Type -->
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-400">Leave Type</label>
+                        <input type="text" value="@Model.LeaveTypeName" class="bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg block w-full p-2.5" readonly>
+                    </div>
+
+                    <!-- Read-only Year -->
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-400">Year</label>
+                        <input type="text" value="@Model.Year" class="bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg block w-full p-2.5" readonly>
+                    </div>
+
+                    <!-- Editable Allocated Days -->
+                    <div>
+                        <label for="upAllocated-@Model.Id" class="block mb-2 text-sm font-medium text-gray-900">Allocated Days</label>
+                        <input type="number" id="upAllocated-@Model.Id" value="@Model.AllocatedDays.ToString("G29")" step="0.5" min="0" max="365" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <p id="upAllocatedError-@Model.Id" class="mt-1 text-xs text-red-600 hidden"></p>
+                    </div>
+
+                    <!-- Editable Used Days -->
+                    <div>
+                        <label for="upUsed-@Model.Id" class="block mb-2 text-sm font-medium text-gray-900">Used Days</label>
+                        <input type="number" id="upUsed-@Model.Id" value="@Model.UsedDays.ToString("G29")" step="0.5" min="0" max="365" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <p id="upUsedError-@Model.Id" class="mt-1 text-xs text-red-600 hidden"></p>
+                    </div>
+
+                    <button type="button" onclick="updateLeaveBalance('@Model.Id')" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateLeaveBalance(id) {
+        const allocatedError = $('#upAllocatedError-' + id);
+        const usedError = $('#upUsedError-' + id);
+        
+        allocatedError.addClass('hidden').text('');
+        usedError.addClass('hidden').text('');
+        
+        const allocatedStr = $('#upAllocated-' + id).val();
+        const usedStr = $('#upUsed-' + id).val();
+        
+        let hasError = false;
+        
+        const allocated = parseFloat(allocatedStr);
+        if (isNaN(allocated) || allocated < 0 || allocated > 365) {
+            allocatedError.removeClass('hidden').text('Allocated days must be between 0 and 365.');
+            hasError = true;
+        }
+        
+        const used = parseFloat(usedStr);
+        if (isNaN(used) || used < 0 || used > 365) {
+            usedError.removeClass('hidden').text('Used days must be between 0 and 365.');
+            hasError = true;
+        }
+        
+        if (hasError) return;
+        
+        const fd = new FormData();
+        fd.append('Id', id);
+        fd.append('AllocatedDays', allocated);
+        fd.append('UsedDays', used);
+        
+        $.ajax({
+            type: 'POST',
+            url: '/leave-balance/update',
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function() {
+                $('#toast-container').load('@Url.Action("SuccessToastPartial", "Main", new { message = "Leave balance updated successfully" })');
+                setTimeout(function() {
+                    location.href = '/leave-balance';
+                }, 1500);
+            },
+            error: function(xhr) {
+                let errMsg = "Update failed.";
+                if (xhr.responseText) {
+                    try {
+                        const errObj = JSON.parse(xhr.responseText);
+                        if (errObj && errObj.description) {
+                            errMsg = errObj.description;
+                        }
+                    } catch (e) {}
+                }
+                $('#toast-container').load('@Url.Action("FailToastPartial", "Main", new { message = "FAIL_PLACEHOLDER" })'.replace("FAIL_PLACEHOLDER", errMsg));
+            }
+        });
+    }
+</script>

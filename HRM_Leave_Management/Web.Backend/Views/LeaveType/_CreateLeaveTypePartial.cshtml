@@ -1,0 +1,59 @@
+<div id="createLeaveTypeModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="createLeaveTypeModal">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900">Add Leave Type</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="ltCode" class="block mb-2 text-sm font-medium text-gray-900">Code</label>
+                        <input type="text" placeholder="e.g. AL, SL, ML" id="ltCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <p id="ltCodeError" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+                    <div>
+                        <label for="ltName" class="block mb-2 text-sm font-medium text-gray-900">Name</label>
+                        <input type="text" placeholder="Enter Leave Type Name" id="ltName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <p id="ltNameError" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+                    <div>
+                        <label for="ltDefaultDays" class="block mb-2 text-sm font-medium text-gray-900">Default Days</label>
+                        <input type="number" placeholder="e.g. 12" id="ltDefaultDays" min="0" max="365" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <p id="ltDaysError" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+                    <div>
+                        <label for="ltDesc" class="block mb-2 text-sm font-medium text-gray-900">Description (Optional)</label>
+                        <textarea placeholder="Enter Description" id="ltDesc" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                    </div>
+                    <button type="button" id="saveLtBtn" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    const toastContainer = $('#toast-container');
+    $('#ltCodeError, #ltNameError, #ltDaysError').hide();
+    $('#saveLtBtn').on('click', function(){
+        $('#ltCodeError, #ltNameError, #ltDaysError').hide();
+        var code=$('#ltCode').val(), name=$('#ltName').val(), days=$('#ltDefaultDays').val(), desc=$('#ltDesc').val();
+        if(!code||!code.trim()){$('#ltCodeError').show().text("Please enter code");return;}
+        if(!name||!name.trim()){$('#ltNameError').show().text("Please enter name");return;}
+        if(!days||parseInt(days)<0){$('#ltDaysError').show().text("Please enter valid days");return;}
+        var fd=new FormData();
+        fd.append('Code',code);fd.append('Name',name);fd.append('DefaultDays',days);fd.append('Description',desc);
+        $.ajax({type:"POST",url:'/leave-type/create',data:fd,processData:false,contentType:false,
+            success:function(){
+                toastContainer.load('@Url.Action("SuccessToastPartial","Main",new{message="Leave type created"},null)');
+                setTimeout(function(){location.href="/leave-type"},1500);
+            },
+            error:function(){
+                toastContainer.load('@Url.Action("FailToastPartial","Main",new{message="Creation failed"},null)');
+            }
+        });
+    });
+</script>

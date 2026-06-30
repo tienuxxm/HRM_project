@@ -1,0 +1,19 @@
+{
+    "name": "web.backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "css:build": "npx tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/styles.css",
+        "db": ""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "tailwindcss": "^3.3.3"
+    },
+    "dependencies": {
+        "flowbite": "^1.8.1"
+    }
+}

@@ -1,0 +1,53 @@
+﻿@model Domain.Abstractions.PagedList<Application.InvoiceHistories.Response.InvoiceHistoryResponse>
+<div class="overflow-x-auto w-full h-full overflow-y-auto">
+    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+        <tr>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                NO
+            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Invoice Code
+            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Total Products
+            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Total Price
+            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Payment Date
+            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                Payment Method
+            </th>
+        </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+        @foreach (var invoice in @Model.Data.Select((val, index) => new { val, index = index + 1 }))
+        {
+            <tr class="my-2 py-4">
+                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
+                    <strong>@invoice.index.ToString()</strong>
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                    <strong>@invoice.val.InvoiceCode</strong>
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                    @invoice.val.Quantity
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                    <strong>@invoice.val.TotalBillDisplay</strong>
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                    <strong>@invoice.val.PaymentDate</strong>
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                    <strong>@invoice.val.PaymentType</strong>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

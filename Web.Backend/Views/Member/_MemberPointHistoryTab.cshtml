@@ -1,0 +1,49 @@
+﻿@using Domain.MemberPointHistories
+@model Domain.Abstractions.PagedList<Application.MemberPointHistories.Response.MemberPointHistoryResponse>
+<div class="overflow-x-auto w-full h-full overflow-y-auto">
+    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+            <tr>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                    NO
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Content
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Points
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Date
+                </th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+            @foreach (var voucher in @Model.Data.Select((val, index) => new { val, index = index + 1 }))
+            {
+                <tr class="my-2 py-4">
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
+                        <strong>@voucher.index.ToString()</strong>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                        <strong>@voucher.val.Title</strong>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-right">
+                        @if (voucher.val.PointType == PointType.USED || voucher.val.PointType == PointType.REMOVED)
+                        {
+                            <span>@(voucher.val.Point)</span>
+                        }
+                        else
+                        {
+                            <span>+@(voucher.val.Point)</span>
+                        }
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                        <strong>@voucher.val.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

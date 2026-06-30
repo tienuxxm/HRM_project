@@ -1,0 +1,42 @@
+﻿@model Domain.Abstractions.PagedList<Application.MemberVoucher.Response.MemberVoucherResponse>
+
+<div class="overflow-x-auto w-full h-full overflow-y-auto">
+    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
+            <tr>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
+                    NO
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Content
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Application Time
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
+                    Status
+                </th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+            @foreach (var voucher in @Model.Data.Select((val, index) => new { val, index = index + 1 }))
+            {
+                <tr class="my-2 py-4">
+                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
+                        <strong>@voucher.index.ToString()</strong>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                        <strong>@voucher.val.TitleVoucher</strong>
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                        @voucher.val.GetAvalialbeDate
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-blue-500 text-left">
+                        <strong>@voucher.val.Status</strong>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

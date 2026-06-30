@@ -1,0 +1,126 @@
+﻿@model UpdateFeeAndServiceViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<nav class="flex mb-4" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                </svg>
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">MARKETING</span>
+            </div>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="/membership-class" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Fee and Service List</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Update Fee and Service</a>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<form method="post" action="@Url.Action("Update")" style="min-height: 543px" class="w-full bg-white p-4 rounded-md flex flex-col justify-between" enctype="multipart/form-data">
+    <div class="w-full flex flex-col">
+        <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-12">
+                <div class="w-full" id="feeAndServiceList">
+                    <div class="grid grid-cols-12 gap-2 mt-3">
+                        <div class="col-span-12">
+                            <label class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fee / Service</label>
+                            <input asp-for="UpdateFeeAndServiceModel.FeeAndServiceName" value="@Model.UpdateFeeAndServiceModel.FeeAndServiceName" required type="text" name="FeeAndServiceName" id="feeName" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Fee/Service Name">
+                        </div>
+                        <div class="2xl:col-span-4 xl:col-span-4 lg:col-span-4 md:col-span-4 col-span-12">
+                            <label for="feeTypes" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Payment Method</label>
+                            <select asp-for="UpdateFeeAndServiceModel.FeeType" id="productCategory" name="FeeType" name="feeType" id="feeTypes" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                @foreach (var res in Model.FeeTypes)
+                                {
+                                    if (res.Key == Model.UpdateFeeAndServiceModel.FeeType)
+                                    {
+                                        <option selected="selected" value="@res.Key">@res.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@res.Key">@res.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="2xl:col-span-4 xl:col-span-4 lg:col-span-4 md:col-span-4 col-span-6">
+                            <label class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Value</label>
+                            @if (Model.UpdateFeeAndServiceModel.IsPercent)
+                            {
+                                <input asp-for="UpdateFeeAndServiceModel.FeeValue" name="FeeValue" value="@Model.UpdateFeeAndServiceModel.FeePercent" required type="number" id="FeeValue" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Value">
+                            }
+                            else
+                            {
+                                <input asp-for="UpdateFeeAndServiceModel.FeeValue" name="FeeValue" value="@Model.UpdateFeeAndServiceModel.FeeAmount" required type="number" id="FeeValue" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Value">
+                            }
+                        </div>
+                        <div class="2xl:col-span-2 xl:col-span-2 lg:col-span-2 md:col-span-2 col-span-3">
+                            <div class="w-full flex h-full items-center mt-3">
+                                <div class="flex items-center">
+                                    <input asp-for="UpdateFeeAndServiceModel.IsPercent" name="IsPercent" id="percent" type="radio" value="@true" class="text-wnz-yellow w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-wnz-yellow focus:ring-2">
+                                    <label for="percent" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">%</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input asp-for="UpdateFeeAndServiceModel.IsPercent" type="radio" value="@false" name="IsPercent" class="text-wnz-yellow ml-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-wnz-yellow focus:ring-2">
+                                    <label for="vnd" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">VND</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="2xl:col-span-2 xl:col-span-2 lg:col-span-2 md:col-span-2 col-span-3">
+                            <div class="w-full flex h-full items-center mt-3">
+                                <input asp-for="UpdateFeeAndServiceModel.IsActive" name="IsActive" id="IsActive" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                <label for="IsActive" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Apply</label>
+                            </div>
+                        </div>
+                        <div class="invisible 2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
+                            <input asp-for="UpdateFeeAndServiceModel.Id" value="@Model.UpdateFeeAndServiceModel.Id" name="id" type="text" id="Id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-full flex justify-content-end">
+        <a href="/fee-and-services" type="button" class="mx-1 border border-wnz-yellow block rounded bg-white px-3 py-2 text-sm font-medium text-black transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.8887 8.41675C14.8887 9.28133 14.5579 10.4558 13.8965 11.9402C13.8809 11.9766 13.8522 12.0391 13.8105 12.1277C13.7741 12.2162 13.7402 12.2944 13.709 12.3621C13.6777 12.4298 13.6439 12.4871 13.6074 12.5339C13.5449 12.6225 13.472 12.6667 13.3887 12.6667C13.3105 12.6667 13.248 12.6407 13.2012 12.5886C13.1595 12.5365 13.1387 12.4714 13.1387 12.3933C13.1387 12.3464 13.1439 12.2761 13.1543 12.1824C13.1699 12.0938 13.1777 12.0339 13.1777 12.0027C13.2038 11.6485 13.2168 11.3282 13.2168 11.0417C13.2168 10.5157 13.1699 10.0444 13.0762 9.62769C12.9876 9.21102 12.8626 8.85164 12.7012 8.54956C12.5397 8.24227 12.3314 7.97925 12.0762 7.7605C11.821 7.53654 11.5449 7.35425 11.248 7.21362C10.9564 7.073 10.61 6.96362 10.209 6.8855C9.81315 6.80216 9.41211 6.74487 9.00586 6.71362C8.60482 6.68237 8.14909 6.66675 7.63867 6.66675H5.88867V8.66675C5.88867 8.80216 5.83919 8.91935 5.74023 9.01831C5.64128 9.11727 5.52409 9.16675 5.38867 9.16675C5.25326 9.16675 5.13607 9.11727 5.03711 9.01831L1.03711 5.01831C0.938151 4.91935 0.888672 4.80216 0.888672 4.66675C0.888672 4.53133 0.938151 4.41414 1.03711 4.31519L5.03711 0.315185C5.13607 0.216227 5.25326 0.166748 5.38867 0.166748C5.52409 0.166748 5.64128 0.216227 5.74023 0.315185C5.83919 0.414143 5.88867 0.531331 5.88867 0.666747V2.66675H7.63867C11.3522 2.66675 13.6309 3.71623 14.4746 5.81519C14.7507 6.5131 14.8887 7.38029 14.8887 8.41675Z" fill="black"/>
+                </svg>
+                <span class="mx-1">Cancel</span>
+            </div>
+        </a>
+        <button type="submit" id="submitButton" class="mx-1 block rounded bg-wnz-yellow px-3 py-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+            <div class="flex justify-center items-center">
+                <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 11.6667H9V8.66675H3V11.6667ZM10 11.6667H11V4.66675C11 4.59383 10.974 4.49487 10.9219 4.36987C10.8698 4.23966 10.8177 4.14852 10.7656 4.09644L8.57031 1.90112C8.51823 1.84904 8.42969 1.79696 8.30469 1.74487C8.17969 1.69279 8.07813 1.66675 8 1.66675V4.91675C8 5.12508 7.92708 5.30216 7.78125 5.448C7.63542 5.59383 7.45833 5.66675 7.25 5.66675H2.75C2.54167 5.66675 2.36458 5.59383 2.21875 5.448C2.07292 5.30216 2 5.12508 2 4.91675V1.66675H1V11.6667H2V8.41675C2 8.20841 2.07292 8.03133 2.21875 7.8855C2.36458 7.73966 2.54167 7.66675 2.75 7.66675H9.25C9.45833 7.66675 9.63542 7.73966 9.78125 7.8855C9.92708 8.03133 10 8.20841 10 8.41675V11.6667ZM7 4.41675V1.91675C7 1.84904 6.97396 1.79175 6.92188 1.74487C6.875 1.69279 6.81771 1.66675 6.75 1.66675H5.25C5.18229 1.66675 5.1224 1.69279 5.07031 1.74487C5.02344 1.79175 5 1.84904 5 1.91675V4.41675C5 4.48446 5.02344 4.54435 5.07031 4.59644C5.1224 4.64331 5.18229 4.66675 5.25 4.66675H6.75C6.81771 4.66675 6.875 4.64331 6.92188 4.59644C6.97396 4.54435 7 4.48446 7 4.41675ZM12 4.66675V11.9167C12 12.1251 11.9271 12.3022 11.7813 12.448C11.6354 12.5938 11.4583 12.6667 11.25 12.6667H0.75C0.541667 12.6667 0.364583 12.5938 0.21875 12.448C0.0729167 12.3022 0 12.1251 0 11.9167V1.41675C0 1.20841 0.0729167 1.03133 0.21875 0.885497C0.364583 0.739664 0.541667 0.666747 0.75 0.666747H8C8.20833 0.666747 8.4375 0.718831 8.6875 0.822998C8.9375 0.927165 9.13542 1.05216 9.28125 1.198L11.4688 3.3855C11.6146 3.53133 11.7396 3.72925 11.8438 3.97925C11.9479 4.22925 12 4.45841 12 4.66675Z" fill="white"/>
+                </svg>
+                <span class="mx-1">Save</span>
+            </div>
+        </button>
+    </div>
+
+</form>
