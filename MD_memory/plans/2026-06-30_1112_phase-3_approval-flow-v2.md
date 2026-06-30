@@ -1,4 +1,4 @@
-# Kế hoạch Phase 3: Dynamic Approval Flow — v2
+﻿# Kế hoạch Phase 3: Dynamic Approval Flow — v2
 
 - **Ngày tạo:** 2026-06-30
 - **Cập nhật:** 2026-06-30 13:07

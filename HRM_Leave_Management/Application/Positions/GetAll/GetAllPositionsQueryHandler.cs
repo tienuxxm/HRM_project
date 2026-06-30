@@ -16,6 +16,6 @@ internal sealed class GetAllPositionsQueryHandler : IQueryHandler<GetAllPosition
     public async Task<Result<List<Position>>> Handle(GetAllPositionsQuery request, CancellationToken cancellationToken)
     {
         var positions = await _positionRepository.GetAll(cancellationToken);
-        return positions ?? new List<Position>();
+        return positions?.Where(x => x.IsActive).ToList() ?? new List<Position>();
     }
 }

@@ -40,7 +40,8 @@ internal sealed class DeletePositionCommandHandler : ICommandHandler<DeletePosit
             return Result.Failure<BooleanResponse>(PositionErrors.HasEmployees);
         }
 
-        _positionRepository.Remove(position);
+        position.SetActive(false);
+        _positionRepository.Update(position);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new BooleanResponse
