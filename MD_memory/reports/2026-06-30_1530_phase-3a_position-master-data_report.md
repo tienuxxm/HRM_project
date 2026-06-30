@@ -2,10 +2,15 @@
 
 - **Date:** 2026-06-30
 - **Phase:** Phase 3A (Position Master Data + Employee PositionId migration)
-- **Status:** BUILD PASS / CHỜ USER UAT
+- **Status:** ✅ **UAT PASS / USER CONFIRMED** (2026-06-30)
 
-> [!WARNING]
-> Commit `34636e4` ("fix: stabilize phase 3a position master data") đã lỡ bị push lên `origin/main` trước khi UAT/User phê duyệt (vi phạm quy trình mới). Commit này hiện đang ở nhánh `main` trên remote và đang chờ ý kiến quyết định của User xem có giữ nguyên hay cần thực hiện rollback/reset nhánh `main`.
+> [!NOTE]
+> User đã tự UAT và xác nhận tất cả test cases pass vào ngày 2026-06-30:
+> - **Case 4 (Edit Position):** PASS
+> - **Case 6 (Delete unused Position):** PASS
+> - **Case 7 (Delete Position in use — UX error handling):** PASS
+>
+> Commit `34636e4` ("fix: stabilize phase 3a position master data") đã được push lên `origin/main` trước khi UAT (vi phạm quy trình). Tuy nhiên, UAT đã pass nên commit này được giữ nguyên.
 
 ---
 
@@ -99,8 +104,8 @@
   3. Tìm chức danh `Human Resources Manager` và click **Remove**.
   4. Trên modal xác nhận xóa, click **Delete**.
 * **Expected Result:**
-  * Thao tác xóa **phải bị chặn**.
-  * Hệ thống hiển thị thông báo lỗi cảnh báo: "Cannot delete position that has assigned employees" (mã lỗi `Position.HasEmployees`).
+  * Thao tác xóa **bị chặn thành công** bởi nghiệp vụ ở backend.
+  * Trình duyệt không bị điều hướng sang trang JSON thô nữa. Hệ thống tự động redirect quay lại `/position` và hiển thị Toast màu đỏ thông báo lỗi thân thiện: `"Cannot delete position that has assigned employees"`.
   * Chức danh `Human Resources Manager` vẫn tồn tại nguyên vẹn trong danh sách.
 
 ---

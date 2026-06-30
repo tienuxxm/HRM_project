@@ -81,6 +81,8 @@ public class PositionController : Controller
         var result = await _sender.Send(command, cancellationToken);
         if (result.IsSuccess)
             return RedirectToAction("Index");
-        return BadRequest(result.Error);
+
+        TempData["PositionError"] = result.Error.Name;
+        return RedirectToAction("Index");
     }
 }

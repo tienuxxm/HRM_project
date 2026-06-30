@@ -1,9 +1,9 @@
 ﻿# Kế hoạch Phase 3: Dynamic Approval Flow — v2
 
 - **Ngày tạo:** 2026-06-30
-- **Cập nhật:** 2026-06-30 13:07
+- **Cập nhật:** 2026-06-30 17:22
 - **Người lập:** Antigravity (Senior .NET Fullstack Engineer)
-- **Trạng thái:** ⏳ **Phase 3A hoàn thành - Chờ user làm UAT**
+- **Trạng thái:** ✅ **Phase 3A UAT PASS / USER CONFIRMED** — Tiếp theo: Phase 3B: LeaveApproverAssignment + Approve/Reject Flow + CEO Auto Approve
 - **Thư mục Build/Run:** `HRM_Leave_Management`
 - **Tiền đề:** Phase 2C.3 UAT pass. Review model đã chốt (`2026-06-30_1044_phase-3_approval-model-review.md`).
 - **Plan cũ superseded:** `2026-06-29_1542_phase-3_approval-flow.md` — KHÔNG còn hợp lệ.
