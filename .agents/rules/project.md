@@ -111,6 +111,31 @@ description: Quy tac lam viec cho du an HRM/Leave Management tach tu Project LUC
 - Truoc khi commit hoac ket luan scope thay doi, chay `detect_changes` neu da sua code.
 - Khong rename symbol bang find/replace thu cong. Neu can rename lon, dung cong cu refactor hoac len plan rieng.
 
+## Git History Va Backup Checkpoint
+
+- Repo da co remote GitHub, phai giu lich su thay doi bang commit nho, ro scope.
+- Truoc khi code:
+  - Chay `git status --short`.
+  - Neu working tree dang dirty, dung lai va bao user danh sach thay doi hien co truoc khi sua tiep.
+  - Kiem tra branch bang `git branch --show-current`.
+- Trong khi code:
+  - Khong dung `git add .` neu chua review scope.
+  - Uu tien stage file ro rang: `git add -- <file1> <file2>`.
+  - Neu thay doi tren 10 file, phai dung lai va bao `git diff --stat` + `git diff --name-status` truoc khi tiep tuc.
+  - Khong stage/commit thu muc local/generated: `bin/`, `obj/`, `node_modules/`, `.gitnexus/`, `.understand-anything/`, `HRM_Leave_Management_old/`, `MD_memory/debug/`.
+- Truoc khi bao xong:
+  - Chay `git diff --stat`.
+  - Chay `git diff --name-status`.
+  - Neu da stage, chay `git diff --cached --name-status`.
+  - Chay build/test/encoding scan theo phase.
+  - Chay `git status --short`.
+- Sau khi phase/fix da verify va user/codex cho phep checkpoint:
+  - `git add -- <explicit files only>`
+  - `git diff --cached --name-status`
+  - `git commit -m "<type>: <short phase/fix summary>"`
+  - `git push origin main`
+- Neu lenh Git loi, phai bao nguyen van loi va khong tiep tuc code vong qua loi do.
+
 ## Nguyen Tac Debug Va Fix Loi
 
 - Dung systematic debugging khi gap loi build/run/login/database/UI.

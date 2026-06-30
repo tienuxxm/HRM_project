@@ -22,6 +22,45 @@ When architecture facts are needed, read `references/root-architecture.md`.
 7. **Verify before completion.** At minimum run build; for runnable changes also verify login, dashboard, and any touched route.
 8. **Document the result.** Add or update a concise `MD_memory/` report with what changed, what was verified, and what risk remains.
 
+## Git History Checkpoint Rules
+
+The repo has a real Git remote. Preserve history before and after Anti/Codex edits so large accidental changes can be audited and restored.
+
+Before coding:
+
+1. Run `git status --short`.
+2. If the tree is not clean, stop and report the existing changes before editing.
+3. Confirm the active branch with `git branch --show-current`.
+
+While coding:
+
+- Do not use broad `git add .` unless the scope has been reviewed and generated folders are ignored.
+- Prefer explicit staging: `git add -- <file1> <file2> ...`.
+- For changes touching more than 10 files, stop and report `git diff --stat` and `git diff --name-status` before continuing.
+- Never stage or commit generated/dependency/local files such as `bin/`, `obj/`, `node_modules/`, `.gitnexus/`, `.understand-anything/`, `HRM_Leave_Management_old/`, or `MD_memory/debug/`.
+
+Before claiming done:
+
+1. Run `git diff --stat`.
+2. Run `git diff --name-status`.
+3. Run `git diff --cached --name-status` if anything is staged.
+4. Run the required build/test/encoding checks for the phase.
+5. Run `git status --short`.
+
+Checkpoint after a verified phase or fix:
+
+```powershell
+git status --short
+git diff --stat
+git diff --name-status
+git add -- <explicit files only>
+git diff --cached --name-status
+git commit -m "<type>: <short phase/fix summary>"
+git push origin main
+```
+
+If a Git command fails, report the exact error and do not continue coding around it.
+
 ## Plan/Report Naming Rules
 
 Use timestamped names for all new planning and reporting documents created after 2026-06-25:

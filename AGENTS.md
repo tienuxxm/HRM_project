@@ -59,4 +59,6 @@ Before starting a new HRM phase or editing code, restate the architecture bounda
 Do not code a new phase while the active plan/checklist is stale. Do not change Keycloak/auth/permission setup unless the task is explicitly an approved auth task.
 
 Do not continue browser/subagent UAT by default. Only run UAT in browser when the user or Codex explicitly asks for it; otherwise stop and provide a manual step-by-step UAT report for the user to execute.
+
+Before and after HRM coding, preserve Git history: run `git status --short`; if the tree is dirty before work, stop and report. For changes touching more than 10 files, report `git diff --stat` and `git diff --name-status` before continuing. Stage explicit files only, verify `git diff --cached --name-status`, then commit and push a checkpoint after verified work. Never stage generated/local folders such as `bin/`, `obj/`, `node_modules/`, `.gitnexus/`, `.understand-anything/`, `HRM_Leave_Management_old/`, or `MD_memory/debug/`.
 <!-- hrm-refactor-guard:end -->
