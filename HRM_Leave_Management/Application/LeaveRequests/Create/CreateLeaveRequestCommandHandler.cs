@@ -1,4 +1,4 @@
-using Application.Abstractions.Authentication;
+﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Clock;
 using Application.Abstractions.Messaging;
 using Application.Response;
@@ -55,6 +55,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         }
 
         var employee = await _employeeRepository.GetEntitiesAsQueryable()
+            .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.UserId == user.Id && e.IsActive, cancellationToken);
         if (employee == null)
         {
@@ -62,6 +63,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         }
 
         var employeeId = employee.Id;
+        bool isCeo = employee.Position != null && employee.Position.Code == "CEO";
 
         // 2. Validate ngày hợp lệ (V-2)
         if (request.StartDate > request.EndDate)
@@ -194,6 +196,13 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             duration,
             request.Reason,
             utcNow);
+
+        if (isCeo)
+        {
+            leaveRequest.SetApprovedForCeo(utcNow);
+            leaveBalance.AddUsedDays(duration);
+            _leaveBalanceRepository.Update(leaveBalance);
+        }
 
         _leaveRequestRepository.Add(leaveRequest);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

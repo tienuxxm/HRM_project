@@ -1,4 +1,4 @@
-using Domain.Abstractions;
+﻿using Domain.Abstractions;
 using Domain.Employees;
 using Domain.LeaveTypes;
 
@@ -65,6 +65,11 @@ public class LeaveBalance : Entity<LeaveBalanceId>
     {
         AllocatedDays = allocatedDays;
         UsedDays = usedDays;
+    }
+
+    public void AddUsedDays(decimal days)
+    {
+        UsedDays += days;
     }
 
     public void SetActive(bool isActive)

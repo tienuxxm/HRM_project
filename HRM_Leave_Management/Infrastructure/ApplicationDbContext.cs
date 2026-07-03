@@ -1,8 +1,9 @@
-using System.Data;
+﻿using System.Data;
 using Application.Abstractions.Clock;
 using Application.Exceptions;
 using Domain.Abstractions;
 using Domain.Positions;
+using Domain.LeaveApproverAssignments;
 using Infrastructure.Outbox;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -107,4 +108,5 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IDataProtecti
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
     public DbSet<Position> Positions { get; set; } = null!;
+    public DbSet<LeaveApproverAssignment> LeaveApproverAssignments { get; set; } = null!;
 }

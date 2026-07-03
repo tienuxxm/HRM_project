@@ -1,4 +1,4 @@
-using Amazon.Runtime;
+﻿using Amazon.Runtime;
 using Amazon.S3;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.AWS;
@@ -55,6 +55,7 @@ using Domain.Users;
 using Domain.LeaveTypes;
 using Domain.LeaveBalances;
 using Domain.LeaveRequests;
+using Domain.LeaveApproverAssignments;
 using Domain.UserToRoles;
 using Domain.Vouchers;
 using Infrastructure.Authentication;
@@ -142,6 +143,8 @@ public static class DependencyInjection
         services.AddScoped<ILeaveBalanceRepository, LeaveBalanceRepository>();
 
         services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
+
+        services.AddScoped<ILeaveApproverAssignmentRepository, LeaveApproverAssignmentRepository>();
 
         services.AddScoped<IProductRepository, ProductRepository>();
 

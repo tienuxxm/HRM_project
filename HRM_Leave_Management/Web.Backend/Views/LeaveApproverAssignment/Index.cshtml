@@ -1,0 +1,409 @@
+@model List<Domain.LeaveApproverAssignments.LeaveApproverAssignment>
+
+@{
+    ViewBag.Title = "Cấu hình phê duyệt nghỉ phép";
+    Layout = "_Layout";
+    bool canUpdate = ViewBag.CanUpdate ?? false;
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <!-- Breadcrumb -->
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Leave Management</span>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Cấu hình phê duyệt</a>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Card -->
+        <div style="min-height: 543px" class="bg-white w-full p-6 rounded-lg mt-5 flex flex-col justify-between shadow-sm border border-gray-200">
+            <div class="w-full">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-200">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Cấu hình người phê duyệt nghỉ phép</h2>
+                        <p class="text-sm text-gray-500 mt-1">Quản lý quy trình phân công người phê duyệt đơn xin nghỉ phép dựa trên phòng ban và chức vụ.</p>
+                    </div>
+                    @if (canUpdate)
+                    {
+                        <div class="mt-3 md:mt-0 flex justify-end">
+                            <button type="button" data-modal-target="createAssignmentModal" data-modal-toggle="createAssignmentModal"
+                                    class="inline-block rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
+                                Thêm cấu hình mới
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto w-full h-full mt-4">
+                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                        <thead class="bg-[#F4F7FC]">
+                            <tr>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-center w-16">No</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Người phê duyệt (Approver)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Phòng ban áp dụng (Target Department)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Chức vụ áp dụng (Target Position)</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-center w-36">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @if (Model == null || !Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-8 text-gray-500 font-medium">
+                                        Chưa có cấu hình phê duyệt nào được tạo.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var assignment in Model.Select((val, index) => new { val, index = index + 1 }))
+                                {
+                                    <tr class="hover:bg-gray-50 transition duration-150">
+                                        <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-950 text-center">
+                                            @assignment.index.ToString()
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-950 font-semibold">
+                                            @(assignment.val.Approver?.FullName) (@(assignment.val.Approver?.EmployeeCode))
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                                            @(assignment.val.TargetDepartment?.Name ?? "Tất cả phòng ban")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                                            @(assignment.val.TargetPosition?.Name ?? "Tất cả chức vụ")
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-center">
+                                            <div class="flex justify-center items-center gap-3">
+                                                @if (canUpdate)
+                                                {
+                                                    <button type="button" 
+                                                            onclick="openEditModal('@assignment.val.Id.Value', '@assignment.val.ApproverEmployeeId.Value', '@(assignment.val.TargetDepartmentId?.Value)', '@(assignment.val.TargetPositionId?.Value)')"
+                                                            class="inline-flex items-center rounded bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-600/20 hover:bg-indigo-100 transition duration-150 cursor-pointer">
+                                                        Sửa
+                                                    </button>
+                                                    <button type="button" 
+                                                            onclick="deleteAssignment('@assignment.val.Id.Value')"
+                                                            class="inline-flex items-center rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20 hover:bg-red-100 transition duration-150 cursor-pointer">
+                                                        Xóa
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-gray-400 text-xs italic">Không có quyền</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm mới -->
+@if (canUpdate)
+{
+    <div id="createAssignmentModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="createAssignmentModal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="px-6 py-6 lg:px-8">
+                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Thêm cấu hình phê duyệt mới</h3>
+                    <form id="createAssignmentForm" class="space-y-4">
+                        <div>
+                            <label for="createApprover" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Người phê duyệt (Approver) <span class="text-red-500">*</span></label>
+                            <select id="createApprover" name="ApproverEmployeeId" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">-- Chọn người phê duyệt --</option>
+                                @if (ViewBag.Employees != null)
+                                {
+                                    foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
+                                    {
+                                        <option value="@emp.Id.Value">@emp.FullName (@emp.EmployeeCode)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label for="createDepartment" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phòng ban áp dụng</label>
+                            <select id="createDepartment" name="targetDepartmentId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">Tất cả phòng ban</option>
+                                @if (ViewBag.Departments != null)
+                                {
+                                    foreach (var dept in (List<Domain.Departments.Department>)ViewBag.Departments)
+                                    {
+                                        <option value="@dept.Id.Value">@dept.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label for="createPosition" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chức vụ áp dụng</label>
+                            <select id="createPosition" name="targetPositionId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">Tất cả chức vụ</option>
+                                @if (ViewBag.Positions != null)
+                                {
+                                    foreach (var pos in (List<Domain.Positions.Position>)ViewBag.Positions)
+                                    {
+                                        <option value="@pos.Id.Value">@pos.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">Lưu cấu hình</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cập nhật -->
+    <div id="editAssignmentModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="closeEditModal()">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="px-6 py-6 lg:px-8">
+                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Cập nhật cấu hình phê duyệt</h3>
+                    <form id="editAssignmentForm" class="space-y-4">
+                        <input type="hidden" id="editId" name="id" />
+                        <div>
+                            <label for="editApprover" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Người phê duyệt (Approver) <span class="text-red-500">*</span></label>
+                            <select id="editApprover" name="ApproverEmployeeId" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">-- Chọn người phê duyệt --</option>
+                                @if (ViewBag.Employees != null)
+                                {
+                                    foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
+                                    {
+                                        <option value="@emp.Id.Value">@emp.FullName (@emp.EmployeeCode)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label for="editDepartment" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phòng ban áp dụng</label>
+                            <select id="editDepartment" name="targetDepartmentId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">Tất cả phòng ban</option>
+                                @if (ViewBag.Departments != null)
+                                {
+                                    foreach (var dept in (List<Domain.Departments.Department>)ViewBag.Departments)
+                                    {
+                                        <option value="@dept.Id.Value">@dept.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label for="editPosition" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chức vụ áp dụng</label>
+                            <select id="editPosition" name="targetPositionId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="">Tất cả chức vụ</option>
+                                @if (ViewBag.Positions != null)
+                                {
+                                    foreach (var pos in (List<Domain.Positions.Position>)ViewBag.Positions)
+                                    {
+                                        <option value="@pos.Id.Value">@pos.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition font-semibold">Cập nhật cấu hình</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div id="deleteConfirmModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="closeDeleteConfirm()">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="p-6 text-center">
+                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Bạn có chắc chắn muốn xóa cấu hình phê duyệt này không?</h3>
+                    <div class="w-full flex justify-center items-center">
+                        <button onclick="confirmDeleteAssignment()" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                            Đồng ý
+                        </button>
+                        <button onclick="closeDeleteConfirm()" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Hủy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const createForm = document.getElementById("createAssignmentForm");
+        if (createForm) {
+            createForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                const formData = new FormData(createForm);
+                
+                fetch("/leave-approver-assignment/create", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, true);
+                        window.location.reload();
+                    } else {
+                        showToast("Lỗi: " + data.message, false);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast("Có lỗi xảy ra khi tạo cấu hình.", false);
+                });
+            });
+        }
+
+        const editForm = document.getElementById("editAssignmentForm");
+        if (editForm) {
+            editForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                const formData = new FormData(editForm);
+                
+                fetch("/leave-approver-assignment/update", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, true);
+                        window.location.reload();
+                    } else {
+                        showToast("Lỗi: " + data.message, false);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast("Có lỗi xảy ra khi cập nhật cấu hình.", false);
+                });
+            });
+        }
+    });
+
+    let editModalInstance = null;
+
+    function openEditModal(id, approverId, deptId, posId) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editApprover").value = approverId;
+        document.getElementById("editDepartment").value = deptId || "";
+        document.getElementById("editPosition").value = posId || "";
+
+        const $targetEl = document.getElementById("editAssignmentModal");
+        if ($targetEl) {
+            editModalInstance = new Modal($targetEl, { closable: true }, { id: 'editAssignmentModal', override: true });
+            editModalInstance.show();
+        }
+    }
+
+    function closeEditModal() {
+        if (editModalInstance) {
+            editModalInstance.hide();
+            editModalInstance = null;
+        }
+        // Safety: clean orphaned backdrops AFTER Flowbite animation completes
+        setTimeout(function() {
+            document.querySelectorAll('[modal-backdrop]').forEach(function(el) { el.remove(); });
+        }, 300);
+    }
+
+    let pendingDeleteId = null;
+    let deleteConfirmModalInstance = null;
+
+    function deleteAssignment(id) {
+        pendingDeleteId = id;
+        const $targetEl = document.getElementById("deleteConfirmModal");
+        if ($targetEl) {
+            deleteConfirmModalInstance = new Modal($targetEl, { closable: true }, { id: 'deleteConfirmModal', override: true });
+            deleteConfirmModalInstance.show();
+        }
+    }
+
+    function closeDeleteConfirm() {
+        pendingDeleteId = null;
+        if (deleteConfirmModalInstance) {
+            deleteConfirmModalInstance.hide();
+            deleteConfirmModalInstance = null;
+        }
+        // Safety: clean orphaned backdrops AFTER Flowbite animation completes
+        setTimeout(function() {
+            document.querySelectorAll('[modal-backdrop]').forEach(function(el) { el.remove(); });
+        }, 300);
+    }
+
+    function confirmDeleteAssignment() {
+        if (!pendingDeleteId) return;
+        const idToDelete = pendingDeleteId;
+        closeDeleteConfirm();
+
+        const formData = new FormData();
+        formData.append("id", idToDelete);
+
+        fetch("/leave-approver-assignment/delete", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, true);
+                window.location.reload();
+            } else {
+                showToast("Lỗi: " + data.message, false);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("Có lỗi xảy ra khi xóa cấu hình.", false);
+        });
+    }
+</script>

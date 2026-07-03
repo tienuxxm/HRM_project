@@ -1,0 +1,231 @@
+@model Application.LeaveRequests.Get.LeaveRequestResponse
+
+@{
+    ViewBag.Title = "Chi tiết đơn xin nghỉ phép";
+    Layout = "_Layout";
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <!-- Breadcrumb -->
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a href="/leave-request" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Leave Management</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Chi tiết đơn nghỉ phép</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Card -->
+        <div class="bg-white w-full p-6 rounded-lg mt-5 shadow-sm border border-gray-200">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center border-b border-gray-200 pb-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Thông tin chi tiết đơn xin nghỉ phép</h2>
+                    <p class="text-sm text-gray-500 mt-1">Mã đơn: @Model.Id</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="/leave-request" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left: Leave details -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-gray-50 rounded-lg p-5 border border-gray-150">
+                        <h3 class="text-md font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Thông tin nhân viên
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs text-gray-500 block">Họ và tên</span>
+                                <span class="text-sm font-semibold text-gray-900">@Model.EmployeeName</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 block">Mã nhân viên</span>
+                                <span class="text-sm font-semibold text-gray-900">@Model.EmployeeCode</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-5 border border-gray-150">
+                        <h3 class="text-md font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Chi tiết lịch nghỉ
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 block">Loại nghỉ phép</span>
+                                <span class="text-sm font-semibold text-indigo-600">@Model.LeaveTypeName</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 block">Số ngày nghỉ</span>
+                                <span class="text-sm font-bold text-gray-900">@Model.Duration.ToString("G29") ngày</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 block">Ngày bắt đầu nghỉ</span>
+                                <span class="text-sm font-semibold text-gray-900">@Model.StartDate.ToString("dd/MM/yyyy") (@Model.StartDayPart)</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 block">Ngày kết thúc nghỉ</span>
+                                <span class="text-sm font-semibold text-gray-900">@Model.EndDate.ToString("dd/MM/yyyy") (@Model.EndDayPart)</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">Lý do xin nghỉ</span>
+                            <p class="text-sm text-gray-800 bg-white p-3 rounded border border-gray-200 mt-1 whitespace-pre-line font-medium">@Model.Reason</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Approval status & actions -->
+                <div class="space-y-6">
+                    <div class="bg-gray-50 rounded-lg p-5 border border-gray-150">
+                        <h3 class="text-md font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Trạng thái duyệt
+                        </h3>
+                        <div class="mb-4">
+                            <span class="text-xs text-gray-500 block mb-1">Trạng thái hiện tại</span>
+                            @if (Model.Status == "Pending")
+                            {
+                                <span class="inline-flex items-center rounded-full bg-yellow-50 px-3 py-1 text-sm font-semibold text-yellow-800 ring-1 ring-inset ring-yellow-600/20">Chờ duyệt (Pending)</span>
+                            }
+                            else if (Model.Status == "Approved")
+                            {
+                                <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-800 ring-1 ring-inset ring-green-600/20">Đã duyệt (Approved)</span>
+                            }
+                            else if (Model.Status == "Rejected")
+                            {
+                                <span class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-800 ring-1 ring-inset ring-red-600/20">Từ chối (Rejected)</span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-sm font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/10">Đã hủy (Canceled)</span>
+                            }
+                        </div>
+
+                        @if (Model.Status != "Pending")
+                        {
+                            <div class="border-t border-gray-200 pt-4 space-y-3">
+                                <div>
+                                    <span class="text-xs text-gray-500 block">Người xử lý</span>
+                                    <span class="text-sm font-semibold text-gray-900">@(Model.ProcessedByName ?? "Hệ thống / Tự xử lý")</span>
+                                </div>
+                                @if (Model.ProcessedAt.HasValue)
+                                {
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Thời gian xử lý</span>
+                                        <span class="text-sm font-semibold text-gray-900">@Model.ProcessedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                }
+                                <div>
+                                    <span class="text-xs text-gray-500 block">Ý kiến phê duyệt</span>
+                                    <p class="text-sm text-gray-700 italic bg-white p-3 rounded border border-gray-200 mt-1">
+                                        @(string.IsNullOrEmpty(Model.Comment) ? "(Không có ý kiến)" : $"\"{Model.Comment}\"")
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.Status == "Pending" && Model.CanApprove)
+                    {
+                        <div class="bg-indigo-50 rounded-lg p-5 border border-indigo-150">
+                            <h3 class="text-md font-semibold text-indigo-900 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Phê duyệt yêu cầu
+                            </h3>
+                            <form id="approvalForm" class="space-y-4">
+                                <input type="hidden" id="leaveRequestId" name="id" value="@Model.Id" />
+                                <div>
+                                    <label for="approvalComment" class="block text-sm font-medium text-indigo-900 mb-1">
+                                        Ý kiến / Bình luận
+                                    </label>
+                                    <textarea id="approvalComment" name="comment" rows="3" class="block w-full rounded-md border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" placeholder="Nhập ý kiến phê duyệt hoặc lý do từ chối..."></textarea>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button type="button" onclick="submitApproval('approve')" class="w-full inline-flex items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Đồng ý (Approve)
+                                    </button>
+                                    <button type="button" onclick="submitApproval('reject')" class="w-full inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Từ chối (Reject)
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitApproval(action) {
+        const id = document.getElementById("leaveRequestId").value;
+        const comment = document.getElementById("approvalComment").value;
+
+        const formData = new FormData();
+        formData.append("LeaveRequestId", id);
+        formData.append("Comment", comment);
+
+        const url = action === 'approve' ? '/leave-request/approve' : '/leave-request/reject';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, true);
+                window.location.href = '/leave-request';
+            } else {
+                showToast("Lỗi: " + data.message, false);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("Có lỗi xảy ra trong quá trình thực hiện tác vụ.", false);
+        });
+    }
+</script>

@@ -1,10 +1,14 @@
-using Application.Abstractions.Authentication;
+﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Role;
 using Application.LeaveRequests.Cancel;
 using Application.LeaveRequests.Create;
 using Application.LeaveRequests.Get;
+using Application.LeaveRequests.GetById;
+using Application.LeaveRequests.Approve;
+using Application.LeaveRequests.Reject;
 using Application.LeaveTypes.GetAll;
 using Application.Employees.GetAll;
+using Domain.LeaveRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,11 +42,13 @@ public class LeaveRequestController : Controller
         // Kiểm tra quyền truy cập
         var checkViewPerm = await _roleService.checkRoleExist(identityId, "VIEW_LEAVE_REQUEST", cancellationToken);
         var checkApprovePerm = await _roleService.checkRoleExist(identityId, "APPROVE_LEAVE_REQUEST", cancellationToken);
+        var checkAdminOrHRPerm = await _roleService.checkRoleExist(identityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
 
         bool canView = checkViewPerm.Value;
         bool canApprove = checkApprovePerm.Value;
+        bool isAdminOrHR = checkAdminOrHRPerm.Value;
 
-        if (!canView && !canApprove)
+        if (!canView && !canApprove && !isAdminOrHR)
         {
             return Redirect("/NoPermission");
         }
@@ -59,8 +65,8 @@ public class LeaveRequestController : Controller
         var leaveTypesResult = await _sender.Send(new GetAllLeaveTypesQuery(), cancellationToken);
         ViewBag.LeaveTypes = leaveTypesResult.Value ?? new();
 
-        // Admin/HR có thể lọc theo employee
-        if (canApprove)
+        // Admin/HR (có global visibility) hoặc người duyệt có thể lọc theo employee
+        if (isAdminOrHR || canApprove)
         {
             var employeesResult = await _sender.Send(new GetAllEmployeesQuery(), cancellationToken);
             ViewBag.Employees = employeesResult.Value ?? new();
@@ -111,5 +117,46 @@ public class LeaveRequestController : Controller
         }
 
         return Json(new { success = true, message = "Đã hủy đơn xin nghỉ phép thành công." });
+    }
+
+    [HttpGet("detail/{id:guid}")]
+    public async Task<IActionResult> Detail([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var query = new GetLeaveRequestByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error == LeaveRequestErrors.NoPermission)
+            {
+                return Redirect("/NoPermission");
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(result.Value);
+    }
+
+    [HttpPost("approve")]
+    public async Task<IActionResult> Approve([FromForm] ApproveLeaveRequestCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return Json(new { success = false, message = result.Error.Name });
+        }
+
+        return Json(new { success = true, message = "Đã duyệt đơn xin nghỉ phép thành công." });
+    }
+
+    [HttpPost("reject")]
+    public async Task<IActionResult> Reject([FromForm] RejectLeaveRequestCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return Json(new { success = false, message = result.Error.Name });
+        }
+
+        return Json(new { success = true, message = "Đã từ chối đơn xin nghỉ phép thành công." });
     }
 }

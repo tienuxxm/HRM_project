@@ -1,4 +1,4 @@
-namespace Application.LeaveRequests.Get;
+﻿namespace Application.LeaveRequests.Get;
 
 public sealed class LeaveRequestResponse
 {
@@ -20,4 +20,5 @@ public sealed class LeaveRequestResponse
     public Guid? ProcessedBy { get; set; }
     public string? ProcessedByName { get; set; }
     public string? Comment { get; set; }
+    public bool CanApprove { get; set; }
 }

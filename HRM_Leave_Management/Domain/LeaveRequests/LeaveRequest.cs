@@ -1,4 +1,4 @@
-using Domain.Abstractions;
+﻿using Domain.Abstractions;
 using Domain.Employees;
 using Domain.LeaveTypes;
 
@@ -113,5 +113,13 @@ public class LeaveRequest : Entity<LeaveRequestId>
         ProcessedBy = rejectedBy;
         ProcessedAt = processedAt;
         Comment = comment;
+    }
+
+    public void SetApprovedForCeo(DateTime utcNow)
+    {
+        Status = LeaveRequestStatus.Approved;
+        ProcessedBy = null;
+        ProcessedAt = utcNow;
+        Comment = "Auto approved for CEO";
     }
 }

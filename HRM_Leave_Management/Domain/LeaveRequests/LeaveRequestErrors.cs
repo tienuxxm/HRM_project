@@ -1,4 +1,4 @@
-using Domain.Abstractions;
+﻿using Domain.Abstractions;
 
 namespace Domain.LeaveRequests;
 
@@ -47,4 +47,24 @@ public static class LeaveRequestErrors
     public static Error CrossYearNotAllowed = new(
         "LeaveRequest.CrossYearNotAllowed",
         "A leave request cannot cross multiple calendar years");
+
+    public static Error CannotApproveSelf = new(
+        "LeaveRequest.CannotApproveSelf",
+        "You cannot approve your own leave request");
+
+    public static Error CannotRejectSelf = new(
+        "LeaveRequest.CannotRejectSelf",
+        "You cannot reject your own leave request");
+
+    public static Error InsufficientBalanceOnApprove = new(
+        "LeaveRequest.InsufficientBalanceOnApprove",
+        "Insufficient available leave days to approve this request");
+
+    public static Error NoApprovalAssignment = new(
+        "LeaveRequest.NoApprovalAssignment",
+        "No active approver assignment found that authorizes you to approve/reject this request");
+
+    public static Error NoPermission = new(
+        "LeaveRequest.NoPermission",
+        "You do not have permission to perform this action.");
 }
