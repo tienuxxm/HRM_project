@@ -5,7 +5,9 @@ using Application.Employees.Create;
 using Application.Employees.Delete;
 using Application.Employees.GetAll;
 using Application.Employees.Update;
+using Application.Employees.ProvisionAccount;
 using Application.Positions.GetAll;
+using Application.Roles.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +46,11 @@ public class EmployeeController : Controller
         var posQuery = new GetAllPositionsQuery();
         var posResult = await _sender.Send(posQuery, cancellationToken);
         ViewBag.Positions = posResult.IsSuccess ? posResult.Value : new();
+
+        // Load roles for provision account modal
+        var roleCommand = new GetAllRoleCommand(100, 0, null);
+        var roleResult = await _sender.Send(roleCommand, cancellationToken);
+        ViewBag.Roles = roleResult.IsSuccess ? roleResult.Value : new();
 
         var query = new GetAllEmployeesQuery();
         var result = await _sender.Send(query, cancellationToken);
@@ -95,5 +102,21 @@ public class EmployeeController : Controller
         if (result.IsSuccess)
             return RedirectToAction("Index");
         return BadRequest(result.Error);
+    }
+
+    [HttpPost("provision-account")]
+    public async Task<IActionResult> ProvisionAccount([FromForm] ProvisionEmployeeAccountCommand command,
+        CancellationToken cancellationToken)
+    {
+        var checkEmployeeRoleExist = await _roleService.checkRoleExist(_userContext.IdentityId, "UPDATE_EMPLOYEE", cancellationToken);
+        var checkUserRoleExist = await _roleService.checkRoleExist(_userContext.IdentityId, "UPDATE_USER", cancellationToken);
+        if (!checkEmployeeRoleExist.Value || !checkUserRoleExist.Value)
+        {
+            return Redirect("/NoPermission");
+        }
+        var result = await _sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+            return BadRequest(result.Error);
+        return Ok(result.Value);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Authentication;
 using Application.Abstractions.Role;
 using Application.Bookings.BookingReport;
 using Application.Orders.GetRevenue;
@@ -29,6 +29,11 @@ public class DashboardController : Controller
             await _roleService.checkRoleExist(_userContext.IdentityId, "VIEW_DASHBOARD", cancellationToken);
         if (!checkRoleExist.Value)
         {
+            var hasLeavePermission = await _roleService.checkRoleExist(_userContext.IdentityId, "VIEW_LEAVE_REQUEST", cancellationToken);
+            if (hasLeavePermission.Value)
+            {
+                return Redirect("/leave-request");
+            }
             return Redirect("/NoPermission");
         }
 

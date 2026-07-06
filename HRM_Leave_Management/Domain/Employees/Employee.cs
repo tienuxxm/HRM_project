@@ -93,5 +93,16 @@ public class Employee : Entity<EmployeeId>
     {
         IsActive = isActive;
     }
+
+    public Result LinkUser(UserId userId)
+    {
+        if (UserId is not null)
+        {
+            return Result.Failure(EmployeeErrors.AlreadyLinkedToUser);
+        }
+
+        UserId = userId;
+        return Result.Success();
+    }
 }
 

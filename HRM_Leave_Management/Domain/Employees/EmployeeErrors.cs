@@ -15,4 +15,8 @@ public static class EmployeeErrors
     public static Error HasSubordinates = new(
         "Employee.HasSubordinates",
         "Cannot delete employee that has subordinates");
+
+    public static Error AlreadyLinkedToUser = new(
+        "Employee.AlreadyLinkedToUser",
+        "Employee already has a linked user account");
 }

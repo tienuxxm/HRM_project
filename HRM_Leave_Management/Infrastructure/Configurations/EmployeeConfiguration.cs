@@ -1,4 +1,4 @@
-﻿using Domain.Departments;
+using Domain.Departments;
 using Domain.Employees;
 using Domain.Positions;
 using Domain.Users;
@@ -60,6 +60,11 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(e => e.UserId)
+            .IsUnique()
+            .HasFilter("user_id IS NOT NULL")
+            .HasDatabaseName("IX_employee_user_id");
 
         // Nullable FK — ManagerId (self-ref)
         builder.Property(e => e.ManagerId)

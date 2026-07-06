@@ -1,4 +1,4 @@
-﻿using Domain.Abstractions;
+using Domain.Abstractions;
 
 namespace Domain.Users;
 
@@ -17,6 +17,6 @@ public class UserErrors
         "The Email already exist");
 
     public static Error DuplicateUsername = new(
-        "User.DuplicateEmail",
+        "User.DuplicateUsername",
         "The Username already exist");
 }

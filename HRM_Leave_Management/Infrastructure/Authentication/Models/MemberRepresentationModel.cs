@@ -1,4 +1,4 @@
-﻿using Domain.Members;
+using Domain.Members;
 using Domain.Users;
 
 namespace Infrastructure.Authentication.Models;
@@ -70,7 +70,7 @@ public sealed class MemberRepresentationModel
             FirstName = user.Name.Value,
             LastName = user.Name.Value,
             Email = user.Email.Value,
-            Username = user.Email.Value,
+            Username = user.Username.Value,
             Enabled = true,
             EmailVerified = true,
             CreatedTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),

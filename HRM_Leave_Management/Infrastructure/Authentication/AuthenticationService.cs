@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using Application.Abstractions.Authentication;
 using Domain.Abstractions;
@@ -40,12 +40,18 @@ internal sealed class AuthenticationService : IAuthenticationService
             "users",
             userRepresentationModel,
             cancellationToken);
-        return response.StatusCode switch
+
+        if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            HttpStatusCode.Conflict => Result.Failure<string>(AuthenticationErrors.EmailExisted),
-            not HttpStatusCode.Created or HttpStatusCode.OK => Result.Failure<string>(AuthenticationErrors.ServerError),
-            _ => Result.Success(ExtractIdentityIdFromLocationHeader(response))
-        };
+            return Result.Failure<string>(AuthenticationErrors.EmailExisted);
+        }
+
+        if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
+        {
+            return Result.Failure<string>(AuthenticationErrors.ServerError);
+        }
+
+        return Result.Success(ExtractIdentityIdFromLocationHeader(response));
     }
     
     public async Task<Result<string>> RegisterAsync(
@@ -69,12 +75,19 @@ internal sealed class AuthenticationService : IAuthenticationService
                 "users",
                 userRepresentationModel,
                 cancellationToken);
-            return response.StatusCode switch
+
+            if (response.StatusCode == HttpStatusCode.Conflict)
             {
-                HttpStatusCode.Conflict => Result.Failure<string>(AuthenticationErrors.EmailExisted),
-                not HttpStatusCode.Created or HttpStatusCode.OK => Result.Failure<string>(AuthenticationErrors.ServerError),
-                _ => Result.Success(ExtractIdentityIdFromLocationHeader(response))
-            };
+                var conflictError = await GetConflictErrorAsync(response, cancellationToken);
+                return Result.Failure<string>(conflictError);
+            }
+
+            if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
+            {
+                return Result.Failure<string>(AuthenticationErrors.ServerError);
+            }
+
+            return Result.Success(ExtractIdentityIdFromLocationHeader(response));
         }
 
     public async Task<Result> ResetPassword(string newPassword, string userId, CancellationToken cancellationToken)
@@ -111,7 +124,31 @@ internal sealed class AuthenticationService : IAuthenticationService
             $"users/{userId}", cancellationToken);
         return result.StatusCode == HttpStatusCode.NoContent
             ? Result.Success()
-            : Result.Failure(AuthenticationErrors.ChangePasswordError);
+            : Result.Failure(AuthenticationErrors.DeleteUserError);
+    }
+
+    private static async Task<Error> GetConflictErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!string.IsNullOrEmpty(content))
+            {
+                if (content.Contains("username", StringComparison.OrdinalIgnoreCase))
+                {
+                    return AuthenticationErrors.UsernameExisted;
+                }
+                if (content.Contains("email", StringComparison.OrdinalIgnoreCase))
+                {
+                    return AuthenticationErrors.EmailExisted;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore exception and return neutral error
+        }
+        return AuthenticationErrors.UserAlreadyExists;
     }
 
     private static string ExtractIdentityIdFromLocationHeader(

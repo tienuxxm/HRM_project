@@ -1,9 +1,11 @@
+@using Application.Roles.GetOne
 @model List<Domain.Employees.Employee>
 
 @{
     ViewBag.Title = "Employee List";
     Layout = "_Layout";
     var departments = ViewBag.Departments as List<Domain.Departments.Department> ?? new List<Domain.Departments.Department>();
+    var roles = ViewBag.Roles as List<RoleResponse> ?? new List<RoleResponse>();
 }
 
 <div class="w-full">
@@ -55,6 +57,7 @@
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Position</th>
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Join Date</th>
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Status</th>
+                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Account</th>
                             <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Actions</th>
                         </tr>
                         </thead>
@@ -88,6 +91,28 @@
                                     else
                                     {
                                         <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Inactive</span>
+                                    }
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-2">
+                                    @if (emp.val.UserId != null)
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                            <svg class="w-3 h-3 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+                                            </svg>
+                                            Đã có
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" data-modal-target="provisionAccountModal-@emp.val.Id.Value" data-modal-toggle="provisionAccountModal-@emp.val.Id.Value"
+                                                class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 hover:bg-amber-200 cursor-pointer transition">
+                                            <svg class="w-3 h-3 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                                                <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                                            </svg>
+                                            Cấp tài khoản
+                                        </button>
+                                        @Html.Partial("_ProvisionAccountPartial", emp.val)
                                     }
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-2 text-gray-700">
@@ -124,3 +149,88 @@
         </div>
     </div>
 </div>
+
+<script>
+    function submitProvisionAccount(employeeId) {
+        const prefix = 'prov';
+        const username = $(`#${prefix}Username-${employeeId}`).val();
+        const email = $(`#${prefix}Email-${employeeId}`).val();
+        const password = $(`#${prefix}Password-${employeeId}`).val();
+        const roleIds = $(`#${prefix}Roles-${employeeId}`).val();
+        const errorBox = $(`#provisionError-${employeeId}`);
+        const submitBtn = $(`#${prefix}SubmitBtn-${employeeId}`);
+
+        // Reset errors
+        errorBox.addClass('hidden').text('');
+        $(`#${prefix}UsernameError-${employeeId}`).addClass('hidden').text('');
+        $(`#${prefix}EmailError-${employeeId}`).addClass('hidden').text('');
+        $(`#${prefix}PasswordError-${employeeId}`).addClass('hidden').text('');
+        $(`#${prefix}RolesError-${employeeId}`).addClass('hidden').text('');
+
+        // Client-side validation
+        let hasError = false;
+        if (!username || username.trim() === '') {
+            $(`#${prefix}UsernameError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập tên đăng nhập.');
+            hasError = true;
+        }
+        if (!email || email.trim() === '') {
+            $(`#${prefix}EmailError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập email.');
+            hasError = true;
+        }
+        if (!password || password.trim() === '') {
+            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập mật khẩu.');
+            hasError = true;
+        } else if (password.length < 6) {
+            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Mật khẩu phải có ít nhất 6 ký tự.');
+            hasError = true;
+        }
+        if (!roleIds || roleIds.length === 0) {
+            $(`#${prefix}RolesError-${employeeId}`).removeClass('hidden').text('Vui lòng chọn ít nhất 1 vai trò.');
+            hasError = true;
+        }
+        if (hasError) return;
+
+        // Disable button
+        submitBtn.prop('disabled', true).text('Đang xử lý...');
+
+        const formData = new FormData();
+        formData.append('EmployeeId', employeeId);
+        formData.append('Username', username);
+        formData.append('Email', email);
+        formData.append('Password', password);
+        if (roleIds) {
+            roleIds.forEach(function(roleId, index) {
+                formData.append(`RoleIds[${index}]`, roleId);
+            });
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/employee/provision-account',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                showToast('Cấp tài khoản nhân viên thành công!');
+                setTimeout(function() {
+                    location.href = '/employee';
+                }, 1500);
+            },
+            error: function (xhr) {
+                submitBtn.prop('disabled', false).html(
+                    '<svg class="w-4 h-4 inline-block mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"><path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/></svg> Cấp tài khoản'
+                );
+                let errorMsg = 'Có lỗi xảy ra. Vui lòng thử lại.';
+                try {
+                    const resp = JSON.parse(xhr.responseText);
+                    if (resp.name) errorMsg = resp.name;
+                    else if (resp.description) errorMsg = resp.description;
+                    else if (resp.Name) errorMsg = resp.Name;
+                    else if (resp.Description) errorMsg = resp.Description;
+                } catch (e) {}
+                errorBox.removeClass('hidden').text(errorMsg);
+                showToast(errorMsg, false);
+            }
+        });
+    }
+</script>

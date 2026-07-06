@@ -29,8 +29,11 @@ internal sealed class AdminLoginCommandHandler : ICommandHandler<AdminLoginComma
                     !(x.IsDeleted.HasValue && x.IsDeleted.Value));
             if (user is null)
                 return Result.Failure<AccessTokenResponse>(UserErrors.NotFound);
-            var email = user.Email.Value;
-            var accessToken = await _jwtService.GetAccessTokenAsync(email, request.password, cancellationToken);
+            var accessToken = await _jwtService.GetAccessTokenAsync(user.Username.Value, request.password, cancellationToken);
+            if (accessToken.IsFailure && user.Username.Value != user.Email.Value)
+            {
+                accessToken = await _jwtService.GetAccessTokenAsync(user.Email.Value, request.password, cancellationToken);
+            }
             return accessToken.IsFailure
                 ? Result.Failure<AccessTokenResponse>(UserErrors.InvalidCredentials)
                 : Result.Success(new AccessTokenResponse(accessToken.Value));
