@@ -32,7 +32,9 @@ public class LeaveBalanceController : Controller
         [FromQuery] Guid? employeeId,
         [FromQuery] Guid? leaveTypeId,
         [FromQuery] int? year,
-        CancellationToken cancellationToken)
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5,
+        CancellationToken cancellationToken = default)
     {
         string identityId = _userContext.IdentityId;
 
@@ -49,7 +51,7 @@ public class LeaveBalanceController : Controller
         }
 
         // 2. Lấy danh sách số dư phép (Query Handler tự quyết định logic filter dựa trên quyền)
-        var query = new GetLeaveBalancesQuery(employeeId, leaveTypeId, year);
+        var query = new GetLeaveBalancesQuery(employeeId, leaveTypeId, year, page, pageSize);
         var result = await _sender.Send(query, cancellationToken);
         if (result.IsFailure)
         {
@@ -70,6 +72,10 @@ public class LeaveBalanceController : Controller
         ViewBag.CurrentFilterEmployeeId = employeeId;
         ViewBag.CurrentFilterLeaveTypeId = leaveTypeId;
         ViewBag.CurrentFilterYear = year;
+        ViewBag.CurrentPage = result.Value.CurrentPage;
+        ViewBag.TotalPages = result.Value.TotalPages;
+        ViewBag.PageSize = result.Value.PageSize;
+        ViewBag.TotalCount = result.Value.TotalCount;
 
         return View(result.Value);
     }

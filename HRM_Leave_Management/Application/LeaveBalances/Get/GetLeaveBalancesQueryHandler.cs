@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.LeaveBalances.Get;
 
-internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalancesQuery, List<LeaveBalanceResponse>>
+internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalancesQuery, PagedList<LeaveBalanceResponse>>
 {
     private readonly ILeaveBalanceRepository _leaveBalanceRepository;
     private readonly IUserRepository _userRepository;
@@ -35,7 +35,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
         _roleService = roleService;
     }
 
-    public async Task<Result<List<LeaveBalanceResponse>>> Handle(GetLeaveBalancesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<LeaveBalanceResponse>>> Handle(GetLeaveBalancesQuery request, CancellationToken cancellationToken)
     {
         string identityId = _userContext.IdentityId;
 
@@ -50,7 +50,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
         // Nếu không có bất kỳ quyền nào, trả về danh sách trống
         if (!hasUpdatePermission && !hasViewPermission)
         {
-            return Result.Success(new List<LeaveBalanceResponse>());
+            return Result.Success(new PagedList<LeaveBalanceResponse>(new List<LeaveBalanceResponse>(), 0, 1, request.PageSize));
         }
 
         var query = _leaveBalanceRepository.GetEntitiesAsQueryable()
@@ -67,7 +67,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
 
             if (user == null)
             {
-                return Result.Success(new List<LeaveBalanceResponse>());
+                return Result.Success(new PagedList<LeaveBalanceResponse>(new List<LeaveBalanceResponse>(), 0, 1, request.PageSize));
             }
 
             var employee = await _employeeRepository.GetEntitiesAsQueryable()
@@ -75,7 +75,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
 
             if (employee == null)
             {
-                return Result.Success(new List<LeaveBalanceResponse>());
+                return Result.Success(new PagedList<LeaveBalanceResponse>(new List<LeaveBalanceResponse>(), 0, 1, request.PageSize));
             }
 
             // Ép buộc lọc theo EmployeeId của chính nhân viên này
@@ -103,11 +103,30 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
             query = query.Where(lb => lb.Year == request.Year.Value);
         }
 
-        var leaveBalances = await query
+        // Ordering
+        query = query
             .OrderByDescending(lb => lb.Year)
-            .ThenBy(lb => lb.Employee.FullName)
+            .ThenBy(lb => lb.Employee.FullName);
+
+        // --- PAGINATION ---
+        int page = request.Page > 0 ? request.Page : 1;
+        int pageSize = request.PageSize > 0 ? Math.Min(request.PageSize, 100) : 5;
+
+        int totalCount = await query.CountAsync(cancellationToken);
+
+        // Nếu page vượt quá totalPages sau delete/filter, clamp về page cuối
+        int totalPages = totalCount > 0 ? (int)Math.Ceiling(totalCount / (double)pageSize) : 1;
+        if (page > totalPages)
+        {
+            page = totalPages;
+        }
+
+        var leaveBalances = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+        // Tính PendingDays cho subset trong page
         var employeeIds = leaveBalances.Select(lb => lb.EmployeeId).Distinct().ToList();
         var leaveTypeIds = leaveBalances.Select(lb => lb.LeaveTypeId).Distinct().ToList();
 
@@ -124,7 +143,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
                 g => g.Sum(lr => lr.Duration)
             );
 
-        var response = leaveBalances.Select(lb =>
+        var responseItems = leaveBalances.Select(lb =>
         {
             var key = new { lb.EmployeeId, lb.LeaveTypeId, Year = lb.Year };
             decimal pendingDays = pendingDurationDict.TryGetValue(key, out var duration) ? duration : 0m;
@@ -145,6 +164,7 @@ internal sealed class GetLeaveBalancesQueryHandler : IQueryHandler<GetLeaveBalan
             };
         }).ToList();
 
-        return Result.Success(response);
+        var pagedResult = new PagedList<LeaveBalanceResponse>(responseItems, totalCount, page, pageSize);
+        return Result.Success(pagedResult);
     }
 }

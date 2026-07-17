@@ -1,5 +1,6 @@
-﻿using Amazon.Runtime;
+using Amazon.Runtime;
 using Amazon.S3;
+using Application.WorkCalendars;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.AWS;
 using Application.Abstractions.Clock;
@@ -56,6 +57,7 @@ using Domain.LeaveTypes;
 using Domain.LeaveBalances;
 using Domain.LeaveRequests;
 using Domain.LeaveApproverAssignments;
+using Domain.WorkCalendars;
 using Domain.UserToRoles;
 using Domain.Vouchers;
 using Infrastructure.Authentication;
@@ -89,6 +91,9 @@ public static class DependencyInjection
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
         services.AddTransient<IEmailService, EmailService>();
+
+        services.AddScoped<IWorkCalendarService, WorkCalendarService>();
+        services.AddScoped<ICalendarImportService, CalendarImportService>();
 
         AddDataProtection(services);
 
@@ -145,6 +150,14 @@ public static class DependencyInjection
         services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 
         services.AddScoped<ILeaveApproverAssignmentRepository, LeaveApproverAssignmentRepository>();
+
+        services.AddScoped<IWorkCalendarDayRepository, WorkCalendarDayRepository>();
+
+        services.AddScoped<ICalendarImportBatchRepository, CalendarImportBatchRepository>();
+
+        services.AddScoped<ICalendarImportBatchRowRepository, CalendarImportBatchRowRepository>();
+
+        services.AddScoped<ILeaveRequestRecalculationAuditRepository, LeaveRequestRecalculationAuditRepository>();
 
         services.AddScoped<IProductRepository, ProductRepository>();
 

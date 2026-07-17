@@ -2215,6 +2215,239 @@ namespace Infrastructure.Migrations
                     b.ToTable("ward", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.WorkCalendars.CalendarImportBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.Property<Guid?>("ProcessedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("processed_by");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_import_batch");
+
+                    b.ToTable("calendar_import_batch", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.WorkCalendars.CalendarImportBatchRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<DateOnly?>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int?>("DayType")
+                        .HasColumnType("integer")
+                        .HasColumnName("day_type");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("error_message");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("RawDate")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("raw_date");
+
+                    b.Property<string>("RawDayType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("raw_day_type");
+
+                    b.Property<string>("RawWorkShift")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("raw_work_shift");
+
+                    b.Property<int>("RowIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_index");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int?>("WorkShift")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_shift");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_import_batch_row");
+
+                    b.HasIndex("BatchId")
+                        .HasDatabaseName("ix_calendar_import_batch_row_batch_id");
+
+                    b.ToTable("calendar_import_batch_row", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.WorkCalendars.LeaveRequestRecalculationAudit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("error_message");
+
+                    b.Property<Guid>("LeaveRequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leave_request_id");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leave_type_id");
+
+                    b.Property<decimal>("NewDuration")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("new_duration");
+
+                    b.Property<int>("NewStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("new_status");
+
+                    b.Property<string>("OldComment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("old_comment");
+
+                    b.Property<decimal>("OldDuration")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("old_duration");
+
+                    b.Property<DateTime?>("OldProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("old_processed_at");
+
+                    b.Property<Guid?>("OldProcessedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("old_processed_by");
+
+                    b.Property<int>("OldStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("old_status");
+
+                    b.Property<DateTime>("RecalculatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recalculated_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_leave_request_recalculation_audit");
+
+                    b.HasIndex("BatchId")
+                        .HasDatabaseName("ix_leave_request_recalculation_audit_batch_id");
+
+                    b.HasIndex("EmployeeId")
+                        .HasDatabaseName("ix_leave_request_recalculation_audit_employee_id");
+
+                    b.HasIndex("LeaveRequestId")
+                        .HasDatabaseName("ix_leave_request_recalculation_audit_leave_request_id");
+
+                    b.HasIndex("LeaveTypeId")
+                        .HasDatabaseName("ix_leave_request_recalculation_audit_leave_type_id");
+
+                    b.ToTable("leave_request_recalculation_audit", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.WorkCalendars.WorkCalendarDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("DayType")
+                        .HasColumnType("integer")
+                        .HasColumnName("day_type");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int>("WorkShift")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_shift");
+
+                    b.HasKey("Id")
+                        .HasName("pk_work_calendar_day");
+
+                    b.HasIndex("Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_work_calendar_day_date");
+
+                    b.ToTable("work_calendar_day", (string)null);
+                });
+
             modelBuilder.Entity("Infrastructure.Outbox.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2343,7 +2576,7 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ManagerId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_employee_employee_manager_temp_id1");
+                        .HasConstraintName("fk_employee_employee_manager_temp_id2");
 
                     b.HasOne("Domain.Positions.Position", "Position")
                         .WithMany()
@@ -2550,7 +2783,7 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("LeaveTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_leave_balance_leave_type_leave_type_temp_id");
+                        .HasConstraintName("fk_leave_balance_leave_type_leave_type_temp_id2");
 
                     b.Navigation("Employee");
 
@@ -2564,14 +2797,14 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_leave_request_employee_employee_id1");
+                        .HasConstraintName("fk_leave_request_employee_employee_temp_id3");
 
                     b.HasOne("Domain.LeaveTypes.LeaveType", "LeaveType")
                         .WithMany()
                         .HasForeignKey("LeaveTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_leave_request_leave_type_leave_type_temp_id");
+                        .HasConstraintName("fk_leave_request_leave_type_leave_type_temp_id1");
 
                     b.Navigation("Employee");
 
@@ -3109,6 +3342,56 @@ namespace Infrastructure.Migrations
                     b.Navigation("District");
                 });
 
+            modelBuilder.Entity("Domain.WorkCalendars.CalendarImportBatchRow", b =>
+                {
+                    b.HasOne("Domain.WorkCalendars.CalendarImportBatch", "Batch")
+                        .WithMany("Rows")
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_calendar_import_batch_row_calendar_import_batch_batch_id1");
+
+                    b.Navigation("Batch");
+                });
+
+            modelBuilder.Entity("Domain.WorkCalendars.LeaveRequestRecalculationAudit", b =>
+                {
+                    b.HasOne("Domain.WorkCalendars.CalendarImportBatch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_leave_request_recalculation_audit_calendar_import_batch_bat");
+
+                    b.HasOne("Domain.Employees.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_leave_request_recalculation_audit_employee_employee_id1");
+
+                    b.HasOne("Domain.LeaveRequests.LeaveRequest", "LeaveRequest")
+                        .WithMany()
+                        .HasForeignKey("LeaveRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_leave_request_recalculation_audit_leave_request_leave_reque");
+
+                    b.HasOne("Domain.LeaveTypes.LeaveType", "LeaveType")
+                        .WithMany()
+                        .HasForeignKey("LeaveTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_leave_request_recalculation_audit_leave_type_leave_type_tem");
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("LeaveRequest");
+
+                    b.Navigation("LeaveType");
+                });
+
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
                 {
                     b.Navigation("Order");
@@ -3201,6 +3484,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Users.User", b =>
                 {
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("Domain.WorkCalendars.CalendarImportBatch", b =>
+                {
+                    b.Navigation("Rows");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,7 +8,6 @@ public record UpdateEmployeeCommand(
     string FullName,
     string EmployeeCode,
     Guid? DepartmentId,
-    Guid? UserId,
     Guid? PositionId,
     DateTime JoinDate,
     Guid? ManagerId) : ICommand<Employee>;

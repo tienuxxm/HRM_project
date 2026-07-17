@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model LoginViewModel
 @{
     Layout = null;
@@ -9,71 +9,223 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Web.Backend</title>
+    <title>@ViewBag.Title - HRM Portal</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/sumoselect.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!-- Google Fonts: Geist & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #FAF9F9 !important;
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+            color: #1A1C1C !important;
+        }
+
+        .mono-text {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* Institutional Login Card */
+        .login-card {
+            background-color: #FFFFFF !important;
+            border: 1px solid #D1D1D1 !important;
+            border-top: 2px solid #E62429 !important; /* Swiss Red accent line */
+            border-radius: 0px !important;
+            box-shadow: none !important;
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 32px 32px 32px !important;
+        }
+
+        /* Inputs styling */
+        .swiss-input {
+            border-radius: 0px !important;
+            border: 1px solid #D1D1D1 !important;
+            background-color: #FFFFFF !important;
+            color: #1A1C1C !important;
+            font-family: 'Geist', sans-serif !important;
+            font-size: 14px !important;
+            padding: 10px 12px !important;
+            outline: none !important;
+            width: 100%;
+            transition: border-color 0.15s ease-in-out;
+        }
+        .swiss-input:focus {
+            border-color: #000000 !important;
+            box-shadow: none !important;
+        }
+
+        /* Error/invalid states */
+        .swiss-input.error-state {
+            border-color: #BB0015 !important;
+        }
+
+        /* Labels */
+        .swiss-label {
+            font-family: 'Geist', sans-serif !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #4C4546 !important;
+            margin-bottom: 6px !important;
+            display: block;
+        }
+
+        /* Primary Button */
+        .swiss-btn-primary {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+            border-radius: 0px !important;
+            border: none !important;
+            font-family: 'Geist', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            padding: 12px 24px !important;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .swiss-btn-primary:hover:not(:disabled) {
+            background-color: #1A1C1C !important;
+        }
+        .swiss-btn-primary:disabled {
+            background-color: #7E7576 !important;
+            cursor: not-allowed;
+        }
+
+        /* Links */
+        .swiss-link {
+            font-family: 'Geist', sans-serif !important;
+            font-size: 11px !important;
+            color: #4C4546 !important;
+            text-decoration: underline !important;
+            transition: color 0.15s ease-in-out;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+            cursor: pointer;
+        }
+        .swiss-link:hover {
+            color: #000000 !important;
+        }
+
+        /* Divider line */
+        .swiss-divider {
+            border-top: 1px solid #EEEEEE !important;
+            margin: 20px 0 !important;
+        }
+
+        /* Footer text */
+        .swiss-footer-text {
+            font-family: 'Geist', sans-serif !important;
+            font-size: 10px !important;
+            color: #7E7576 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
+            line-height: 1.4 !important;
+        }
+
+        .swiss-footer-mono {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 9px !important;
+            color: #7E7576 !important;
+            letter-spacing: 0.02em !important;
+            line-height: 1.4 !important;
+        }
+    </style>
 </head>
 <body class="bg-wnz-secondary">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/datepicker.min.js"></script>
+
 <div id="toast-container"></div>
-<div id="loadingOverlay" style="z-index: 1000 !important;" class="transition delay-150 ease-in-out fixed top-0 left-0 bg-gray-800 bg-opacity-60 h-full w-full h-full flex items-center justify-center">
-  
+<div id="loadingOverlay" style="z-index: 1000 !important;" class="transition delay-150 ease-in-out fixed top-0 left-0 bg-gray-800 bg-opacity-60 h-full w-full flex items-center justify-center">
+    <!-- Optional spinner inside overlay -->
 </div>
-<div class="w-full h-screen">
-    <div class="bg-gray-50 dark:bg-gray-900">
-        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-            <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-                    <h1 style="color:chocolate; font-size:xx-large;font-weight:bold"> LOGO HERE </h1>
-            </a>
-            <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                        Sign In
-                    </h1>
-                    <form class="space-y-4 md:space-y-6" action="#">
-                        <div>
-                            <label for="username" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                            <input autocomplete="username" asp-for="Username" type="text" name="Username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Username" required>
-                            <p id="usernameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
-                        </div>
-                        <div>
-                            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                            <input autocomplete="current-password" asp-for="Password" type="password" name="Password" id="password" placeholder="Password" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                            <p id="passwordError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
-                        </div>
-                        <div class="flex items-center justify-content-end">
-                            <a href="#" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot Password?</a>
-                        </div>
-                        <button id="loginButton" type="button" class="w-full text-white bg-wnz-yellow focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                            <div class="flex gap-2 items-center justify-center">
-                                <svg id="spinner" aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
-                                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
-                                </svg>
-                                <span id="loginLabel">
-                                    Login
-                                </span>
-                            </div>
-                        </button>
-                    </form>
-                </div>
+
+<div class="w-full min-h-screen flex items-center justify-center p-4">
+    <div class="login-card">
+        <!-- Branding Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 m-0 uppercase" style="font-family: 'Geist', sans-serif; line-height: 1.0;">
+                HRM Portal
+            </h1>
+            <p class="swiss-footer-text font-bold text-gray-500 mt-1 mb-0">
+                Secure Logon Cockpit
+            </p>
+        </div>
+
+        <!-- Form Fields -->
+        <form class="space-y-5" action="#" onsubmit="return false;">
+            <div>
+                <label for="username" class="swiss-label">Username or Email</label>
+                <input autocomplete="username" asp-for="Username" type="text" name="Username" id="username" class="swiss-input" placeholder="ENTER USERNAME" required>
+                <p id="usernameError" class="mt-2 text-sm text-red-600 dark:text-red-500" style="font-family: 'Geist', sans-serif; display: none;"></p>
             </div>
+            
+            <div>
+                <label for="password" class="swiss-label">Password</label>
+                <input autocomplete="current-password" asp-for="Password" type="password" name="Password" id="password" placeholder="ENTER PASSWORD" class="swiss-input" required>
+                <p id="passwordError" class="mt-2 text-sm text-red-600 dark:text-red-500" style="font-family: 'Geist', sans-serif; display: none;"></p>
+            </div>
+
+            <!-- Links Container -->
+            <div class="flex items-center justify-between pt-1">
+                <a href="#" class="swiss-link">Forgot password?</a>
+                <a href="#" class="swiss-link">Contact admin</a>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+                <button id="loginButton" type="button" class="swiss-btn-primary">
+                    <div class="flex gap-2 items-center justify-center">
+                        <svg id="spinner" aria-hidden="true" role="status" class="inline w-4 h-4 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
+                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
+                        </svg>
+                        <span id="loginLabel">Sign In</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        <!-- Divider -->
+        <div class="swiss-divider"></div>
+
+        <!-- Footer Policy & Security Message -->
+        <div class="space-y-3">
+            <p class="swiss-footer-text m-0 text-gray-500 font-bold">
+                CONFIDENTIAL SYSTEM: Unauthorized access is strictly prohibited.
+            </p>
+            <p class="swiss-footer-mono m-0 text-gray-400">
+                REALM CONNECTIVITY SECURED BY KEYCLOAK IDENTITY PROVIDER.
+            </p>
+            <p class="swiss-footer-text m-0 text-gray-400">
+                &copy; 2024 HRM PORTAL. INTERNAL USE ONLY.
+            </p>
         </div>
     </div>
 </div>
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/jquery.sumoselect.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 <script>
-    const loginButton = $('#loginButton')
+    const loginButton = $('#loginButton');
     const usernameError = $('#usernameError');
     const passwordError = $('#passwordError');
-    const toastContainer = $('#toast-container')
+    const toastContainer = $('#toast-container');
     const loadingOverlay = $('#loadingOverlay');
     loadingOverlay.hide();
     const formData = new FormData();
@@ -83,49 +235,55 @@
     function resetFormError(){
         usernameError.hide();
         passwordError.hide();
+        $('#username').removeClass('error-state');
+        $('#password').removeClass('error-state');
     }
     
     resetFormError();
     
     function validation(){
-        resetFormError()
+        resetFormError();
         
-        const username = $('#username').val()
-        const password = $('#password').val()
-        const errors = []
+        const username = $('#username').val().trim();
+        const password = $('#password').val().trim();
+        const errors = [];
+        
         if(username === ''){
-            const error = 'Please Input username'
+            const error = 'Please input username';
             usernameError.show();
-            usernameError.text(error)
-            errors.push(error)
+            usernameError.text(error);
+            $('#username').addClass('error-state');
+            errors.push(error);
         }
         
         if(password === ''){
-            const error = 'Please input password'
+            const error = 'Please input password';
             passwordError.show();
-            passwordError.text(error)
-            errors.push(error)
+            passwordError.text(error);
+            $('#password').addClass('error-state');
+            errors.push(error);
         }
         
-        isFormValid = errors.length === 0
+        isFormValid = errors.length === 0;
     }
     
-    const spinner = $('#spinner')
+    const spinner = $('#spinner');
     $(document).on('load', function (){
-        spinner.hide()
-    })
-    spinner.hide()
+        spinner.hide();
+    });
+    spinner.hide();
+    
     function toggleLoginButton(state){
-        const loginButton = $('#loginButton')
-        const loginLabel = $('#loginLabel')
+        const loginButton = $('#loginButton');
+        const loginLabel = $('#loginLabel');
         if (state){
             loginButton.prop('disabled', true);
             spinner.show();
-                loginLabel.text('Logging in...')
-        }else{
+            loginLabel.text('Signing in...');
+        } else {
             loginButton.prop('disabled', false);
             spinner.hide();
-            loginLabel.text('Login')
+            loginLabel.text('Sign In');
         }
     }
     
@@ -134,39 +292,42 @@
         if (!isFormValid){
             return;
         }
-        const username = $('#username').val()
-        const password = $('#password').val()
+        const username = $('#username').val();
+        const password = $('#password').val();
         
-        formData.delete("Username") 
-        formData.delete("Password") 
-        formData.append("Username", username) 
-        formData.append("Password", password) 
-        toggleLoginButton(true)
+        formData.delete("Username"); 
+        formData.delete("Password"); 
+        formData.append("Username", username); 
+        formData.append("Password", password); 
+        toggleLoginButton(true);
         
         $.ajax({
-                type: "POST",
-                url: `/auth/login`,
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                        toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Login Successful" }, null)')
-                    setTimeout(() => {
-                        loadingOverlay.show();
-                        location.href="/dashboard"
-                        toggleLoginButton(false)
-                    }, 1500)
-                },
-                error: function (error){
-                    toggleLoginButton(false)
-                    passwordError.show();
-                        passwordError.text('Incorrect Username or Password')
-                        toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Login Failed" }, null)')
-                },
-                done: function() {
-                    toggleLoginButton(false)
-                }
-            })
+            type: "POST",
+            url: `/auth/login`,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Login Successful" }, null)');
+                setTimeout(() => {
+                    loadingOverlay.show();
+                    location.href = "/dashboard";
+                    toggleLoginButton(false);
+                }, 1500);
+            },
+            error: function (error){
+                toggleLoginButton(false);
+                $('#password').addClass('error-state');
+                $('#username').addClass('error-state');
+                passwordError.show();
+                passwordError.text('Incorrect Username or Password');
+                toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Login Failed" }, null)');
+            },
+            done: function() {
+                toggleLoginButton(false);
+            }
+        });
     });
 </script>
 </body>
+</html>

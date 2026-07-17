@@ -1,6 +1,7 @@
-﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Authentication;
 using Application.Abstractions.Clock;
 using Application.Abstractions.Messaging;
+using Application.WorkCalendars;
 using Application.Response;
 using Domain.Abstractions;
 using Domain.Employees;
@@ -21,6 +22,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
     private readonly ILeaveBalanceRepository _leaveBalanceRepository;
     private readonly ILeaveRequestRepository _leaveRequestRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IWorkCalendarService _workCalendarService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateLeaveRequestCommandHandler(
@@ -31,6 +33,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         ILeaveBalanceRepository leaveBalanceRepository,
         ILeaveRequestRepository leaveRequestRepository,
         IDateTimeProvider dateTimeProvider,
+        IWorkCalendarService workCalendarService,
         IUnitOfWork unitOfWork)
     {
         _userContext = userContext;
@@ -40,6 +43,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         _leaveBalanceRepository = leaveBalanceRepository;
         _leaveRequestRepository = leaveRequestRepository;
         _dateTimeProvider = dateTimeProvider;
+        _workCalendarService = workCalendarService;
         _unitOfWork = unitOfWork;
     }
 
@@ -87,15 +91,12 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.LeaveTypeNotFound);
         }
 
-        // 5. Tính toán Duration (tính toàn bộ Calendar Days, không loại trừ T7/CN)
+        // 5. Tính toán Duration thông qua WorkCalendarService
         // Đồng thời kiểm tra không cho phép đơn nghỉ bắc qua nhiều năm calendar.
         if (request.StartDate.Year != request.EndDate.Year)
         {
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.CrossYearNotAllowed);
         }
-
-        decimal duration = 0;
-        var startTemp = request.StartDate;
 
         if (request.StartDate == request.EndDate)
         {
@@ -104,40 +105,25 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             {
                 return Result.Failure<BooleanResponse>(LeaveRequestErrors.DayPartMismatch);
             }
-
-            if (request.StartDayPart == LeaveDayPart.FullDay)
-            {
-                duration = 1.0m;
-            }
-            else
-            {
-                duration = 0.5m; // Morning hoặc Afternoon
-            }
-        }
-        else
-        {
-            while (startTemp <= request.EndDate)
-            {
-                if (startTemp == request.StartDate)
-                {
-                    duration += (request.StartDayPart == LeaveDayPart.Afternoon) ? 0.5m : 1.0m;
-                }
-                else if (startTemp == request.EndDate)
-                {
-                    duration += (request.EndDayPart == LeaveDayPart.Morning) ? 0.5m : 1.0m;
-                }
-                else
-                {
-                    duration += 1.0m;
-                }
-                startTemp = startTemp.AddDays(1);
-            }
         }
 
-        // Validate Duration > 0 (V-5)
-        if (duration <= 0)
+        var durationResult = await _workCalendarService.CalculateLeaveDurationAsync(
+            request.StartDate,
+            request.EndDate,
+            request.StartDayPart,
+            request.EndDayPart,
+            cancellationToken);
+
+        if (durationResult.IsFailure)
         {
-            return Result.Failure<BooleanResponse>(LeaveRequestErrors.DurationZeroOrNegative);
+            return Result.Failure<BooleanResponse>(durationResult.Error);
+        }
+
+        decimal duration = durationResult.Value;
+
+        if (duration == 0)
+        {
+            return Result.Failure<BooleanResponse>(LeaveRequestErrors.OnlyNonWorkingDays);
         }
 
         // 6. Kiểm tra trùng lịch nghỉ (V-4)

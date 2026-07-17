@@ -19,7 +19,8 @@ internal sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDep
     public async Task<Result<BooleanResponse>> Handle(CreateDepartmentCommand request,
         CancellationToken cancellationToken)
     {
-        var isDepartmentExisted = await _departmentRepository.IsExistedAsync(x => x.Code == request.Code);
+        var normalizedCode = request.Code.Trim().ToUpperInvariant();
+        var isDepartmentExisted = await _departmentRepository.IsExistedAsync(x => x.Code.ToUpper() == normalizedCode);
         if (isDepartmentExisted)
             return Result.Failure<BooleanResponse>(DepartmentErrors.DepartmentExisted);
 
@@ -29,7 +30,7 @@ internal sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDep
 
         var department = Department.Create(
             request.Name,
-            request.Code,
+            normalizedCode,
             request.Description,
             parentId);
 

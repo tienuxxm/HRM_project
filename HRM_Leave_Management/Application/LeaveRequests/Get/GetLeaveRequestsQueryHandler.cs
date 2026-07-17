@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Authentication;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.Role;
 using Domain.Abstractions;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.LeaveRequests.Get;
 
-internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveRequestsQuery, List<LeaveRequestResponse>>
+internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveRequestsQuery, PagedList<LeaveRequestResponse>>
 {
     private readonly ILeaveRequestRepository _leaveRequestRepository;
     private readonly IUserRepository _userRepository;
@@ -35,7 +35,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
         _roleService = roleService;
     }
 
-    public async Task<Result<List<LeaveRequestResponse>>> Handle(GetLeaveRequestsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<LeaveRequestResponse>>> Handle(GetLeaveRequestsQuery request, CancellationToken cancellationToken)
     {
         string identityId = _userContext.IdentityId;
 
@@ -54,7 +54,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
         // Nếu không có bất kỳ quyền nào (bao gồm quyền quản trị cấu hình / global visibility của Admin/HR), trả về danh sách rỗng
         if (!hasApprovePermission && !hasViewPermission && !isAdminOrHR)
         {
-            return Result.Success(new List<LeaveRequestResponse>());
+            return Result.Success(new PagedList<LeaveRequestResponse>(new List<LeaveRequestResponse>(), 0, 1, request.PageSize));
         }
 
         var query = _leaveRequestRepository.GetEntitiesAsQueryable()
@@ -73,7 +73,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
 
             if (user == null)
             {
-                return Result.Success(new List<LeaveRequestResponse>());
+                return Result.Success(new PagedList<LeaveRequestResponse>(new List<LeaveRequestResponse>(), 0, 1, request.PageSize));
             }
 
             var employee = await _employeeRepository.GetEntitiesAsQueryable()
@@ -81,7 +81,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
 
             if (employee == null)
             {
-                return Result.Success(new List<LeaveRequestResponse>());
+                return Result.Success(new PagedList<LeaveRequestResponse>(new List<LeaveRequestResponse>(), 0, 1, request.PageSize));
             }
 
             if (hasViewPermission && !hasApprovePermission)
@@ -144,9 +144,22 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             query = query.Where(lr => lr.Status == filterStatus);
         }
 
-        // 5. Query dữ liệu từ database trước
+        // 5. Áp dụng phân trang (Pagination)
+        int page = request.Page > 0 ? request.Page : 1;
+        int pageSize = request.PageSize > 0 ? Math.Min(request.PageSize, 100) : 5;
+
+        int totalCount = await query.CountAsync(cancellationToken);
+
+        int totalPages = totalCount > 0 ? (int)Math.Ceiling(totalCount / (double)pageSize) : 1;
+        if (page > totalPages)
+        {
+            page = totalPages;
+        }
+
         var rawList = await query
             .OrderByDescending(lr => lr.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
         // 6. Lấy danh sách processedBy user IDs
@@ -221,6 +234,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             };
         }).ToList();
 
-        return Result.Success(response);
+        var pagedResult = new PagedList<LeaveRequestResponse>(response, totalCount, page, pageSize);
+        return Result.Success(pagedResult);
     }
 }

@@ -1,121 +1,304 @@
 @model List<Domain.LeaveTypes.LeaveType>
 
 @{
-    ViewBag.Title = "Leave Type List";
+    ViewBag.Title = "Leave Types";
     Layout = "_Layout";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 5;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int startIndex = (currentPage - 1) * pageSize;
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Leave Management</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Leave Type List</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg mt-5 flex flex-col justify-content-between">
-            <div class="w-full">
-                <div class="w-full d-flex justify-content-end py-2">
-                    <button type="button" data-modal-target="createLeaveTypeModal" data-modal-toggle="createLeaveTypeModal"
-                            class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                        Add Leave Type
-                    </button>
-                    @Html.Partial("_CreateLeaveTypePartial")
-                </div>
-                <div class="overflow-x-auto w-full h-full overflow-y-auto mt-2">
-                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center col-1">NO</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Code</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Name</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Default Days</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Description</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Status</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                        @foreach (var lt in @Model.Select((val, index) => new { val, index = index + 1 }))
+<style>
+    /* LeaveType pagination — synced with LeaveBalance pattern */
+    .lt-page-btn {
+        display:inline-block !important;
+        padding:2px 12px !important;
+        font-family:monospace !important;
+        font-size:10px !important;
+        font-weight:700 !important;
+        text-transform:uppercase !important;
+        text-decoration:none !important;
+        border:1px solid #D1D1D1 !important;
+        background:#fff !important;
+        color:#000 !important;
+        cursor:pointer !important;
+    }
+    .lt-page-btn:link, .lt-page-btn:visited, .lt-page-btn:active { color:#000 !important; text-decoration:none !important; }
+    .lt-page-btn:hover, .lt-page-btn:hover:link, .lt-page-btn:hover:visited { background:#E0E0E0 !important; color:#000 !important; border-color:#999 !important; }
+    .lt-page-btn-disabled {
+        display:inline-block !important;
+        padding:2px 12px !important;
+        font-family:monospace !important;
+        font-size:10px !important;
+        font-weight:700 !important;
+        text-transform:uppercase !important;
+        border:1px solid #E0E0E0 !important;
+        background:#F0F0F0 !important;
+        color:#999 !important;
+        cursor:not-allowed !important;
+    }
+    .lt-page-btn-mobile {
+        display:inline-block !important;
+        padding:6px 16px !important;
+        font-family:monospace !important;
+        font-size:10px !important;
+        font-weight:700 !important;
+        text-transform:uppercase !important;
+        text-decoration:none !important;
+        border:1px solid #D1D1D1 !important;
+        background:#fff !important;
+        color:#000 !important;
+        cursor:pointer !important;
+    }
+    .lt-page-btn-mobile:link, .lt-page-btn-mobile:visited, .lt-page-btn-mobile:active { color:#000 !important; text-decoration:none !important; }
+    .lt-page-btn-mobile:hover, .lt-page-btn-mobile:hover:link, .lt-page-btn-mobile:hover:visited { background:#E0E0E0 !important; color:#000 !important; border-color:#999 !important; }
+    .lt-page-btn-mobile-disabled {
+        display:inline-block !important;
+        padding:6px 16px !important;
+        font-family:monospace !important;
+        font-size:10px !important;
+        font-weight:700 !important;
+        text-transform:uppercase !important;
+        border:1px solid #E0E0E0 !important;
+        background:#F0F0F0 !important;
+        color:#999 !important;
+        cursor:not-allowed !important;
+    }
+</style>
+
+<div class="w-full flex flex-col font-geist">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">Leave Types</h2>
+        <p class="text-[14px] text-[#4c4546]">Configure leave categories and default allocation days.</p>
+    </div>
+
+    <!-- Desktop Search & Action Bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-4">
+        <div class="w-[400px] relative">
+            <input id="ltSearchInput" autocomplete="off" class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5]" placeholder="SEARCH LEAVE TYPES..." type="text"/>
+            <span class="material-symbols-outlined absolute right-3 top-2.5 text-[20px] text-[#cfc4c5]">search</span>
+        </div>
+        <div>
+            <button type="button" data-modal-target="createLeaveTypeModal" data-modal-toggle="createLeaveTypeModal" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer">
+                + Create Leave Type
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Search & Action Bar -->
+    <div class="lg:hidden mb-4">
+        <div class="flex items-stretch gap-0 border border-[#D1D1D1]">
+            <div class="flex-grow flex items-center bg-white px-3 border-r border-[#D1D1D1] h-10">
+                <span class="material-symbols-outlined text-[#4c4546] mr-2" style="font-size: 16px;">search</span>
+                <input id="mobileSearchInput" autocomplete="off" class="w-full bg-transparent border-none focus:ring-0 text-[11px] placeholder:text-[#4c4546] p-0 font-medium" placeholder="SEARCH LEAVE TYPES" type="text"/>
+            </div>
+            <button type="button" data-modal-target="createLeaveTypeModal" data-modal-toggle="createLeaveTypeModal" class="bg-black text-white px-4 h-10 text-[11px] font-bold uppercase flex items-center gap-1 active:invert transition-all cursor-pointer">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add</span>CREATE
+            </button>
+        </div>
+    </div>
+
+    <!-- Desktop Data Grid -->
+    <div class="hidden lg:flex flex-col border border-[#D1D1D1] bg-white">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-[#F5F5F5]">
+                <tr class="border-b border-[#D1D1D1]">
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-16 text-center">No</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-36">Code</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Leave Type Name</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-28 text-center">Default Days</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-[#4c4546] uppercase border-r border-[#D1D1D1]">Description</th>
+                    <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase border-r border-[#D1D1D1] w-24">Status</th>
+                    <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-40">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1]">
+                @foreach (var lt in Model.Select((val, index) => new { val, index = startIndex + index + 1 }))
+                {
+                    <tr class="hover:bg-[#f4f3f3] transition-colors lt-row" data-code="@lt.val.Code" data-name="@lt.val.Name" style="transition: transform 0.15s ease;">
+                         <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lt.index</td>
+                         <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1]">@lt.val.Code</td>
+                         <td class="px-4 py-3 font-bold text-[12px] text-black border-r border-[#D1D1D1]">@lt.val.Name</td>
+                         <td class="px-4 py-3 font-mono text-[11px] font-bold text-black border-r border-[#D1D1D1] text-center">@lt.val.DefaultDays</td>
+                         <td class="px-4 py-3 text-[11px] text-[#4c4546] border-r border-[#D1D1D1]">
+                             @(string.IsNullOrEmpty(lt.val.Description) ? "—" : lt.val.Description)
+                         </td>
+                         <td class="px-4 py-3 border-r border-[#D1D1D1]">
+                             @if (lt.val.IsActive)
+                             {
+                                 <span class="px-2 py-0.5 border border-emerald-500 text-emerald-600 font-bold text-[9px] uppercase tracking-tighter">Active</span>
+                             }
+                             else
+                             {
+                                 <span class="px-2 py-0.5 border border-[#D1D1D1] text-[#7e7576] font-bold text-[9px] uppercase tracking-tighter">Inactive</span>
+                             }
+                         </td>
+                         <td class="px-4 py-3 whitespace-nowrap">
+                             <div class="flex space-x-3">
+                                 <a data-modal-target="updateLeaveTypeModal-@lt.val.Id.Value" data-modal-toggle="updateLeaveTypeModal-@lt.val.Id.Value" class="text-[9px] font-bold text-black hover:text-swiss-red uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Edit</a>
+                                 <a data-modal-target="confirmDelete-@lt.val.Id.Value" data-modal-toggle="confirmDelete-@lt.val.Id.Value" class="text-[9px] font-bold text-swiss-red hover:opacity-70 uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Remove</a>
+                             </div>
+                         </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Desktop Table Pagination Footer -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-[#D1D1D1] bg-[#F5F5F5] font-mono text-[10px] font-bold text-[#4c4546] uppercase">
+            <div>
+                @if (totalCount > 0)
+                {
+                    var showStart = startIndex + 1;
+                    var showEnd = Math.Min(startIndex + pageSize, totalCount);
+                    <span>SHOWING @showStart-@showEnd OF @totalCount LEAVE TYPES</span>
+                }
+                else
+                {
+                    <span>NO LEAVE TYPES FOUND</span>
+                }
+            </div>
+            <div class="flex items-center gap-2">
+                @if (currentPage > 1)
+                {
+                    <a href="/leave-type?page=@(currentPage - 1)&pageSize=@pageSize" class="lt-page-btn">PREV</a>
+                }
+                else
+                {
+                    <span class="lt-page-btn-disabled">PREV</span>
+                }
+                <span class="px-3 py-1 font-mono text-[10px] font-bold text-black uppercase">PAGE @currentPage OF @Math.Max(1, totalPages)</span>
+                @if (currentPage < totalPages)
+                {
+                    <a href="/leave-type?page=@(currentPage + 1)&pageSize=@pageSize" class="lt-page-btn">NEXT</a>
+                }
+                else
+                {
+                    <span class="lt-page-btn-disabled">NEXT</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Stacked List -->
+    <div class="lg:hidden flex flex-col gap-4">
+        <div class="flex flex-col gap-4">
+            @foreach (var lt in Model)
+            {
+                <div class="bg-white border border-[#D1D1D1] p-4 flex flex-col gap-3 lt-card" data-code="@lt.Code" data-name="@lt.Name">
+                    <div class="flex justify-between items-start">
+                        <div class="flex flex-col">
+                            <span class="mono text-[10px] text-[#4c4546] font-bold">@lt.Code</span>
+                            <h2 class="text-[16px] font-bold uppercase tracking-tight">@lt.Name</h2>
+                        </div>
+                        @if (lt.IsActive)
                         {
-                            <tr class="my-2 py-4">
-                                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
-                                    <strong>@lt.index.ToString()</strong>
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 font-semibold">
-                                    @lt.val.Code
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-blue-500 font-semibold text-left">
-                                    @lt.val.Name
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 text-center">
-                                    @lt.val.DefaultDays
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-500">
-                                    @(lt.val.Description ?? "-")
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2">
-                                    @if (lt.val.IsActive)
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Inactive</span>
-                                    }
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                    <div class="flex">
-                                        <div data-modal-target="updateLeaveTypeModal-@lt.val.Id.Value" data-modal-toggle="updateLeaveTypeModal-@lt.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer mr-4">
-                                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13.835 7.578-.005.007-1.196 1.195 1.2 1.2 1.195-1.196.007-.005a3.11 3.11 0 0 0 0-4.398 3.11 3.11 0 0 0-4.397 0L9.435 5.578l1.2 1.2 1.196-1.195.006-.007a1.11 1.11 0 0 1 1.567 0 1.11 1.11 0 0 1 0 1.567l-6.81 6.81-1.2-1.2 6.81-6.81Zm-7.61 7.61H2v-4.225h4.225V15.19Z"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Edit</a>
-                                        </div>
-                                        @Html.Partial("_UpdateLeaveTypePartial", lt.val)
-                                        <div data-modal-target="confirmDelete-@lt.val.Id.Value" data-modal-toggle="confirmDelete-@lt.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer">
-                                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5.71429 7.07143V13.5C5.71429 13.6042 5.6808 13.6897 5.61384 13.7567C5.54688 13.8237 5.46131 13.8571 5.35714 13.8571H4.64286C4.53869 13.8571 4.45313 13.8237 4.38616 13.7567C4.3192 13.6897 4.28571 13.6042 4.28571 13.5V7.07143C4.28571 6.96726 4.3192 6.8817 4.38616 6.81473C4.45313 6.74777 4.53869 6.71429 4.64286 6.71429H5.35714C5.46131 6.71429 5.54688 6.74777 5.61384 6.81473C5.6808 6.8817 5.71429 6.96726 5.71429 7.07143ZM8.57143 7.07143V13.5C8.57143 13.6042 8.53795 13.6897 8.47098 13.7567C8.40402 13.8237 8.31845 13.8571 8.21429 13.8571H7.5C7.39583 13.8571 7.31027 13.8237 7.2433 13.7567C7.17634 13.6897 7.14286 13.6042 7.14286 13.5V7.07143C7.14286 6.96726 7.17634 6.8817 7.2433 6.81473C7.31027 6.74777 7.39583 6.71429 7.5 6.71429H8.21429C8.31845 6.71429 8.40402 6.74777 8.47098 6.81473C8.53795 6.8817 8.57143 6.96726 8.57143 7.07143ZM11.4286 7.07143V13.5C11.4286 13.6042 11.3951 13.6897 11.3281 13.7567C11.2612 13.8237 11.1756 13.8571 11.0714 13.8571H10.3571C10.253 13.8571 10.1674 13.8237 10.1004 13.7567C10.0335 13.6897 10 13.6042 10 13.5V7.07143C10 6.96726 10.0335 6.8817 10.1004 6.81473C10.1674 6.74777 10.253 6.71429 10.3571 6.71429H11.0714C11.1756 6.71429 11.2612 6.74777 11.3281 6.81473C11.3951 6.8817 11.4286 6.96726 11.4286 7.07143ZM12.8571 15.1518V4.57143H2.85714V15.1518C2.85714 15.3155 2.88318 15.468 2.93527 15.6094C2.98735 15.7433 3.03943 15.8437 3.09152 15.9107C3.15104 15.9702 3.19196 16 3.21429 16H12.5C12.5223 16 12.5595 15.9702 12.6116 15.9107C12.6711 15.8437 12.7269 15.7433 12.779 15.6094C12.8311 15.468 12.8571 15.3155 12.8571 15.1518ZM5.35714 3.14286H10.3571L9.82143 1.83705C9.76935 1.77009 9.7061 1.72917 9.6317 1.71429H6.09375C6.01935 1.72917 5.9561 1.77009 5.90402 1.83705L5.35714 3.14286ZM15.7143 3.5V4.21429C15.7143 4.31845 15.6808 4.40402 15.6138 4.47098C15.5469 4.53795 15.4613 4.57143 15.3571 4.57143H14.2857V15.1518C14.2857 15.7693 14.1109 16.3013 13.7612 16.7478C13.4115 17.2016 12.9911 17.4286 12.5 17.4286H3.21429C2.72321 17.4286 2.30283 17.2091 1.95313 16.7701C1.60342 16.3385 1.42857 15.814 1.42857 15.1964V4.57143H0.357143C0.252976 4.57143 0.167411 4.53795 0.100446 4.47098C0.0334821 4.40402 0 4.31845 0 4.21429V3.5C0 3.39583 0.0334821 3.31027 0.100446 3.2433C0.167411 3.17634 0.252976 3.14286 0.357143 3.14286H3.8058L4.58705 1.27902C4.69866 1.00372 4.89955 0.769345 5.18973 0.575893C5.47991 0.38244 5.77381 0.285713 6.07143 0.285713H9.64286C9.94048 0.285713 10.2344 0.38244 10.5246 0.575893C10.8147 0.769345 11.0156 1.00372 11.1272 1.27902L11.9085 3.14286H15.3571C15.4613 3.14286 15.5469 3.17634 15.6138 3.2433C15.6808 3.31027 15.7143 3.39583 15.7143 3.5Z" fill="#3059EC"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Remove</a>
-                                        </div>
-                                        @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
-                                        {
-                                            Id = lt.val.Id.Value,
-                                            Type = "LeaveType",
-                                            Name = lt.val.Name,
-                                            ActionName = "Delete",
-                                            ActionController = "LeaveType"
-                                        })
-                                    </div>
-                                </td>
-                            </tr>
+                            <span class="bg-black text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">ACTIVE</span>
                         }
-                        </tbody>
-                    </table>
+                        else
+                        {
+                            <span class="bg-[#4c4546] text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">INACTIVE</span>
+                        }
+                    </div>
+
+                    <div class="border-y border-[#F1F1F1] py-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[#4c4546] text-[9px] font-bold uppercase">Default Days</span>
+                            <span class="font-mono text-[12px] font-bold text-black">@lt.DefaultDays</span>
+                        </div>
+                        <span class="text-[#4c4546] text-[9px] font-bold uppercase mb-1 block">Description</span>
+                        <p class="text-[11px] text-black">
+                            @(string.IsNullOrEmpty(lt.Description) ? "—" : lt.Description)
+                        </p>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="button" data-modal-target="updateLeaveTypeModal-@lt.Id.Value" data-modal-toggle="updateLeaveTypeModal-@lt.Id.Value" class="text-[10px] font-bold uppercase hover:text-primary transition-colors cursor-pointer">[EDIT]</button>
+                        <button type="button" data-modal-target="confirmDelete-@lt.Id.Value" data-modal-toggle="confirmDelete-@lt.Id.Value" class="ml-auto text-[#E62429] text-[10px] font-bold uppercase hover:opacity-70 transition-opacity cursor-pointer">[REMOVE]</button>
+                    </div>
                 </div>
+            }
+        </div>
+
+        <!-- Mobile Pagination Footer -->
+        <div class="mt-6 border border-[#D1D1D1] bg-white p-4 flex flex-col gap-3 font-mono text-[11px]">
+            <div class="text-center font-bold text-black uppercase">
+                @if (totalCount > 0)
+                {
+                    var mShowStart = startIndex + 1;
+                    var mShowEnd = Math.Min(startIndex + pageSize, totalCount);
+                    <span>SHOWING @mShowStart-@mShowEnd OF @totalCount LEAVE TYPES</span>
+                }
+                else
+                {
+                    <span>NO LEAVE TYPES FOUND</span>
+                }
+            </div>
+            <div class="flex items-center justify-center gap-2">
+                @if (currentPage > 1)
+                {
+                    <a href="/leave-type?page=@(currentPage - 1)&pageSize=@pageSize" class="lt-page-btn-mobile">PREV</a>
+                }
+                else
+                {
+                    <span class="lt-page-btn-mobile-disabled">PREV</span>
+                }
+                <span class="px-3 py-2 font-mono text-[10px] font-bold text-black uppercase">PAGE @currentPage OF @Math.Max(1, totalPages)</span>
+                @if (currentPage < totalPages)
+                {
+                    <a href="/leave-type?page=@(currentPage + 1)&pageSize=@pageSize" class="lt-page-btn-mobile">NEXT</a>
+                }
+                else
+                {
+                    <span class="lt-page-btn-mobile-disabled">NEXT</span>
+                }
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Container -->
+@Html.Partial("_CreateLeaveTypePartial")
+
+@foreach (var lt in Model)
+{
+    @Html.Partial("_UpdateLeaveTypePartial", lt)
+    @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+    {
+        Id = lt.Id.Value,
+        Type = "LeaveType",
+        Name = lt.Name,
+        ActionName = "Delete",
+        ActionController = "LeaveType"
+    })
+}
+
+@section Scripts {
+<script>
+    // Client-side search filter (within current page results)
+    function setupSearch(inputId, rowSelector, cardSelector) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        input.addEventListener('input', function() {
+            var q = this.value.toUpperCase();
+            // Desktop rows
+            document.querySelectorAll(rowSelector).forEach(function(row) {
+                var code = (row.getAttribute('data-code') || '').toUpperCase();
+                var name = (row.getAttribute('data-name') || '').toUpperCase();
+                row.style.display = (code.indexOf(q) > -1 || name.indexOf(q) > -1) ? '' : 'none';
+            });
+            // Mobile cards
+            document.querySelectorAll(cardSelector).forEach(function(card) {
+                var code = (card.getAttribute('data-code') || '').toUpperCase();
+                var name = (card.getAttribute('data-name') || '').toUpperCase();
+                card.style.display = (code.indexOf(q) > -1 || name.indexOf(q) > -1) ? '' : 'none';
+            });
+        });
+    }
+    setupSearch('ltSearchInput', '.lt-row', '.lt-card');
+    setupSearch('mobileSearchInput', '.lt-row', '.lt-card');
+</script>
+}

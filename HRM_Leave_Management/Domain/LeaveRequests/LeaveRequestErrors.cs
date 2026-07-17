@@ -1,4 +1,4 @@
-﻿using Domain.Abstractions;
+using Domain.Abstractions;
 
 namespace Domain.LeaveRequests;
 
@@ -67,4 +67,12 @@ public static class LeaveRequestErrors
     public static Error NoPermission = new(
         "LeaveRequest.NoPermission",
         "You do not have permission to perform this action.");
+
+    public static Error OnlyNonWorkingDays = new(
+        "LeaveRequest.OnlyNonWorkingDays",
+        "The selected date range contains no working days.");
+
+    public static Error InvalidShiftRegistration = new(
+        "LeaveRequest.InvalidShiftRegistration",
+        "The selected leave session does not match the configured working shift.");
 }

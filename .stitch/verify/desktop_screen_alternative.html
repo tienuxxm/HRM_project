@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HRM Portal | Department Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#1b1b1b",
+                    "primary-container": "#1b1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dadada",
+                    "on-surface": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#93000e",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#410003",
+                    "surface-tint": "#5e5e5e",
+                    "surface-variant": "#e2e2e2",
+                    "secondary-container": "#e32127",
+                    "on-surface-variant": "#4c4546",
+                    "on-secondary": "#ffffff",
+                    "outline": "#7e7576",
+                    "inverse-surface": "#2f3131",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "tertiary": "#000000",
+                    "on-tertiary-container": "#838484",
+                    "on-primary-fixed-variant": "#474747",
+                    "tertiary-container": "#1a1c1c",
+                    "primary": "#000000",
+                    "surface-container-highest": "#e2e2e2",
+                    "surface-container-low": "#f4f3f3",
+                    "surface-container-high": "#e8e8e8",
+                    "surface-container": "#eeeeee",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "on-primary-container": "#848484",
+                    "inverse-on-surface": "#f1f1f0",
+                    "surface-bright": "#faf9f9",
+                    "secondary": "#bb0015",
+                    "inverse-primary": "#c6c6c6",
+                    "secondary-fixed-dim": "#ffb4ac",
+                    "secondary-fixed": "#ffdad6",
+                    "background": "#faf9f9",
+                    "on-secondary-container": "#fffbff",
+                    "surface": "#faf9f9",
+                    "on-background": "#1a1c1c",
+                    "tertiary-fixed": "#e2e2e2",
+                    "primary-fixed": "#e2e2e2",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "outline-variant": "#cfc4c5",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "0px"
+            },
+            "spacing": {
+                    "stack-sm": "16px",
+                    "stack-md": "32px",
+                    "gutter": "24px",
+                    "margin-edge": "48px",
+                    "unit": "8px",
+                    "container-max": "1440px",
+                    "stack-lg": "64px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "label-md": ["Geist"],
+                    "body-md": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "mono": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-sm": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        /* Custom scrollbar for high-density UI */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #FAF9F9; }
+        ::-webkit-scrollbar-thumb { background: #D1D1D1; }
+        ::-webkit-scrollbar-thumb:hover { background: #000000; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-hidden">
+<!-- Sidebar Wrapper -->
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-lowest border-r border-outline-variant z-30 flex flex-col">
+<!-- Brand Header -->
+<div class="px-6 py-8 border-b border-outline-variant">
+<h1 class="text-[20px] font-extrabold tracking-tighter text-primary inline-block relative">
+                HRM PORTAL
+                <div class="absolute -bottom-1 left-0 w-full h-[2px] bg-secondary"></div>
+</h1>
+<p class="text-[10px] font-mono mt-2 text-on-surface-variant uppercase tracking-widest">Enterprise Division</p>
+</div>
+<!-- Navigation Items -->
+<nav class="flex-1 py-4 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">groups</span>
+                        Personnel
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-primary bg-surface-container border-l-[3px] border-primary transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">domain</span>
+                        Departments
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">payments</span>
+                        Payroll
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">event_available</span>
+                        Work Calendar
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">analytics</span>
+                        Analytics
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 text-[11px] font-bold tracking-widest text-on-surface-variant hover:bg-surface-container transition-colors uppercase" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">settings</span>
+                        Settings
+                    </a>
+</li>
+</ul>
+</nav>
+<!-- CTA & User Profile -->
+<div class="p-6 border-t border-outline-variant bg-surface-container-low">
+<button class="w-full bg-primary text-on-primary py-3 text-[11px] font-bold tracking-widest uppercase hover:bg-white hover:text-black border border-primary transition-all duration-75">
+                New Request
+            </button>
+<div class="mt-6 flex items-center">
+<div class="w-8 h-8 bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a high-level corporate administrator, shot in high contrast black and white. The background is a stark, minimalist white office environment. The subject conveys authority and precision, aligning with a strict International Typographic Style aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmjZnhdzJnHemZSZ9Ozeq6e6Z9wNqh-uZJZyG-aMG2I9XAV1ft1ec1v4jzkbNJCnLh6-eAAZt7DsWApUABM57DsDZxj9SYfp9n15XYDF7YD2VYufEEM_VFvB47B2q5VEKLrYKXhfpVeBj6tGkoBrx91Zpst3N-8O6bKJCFV-3JFfdLUa-ldlPW2IIRHKCvwtnA5blDvV03us4GmHQjQ9SDS3YyM9sqTI0gzQ7liiPPsbOVw0kF1PI_LTrLJGeFL6ZipBkgTx8kMO6s"/>
+</div>
+<div class="ml-3">
+<p class="text-[10px] font-bold uppercase">System Admin</p>
+<p class="text-[9px] font-mono text-on-surface-variant">LVL-4 Clearance</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[260px] h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="h-16 w-full bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-gutter z-20">
+<div class="flex items-center">
+<div class="flex items-center space-x-2">
+<span class="font-mono text-[10px] font-bold text-on-surface-variant tracking-wider">SYS</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="font-mono text-[10px] font-bold text-on-surface-variant tracking-wider">STRUCTURE</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="font-mono text-[10px] font-bold text-primary tracking-wider">DEPARTMENTS</span>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex flex-col items-end">
+<p class="font-mono text-[9px] text-on-surface-variant leading-none uppercase">Realm: HRM</p>
+<p class="font-mono text-[9px] text-on-surface-variant leading-none uppercase mt-1">User: admin@hrm.local</p>
+</div>
+<button class="px-3 py-1.5 border border-secondary text-secondary font-mono text-[10px] font-bold uppercase hover:bg-secondary hover:text-white transition-colors">
+                    Logout
+                </button>
+<div class="flex space-x-2">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant cursor-pointer hover:text-primary">notifications</span>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant cursor-pointer hover:text-primary">help_outline</span>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="flex-1 bg-surface overflow-y-auto p-gutter relative">
+<!-- Action Bar -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-stack-md">
+<div class="w-full md:w-[400px]">
+<label class="block font-mono text-[9px] font-bold text-on-surface-variant uppercase mb-2">Internal Registry Search</label>
+<div class="relative group">
+<input class="w-full h-10 bg-white border border-outline-variant px-4 font-mono text-[11px] focus:outline-none focus:border-primary transition-colors placeholder:text-outline-variant" placeholder="SEARCH DEPARTMENTS..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-[20px] text-outline-variant group-focus-within:text-primary">search</span>
+</div>
+</div>
+<div>
+<button class="h-10 px-8 bg-primary text-on-primary text-[11px] font-bold uppercase tracking-widest hover:bg-white hover:text-primary border border-primary transition-all">
+                        + Create Department
+                    </button>
+</div>
+</div>
+<!-- Department Data Grid -->
+<div class="border border-outline-variant bg-white">
+<table class="w-full text-left border-collapse">
+<thead class="bg-[#F5F5F5]">
+<tr class="border-b border-outline-variant">
+<th class="px-4 py-3 font-mono text-[10px] font-bold text-on-surface-variant uppercase border-r border-outline-variant w-32">Code</th>
+<th class="px-4 py-3 font-headline-sm text-[12px] font-bold text-primary uppercase border-r border-outline-variant">Name</th>
+<th class="px-4 py-3 font-body-md text-[11px] font-medium text-on-surface-variant uppercase border-r border-outline-variant">HOD (Head)</th>
+<th class="px-4 py-3 font-mono text-[11px] font-bold text-on-surface-variant uppercase border-r border-outline-variant text-center w-40">Personnel Count</th>
+<th class="px-4 py-3 font-label-md text-[10px] font-bold text-on-surface-variant uppercase border-r border-outline-variant w-32">Status</th>
+<th class="px-4 py-3 font-label-md text-[10px] font-bold text-on-surface-variant uppercase">Operations</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-4 font-mono text-[11px] font-bold border-r border-outline-variant">DEPT-ENG</td>
+<td class="px-4 py-4 font-body-md text-[12px] font-bold text-primary border-r border-outline-variant">ENGINEERING</td>
+<td class="px-4 py-4 font-body-md text-[11px] text-on-surface border-r border-outline-variant">JANE DOE</td>
+<td class="px-4 py-4 font-mono text-[12px] font-bold border-r border-outline-variant text-center">24</td>
+<td class="px-4 py-4 border-r border-outline-variant">
+<span class="px-2 py-0.5 border border-emerald-500 text-emerald-600 font-bold text-[9px] uppercase tracking-tighter">Active</span>
+</td>
+<td class="px-4 py-4 whitespace-nowrap">
+<div class="flex space-x-3">
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Edit</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Deactivate</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">View Employees</a>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-4 font-mono text-[11px] font-bold border-r border-outline-variant">DEPT-HR</td>
+<td class="px-4 py-4 font-body-md text-[12px] font-bold text-primary border-r border-outline-variant">HUMAN RESOURCES</td>
+<td class="px-4 py-4 font-body-md text-[11px] text-on-surface border-r border-outline-variant">ALICE JOHNSON</td>
+<td class="px-4 py-4 font-mono text-[12px] font-bold border-r border-outline-variant text-center">5</td>
+<td class="px-4 py-4 border-r border-outline-variant">
+<span class="px-2 py-0.5 border border-emerald-500 text-emerald-600 font-bold text-[9px] uppercase tracking-tighter">Active</span>
+</td>
+<td class="px-4 py-4 whitespace-nowrap">
+<div class="flex space-x-3">
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Edit</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Deactivate</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">View Employees</a>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-4 font-mono text-[11px] font-bold border-r border-outline-variant">DEPT-FIN</td>
+<td class="px-4 py-4 font-body-md text-[12px] font-bold text-primary border-r border-outline-variant">FINANCE</td>
+<td class="px-4 py-4 font-body-md text-[11px] text-on-surface border-r border-outline-variant">JOHN SMITH</td>
+<td class="px-4 py-4 font-mono text-[12px] font-bold border-r border-outline-variant text-center">8</td>
+<td class="px-4 py-4 border-r border-outline-variant">
+<span class="px-2 py-0.5 border border-emerald-500 text-emerald-600 font-bold text-[9px] uppercase tracking-tighter">Active</span>
+</td>
+<td class="px-4 py-4 whitespace-nowrap">
+<div class="flex space-x-3">
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Edit</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Deactivate</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">View Employees</a>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-4 font-mono text-[11px] font-bold border-r border-outline-variant">DEPT-MKT</td>
+<td class="px-4 py-4 font-body-md text-[12px] font-bold text-primary border-r border-outline-variant">MARKETING</td>
+<td class="px-4 py-4 font-body-md text-[11px] text-on-surface border-r border-outline-variant">BOB WILSON</td>
+<td class="px-4 py-4 font-mono text-[12px] font-bold border-r border-outline-variant text-center">0</td>
+<td class="px-4 py-4 border-r border-outline-variant">
+<span class="px-2 py-0.5 border border-outline text-outline font-bold text-[9px] uppercase tracking-tighter">Inactive</span>
+</td>
+<td class="px-4 py-4 whitespace-nowrap">
+<div class="flex space-x-3">
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Edit</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">Activate</a>
+<a class="text-[9px] font-bold text-primary hover:text-secondary uppercase underline decoration-outline-variant underline-offset-4" href="#">View Employees</a>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Stats/KPI Grid (Bento Style) -->
+<div class="mt-stack-md grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="p-6 border border-outline-variant bg-white">
+<p class="text-[9px] font-mono font-bold text-on-surface-variant uppercase mb-2">Global Payload</p>
+<p class="text-[28px] font-headline-sm font-bold leading-none">37</p>
+<p class="text-[10px] font-bold mt-1 text-on-surface-variant uppercase">Total Personnel Managed</p>
+</div>
+<div class="p-6 border border-outline-variant bg-white">
+<p class="text-[9px] font-mono font-bold text-on-surface-variant uppercase mb-2">Operational Hubs</p>
+<p class="text-[28px] font-headline-sm font-bold leading-none">04</p>
+<p class="text-[10px] font-bold mt-1 text-on-surface-variant uppercase">Departments Registered</p>
+</div>
+<div class="p-6 border border-outline-variant bg-white">
+<p class="text-[9px] font-mono font-bold text-on-surface-variant uppercase mb-2">Budget Utilization</p>
+<p class="text-[28px] font-headline-sm font-bold leading-none">82%</p>
+<p class="text-[10px] font-bold mt-1 text-on-surface-variant uppercase">Fiscal Year 2024</p>
+</div>
+<div class="p-6 border border-secondary bg-surface-container-low relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-[64px]">security</span>
+</div>
+<p class="text-[9px] font-mono font-bold text-secondary uppercase mb-2">Access Logs</p>
+<p class="text-[28px] font-headline-sm font-bold leading-none text-secondary">OK</p>
+<p class="text-[10px] font-bold mt-1 text-secondary uppercase">All Systems Nominal</p>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="h-10 border-t border-outline-variant px-gutter bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<div class="w-1.5 h-1.5 bg-emerald-500"></div>
+<p class="font-mono text-[9px] text-on-surface-variant tracking-wider uppercase">Realm Connectivity Secured by Keycloak Identity Provider. Session Status: Verified.</p>
+</div>
+<p class="font-mono text-[9px] text-on-surface-variant uppercase">System V. 4.8.2 // Enterprise_Build_Alpha</p>
+</footer>
+</main>
+<!-- Background Atmospheric Elements (Subtle Grid) -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: radial-gradient(#000 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+<script>
+        // Micro-interactions for table rows
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(2px)';
+                row.style.transition = 'transform 0.1s ease';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Simple Search Filter Simulation
+        const searchInput = document.querySelector('input[type="text"]');
+        const rows = document.querySelectorAll('tbody tr');
+        
+        searchInput.addEventListener('keyup', (e) => {
+            const term = e.target.value.toLowerCase();
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+    </script>
+</body></html>

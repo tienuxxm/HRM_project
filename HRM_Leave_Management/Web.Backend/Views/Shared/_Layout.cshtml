@@ -1,9 +1,13 @@
-﻿<!DOCTYPE html>
+@using Application.Abstractions.Authentication
+@using Application.Abstractions.Role
+@inject IUserContext UserContext
+@inject IRoleService RoleService
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Warning Zone</title>
+    <title>@ViewData["Title"] - HRM Portal</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/sumoselect.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -15,11 +19,93 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.css" />
     <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+    <!-- Google Fonts & Material Symbols for Swiss International -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Geist', sans-serif; background-color: #FAF9F9; margin: 0; padding: 0; height: 100vh; }
+        .font-mono, .mono-text { font-family: 'JetBrains Mono', monospace !important; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; font-size: 18px; }
+        .active-indicator { border-left: 3px solid black !important; }
+        .swiss-underline { border-bottom: 2px solid #E62429; }
+        .no-corners { border-radius: 0px !important; }
+        input, select, textarea, button { border-radius: 0px !important; }
+        div[modal-backdrop] { display: none !important; }
+        .hrm-modal-backdrop { background-color: rgba(0, 0, 0, 0.4) !important; }
+        #sidebarMenu {
+            width: 260px;
+            min-width: 260px;
+            max-width: 260px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #sidebarMenu nav {
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+        #sidebarMenu nav::-webkit-scrollbar {
+            display: none;
+        }
+        .hrm-app-shell {
+            min-width: 0;
+            flex: 1 1 0%;
+            height: 100vh;
+        }
+        .hrm-app-shell > main {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        @@media (min-width: 1024px) {
+            #sidebarMenu {
+                position: static !important;
+                inset: auto !important;
+                transform: none !important;
+                display: flex !important;
+                height: 100vh !important;
+                overflow: hidden !important;
+            }
+            #sidebarBackdrop {
+                display: none !important;
+            }
+            .hrm-app-shell {
+                flex: 1 1 auto;
+                width: auto !important;
+            }
+        }
+        @@media (max-width: 1023.98px) {
+            #sidebarMenu {
+                position: fixed !important;
+                width: 260px;
+                min-width: 260px;
+                max-width: 85vw;
+                height: 100vh !important;
+                overflow: hidden !important;
+            }
+            .hrm-app-shell {
+                width: 100%;
+            }
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scrollbar-none {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        #mobileBottomNav {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
+        }
+    </style>
 </head>
-<body class="bg-wnz-secondary">
+<body class="font-body-md overflow-hidden h-screen flex flex-row">
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/datepicker.min.js"></script>
     <script src="https://unpkg.com/chart.js@4.2.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -30,84 +116,126 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <div id="toast-container"></div>
-    <div id="loadingOverlay" style="z-index: 1000 !important;" class="transition delay-150 ease-in-out fixed top-0 left-0 bg-gray-800 bg-opacity-60 h-full w-full h-full flex items-center justify-center">
+    <div id="loadingOverlay" style="z-index: 1000 !important;" class="transition delay-150 ease-in-out fixed top-0 left-0 bg-gray-800 bg-opacity-60 h-full w-full flex items-center justify-center">
         <div class="flex items-center">
-            <svg aria-hidden="true" class="inline w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg aria-hidden="true" class="inline w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-black" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
                 <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
         </div>
     </div>
-    <div class="w-full">
-        <div class="grid grid-cols-12">
-            <div class="2xl:col-span-2 xl:col-span-3 lg:col-span-3 md:col-span-1 sm:col-span-1 col-span-1 h-full min-h-screen bg-white shadow-2xl relative static">
-                <div class="flex flex-row justify-center items-center px-4 pt-3 fixed overflow-hidden 2xl:block xl:block lg:block md:hidden sm:hidden hidden">
-                    <h1 style="color:chocolate; font-size:xx-large;font-weight:bold"> LOGO HERE </h1>
-                </div>
 
-                <div class="2xl:block xl:block lg:block md:hidden sm:hidden hidden flex flex-col justify-center items-start w-full pt-3 mt-3 sticky-top z-0 top-[32px]" id="menuList">
-                </div>
-                <div class="2xl:hidden xl:hidden lg:hidden md:block sm:block block flex flex-col justify-center items-start w-full pt-3 mt-3 sticky-top z-0 top-[32px]" id="menuListResponsive">
-                </div>
-
+    <!-- Persistent Sidebar -->
+    <aside id="sidebarMenu" class="hidden lg:flex fixed lg:static inset-y-0 left-0 z-50 w-[260px] h-screen bg-swiss-light border-r border-swiss-border flex-col flex-shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+        <div class="px-6 pt-8 pb-4 flex-shrink-0">
+            <div class="inline-block pb-1 swiss-underline">
+                <h1 class="font-bold text-black border-l-4 border-swiss-red pl-4 text-2xl tracking-tighter" style="font-family: 'Geist', sans-serif;">HRM PORTAL</h1>
             </div>
-            <div class="2xl:col-span-10 xl:col-span-9 lg:col-span-9 md:col-span-11 sm:col-span-11 col-span-11 min-h-screen">
-                <div class="w-full h-full">
-                    <div class="grid grid-cols-12">
-                        <div class="col-span-12 h-20 bg-wnz-yellow">
-                            <div class="flex 2xl:justify-end xl:justify-end lg:justify-end items-center md:justify-between sm:justify-between h-full px-2">
-                                <img class="2xl:hidden xl:hidden lg:hidden" src="~/images/logo.svg" />
-                                <div class="hidden p-2"></div>
-                                <div id="currentUser" class="">
-                                    <div class="flex items-center gap-2" id="dropdownBottomButton" data-dropdown-toggle="dropdownBottom" data-dropdown-placement="bottom">
-
-                                        <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                            <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-
-                                        <span id="username" class="font-semibold text-lg cursor-pointer"></span>
-                                        <svg class="mt-1" width="15" height="12" viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M6.04234 0.535714C6.04234 0.580357 6.02002 0.63058 5.98654 0.664062L3.38609 3.26451C3.35261 3.29799 3.30239 3.32031 3.25774 3.32031C3.2131 3.32031 3.16288 3.29799 3.12939 3.26451L0.528948 0.664062C0.495466 0.63058 0.473145 0.580357 0.473145 0.535714C0.473145 0.491071 0.495466 0.440848 0.528948 0.407366L0.807966 0.128348C0.841448 0.0948659 0.886091 0.0725445 0.936314 0.0725445C0.980957 0.0725445 1.03118 0.0948659 1.06466 0.128348L3.25774 2.32143L5.45082 0.128348C5.48431 0.0948659 5.53453 0.0725445 5.57917 0.0725445C5.62381 0.0725445 5.67404 0.0948659 5.70752 0.128348L5.98654 0.407366C6.02002 0.440848 6.04234 0.491071 6.04234 0.535714Z" fill="black" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div id="dropdownBottom" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownBottomButton">
-                                        <li>
-                                            <span class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                                @Html.ActionLink("Logout", "Logout", "Auth")
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-span-12 px-5 py-2 pt-3 overflow-y-scroll">
-                            @RenderBody()
-                        </div>
-                    </div>
+            <p class="mt-2 text-[10px] tracking-widest uppercase text-[#4c4546] opacity-60 font-semibold font-mono">Institutional Authority</p>
+        </div>
+        <nav class="flex-1 min-h-0 mt-6 overflow-y-auto overflow-x-hidden">
+            <div class="flex flex-col" id="menuList">
+            </div>
+        </nav>
+        <div class="p-6 border-t border-swiss-border flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-[#e2e2e2] border border-swiss-border flex items-center justify-center">
+                    <span class="material-symbols-outlined text-black">account_circle</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-black uppercase font-mono headerUsername">...</p>
+                    <p class="mono-text text-[9px] text-[#4c4546] uppercase">LEVEL: 00 (ROOT)</p>
                 </div>
             </div>
         </div>
+    </aside>
+
+    <!-- Sidebar backdrop for mobile -->
+    <div id="sidebarBackdrop" class="fixed inset-0 z-40 bg-black bg-opacity-40 hidden lg:hidden"></div>
+
+    <!-- Main Application Container -->
+    <div class="hrm-app-shell flex-1 flex flex-col overflow-hidden w-full">
+        <!-- Desktop Header -->
+        <header class="hidden lg:flex h-16 items-center justify-between px-6 bg-swiss-light border-b border-swiss-border sticky top-0 z-40">
+            <div class="mono-text text-[10px] text-[#4c4546] flex items-center gap-2">
+                <span class="opacity-50">SYS / DIRECTORY /</span> <span class="font-bold text-black">@(ViewData["Title"]?.ToString().ToUpper() ?? "PORTAL")</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="mono-text text-[10px] text-[#4c4546] border-r border-swiss-border pr-6">
+                    REALM: <span class="text-black font-bold">HRM</span> | USER: <span class="text-black font-bold headerUsername">...</span>
+                </div>
+                <a href="/Auth/Logout" class="bg-swiss-red text-white px-4 py-1.5 font-mono text-[10px] tracking-wider uppercase hover:bg-black transition-colors flex items-center gap-2 no-underline" style="border-radius: 0px;">
+                    <span class="material-symbols-outlined text-[14px]">logout</span>
+                    LOGOUT
+                </a>
+            </div>
+        </header>
+
+        <!-- Mobile Header -->
+        <header class="lg:hidden bg-swiss-light sticky top-0 z-50 w-full border-b-2 border-swiss-red flex items-center justify-between px-6 h-16">
+            <div class="flex items-center gap-4">
+                <button id="mobileMenuBtn" class="hidden lg:hidden hover:bg-black hover:text-white transition-colors duration-100 p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h1 class="font-bold tracking-tighter text-black text-lg font-mono">HRM PORTAL</h1>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="font-mono text-[9px] uppercase font-bold text-black headerUsername">...</span>
+                <a href="/Auth/Logout" class="font-mono text-[9px] uppercase font-bold text-swiss-red cursor-pointer hover:underline no-underline">LOGOUT</a>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 overflow-y-auto bg-swiss-light p-6 pb-24 lg:pb-6 flex flex-col gap-6">
+            @RenderBody()
+        </main>
+
+        <!-- System Status Footer -->
+        <footer class="hidden lg:flex h-8 bg-[#eeeeee] border-t border-swiss-border px-6 items-center justify-between">
+            <div class="mono-text text-[9px] text-[#4c4546] tracking-wider uppercase">
+                REALM CONNECTIVITY SECURED BY KEYCLOAK IDENTITY PROVIDER. SESSION STATUS: <span class="text-black font-bold">VERIFIED.</span>
+            </div>
+            <div class="flex items-center gap-4 mono-text text-[9px] text-[#4c4546] uppercase">
+                <span>LATENCY: 14MS</span>
+                <span>ENC: AES-256</span>
+                <span>© 2024 HRM PORTAL SECURE</span>
+            </div>
+        </footer>
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-black flex items-center overflow-x-auto whitespace-nowrap scrollbar-none z-50 select-none shadow-[0_-2px_10px_rgba(0,0,0,0.05)] w-full">
+        </nav>
+        <div class="pointer-events-none absolute right-0 bottom-0 w-12 h-16 bg-gradient-to-l from-white to-transparent z-50 lg:hidden" id="mobileNavFade"></div>
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/jquery.sumoselect.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
-    @*<script src="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.css"></script>*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/datepicker.min.js"></script>
 
     <script>
-                $.get('/Auth/GetUserLogin')
-                    .done(function(data) {
-                        const username = $('#username')
-                        username.text(data.username)
-                    })
-                    .fail(function(error) {
-                        console.log('Error occurred', error);
-                    });
+        $.get('/Auth/GetUserLogin')
+            .done(function(data) {
+                const username = data.username ? data.username.toUpperCase() : '';
+                $('.headerUsername').text(username);
+            })
+            .fail(function(error) {
+                console.log('Error occurred', error);
+            });
+
+        @{
+            bool viewWorkCalendar = false;
+            try
+            {
+                var checkPermResult = await RoleService.checkRoleExist(UserContext.IdentityId, "VIEW_WORK_CALENDAR", default);
+                viewWorkCalendar = checkPermResult.IsSuccess && checkPermResult.Value;
+            }
+            catch {}
+        }
+
         const menuItems = [
             {
                 name: 'GENERAL',
@@ -115,9 +243,9 @@
             },
             {
                 name: 'Dashboard',
-                svgPath: `<path d="M12.5714 7.14286V11.4286C12.5714 11.5833 12.5149 11.7173 12.4018 11.8304C12.2887 11.9435 12.1548 12 12 12H8.57143V8.57143H6.28571V12H2.85714C2.70238 12 2.56845 11.9435 2.45536 11.8304C2.34226 11.7173 2.28571 11.5833 2.28571 11.4286V7.14286C2.28571 7.1369 2.28571 7.12798 2.28571 7.11607C2.29167 7.10417 2.29464 7.09524 2.29464 7.08929L7.42857 2.85714L12.5625 7.08929C12.5685 7.10119 12.5714 7.11905 12.5714 7.14286ZM14.5625 6.52679L14.0089 7.1875C13.9613 7.24107 13.8988 7.27381 13.8214 7.28571H13.7946C13.7173 7.28571 13.6548 7.26488 13.6071 7.22321L7.42857 2.07143L1.25 7.22321C1.17857 7.27083 1.10714 7.29167 1.03571 7.28571C0.958333 7.27381 0.895833 7.24107 0.848214 7.1875L0.294643 6.52679C0.247024 6.46726 0.22619 6.39881 0.232143 6.32143C0.238095 6.23809 0.270833 6.17262 0.330357 6.125L6.75 0.776785C6.94048 0.622023 7.16667 0.544642 7.42857 0.544642C7.69048 0.544642 7.91667 0.622023 8.10714 0.776785L10.2857 2.59821V0.857142C10.2857 0.773809 10.3125 0.705357 10.3661 0.651785C10.4196 0.598214 10.4881 0.571428 10.5714 0.571428H12.2857C12.369 0.571428 12.4375 0.598214 12.4911 0.651785C12.5446 0.705357 12.5714 0.773809 12.5714 0.857142V4.5L14.5268 6.125C14.5863 6.17262 14.619 6.23809 14.625 6.32143C14.631 6.39881 14.6101 6.46726 14.5625 6.52679Z"/>`,
-                isTab: false,
-                url: 'dashboard'
+                icon: 'dashboard',
+                url: 'dashboard',
+                mobileLabel: 'Home'
             },
             {
                 name: 'HRM MANAGEMENT',
@@ -125,21 +253,21 @@
             },
             {
                 name: 'Departments',
-                svgPath: `<path d="M18.0357 0.383928C18.2024 0.502975 18.2857 0.660714 18.2857 0.857142V13.4286C18.2857 13.5476 18.253 13.6548 18.1875 13.75C18.122 13.8452 18.0357 13.9137 17.9286 13.9554L12.2143 16.2411C12.0714 16.3065 11.9286 16.3065 11.7857 16.2411L6.28571 14.0446L0.785714 16.2411C0.726191 16.2708 0.654762 16.2857 0.571429 16.2857C0.458333 16.2857 0.35119 16.253 0.25 16.1875C0.0833333 16.0685 0 15.9107 0 15.7143V3.14286C0 3.02381 0.0327381 2.91667 0.0982143 2.82143C0.16369 2.72619 0.25 2.65774 0.357143 2.61607L6.07143 0.330357C6.21429 0.26488 6.35714 0.26488 6.5 0.330357L12 2.52678L17.5 0.330357C17.6905 0.252975 17.869 0.270833 18.0357 0.383928ZM6.57143 1.58928V12.9286L11.7143 14.9821V3.64286L6.57143 1.58928ZM1.14286 3.52678V14.8661L6 12.9286V1.58928L1.14286 3.52678ZM17.1429 13.0446V1.70536L12.2857 3.64286V14.9821L17.1429 13.0446Z"/>`,
-                isTab: false,
-                url: 'department'
+                icon: 'domain',
+                url: 'department',
+                mobileLabel: 'Depts'
             },
             {
                 name: 'Employees',
-                svgPath: `<path d="M5.29464 8.28571C4.33036 8.31548 3.54167 8.69643 2.92857 9.42857H1.73214C1.24405 9.42857 0.833333 9.30952 0.5 9.07143C0.166667 8.82738 0 8.47321 0 8.00893C0 5.90774 0.369048 4.85714 1.10714 4.85714C1.14286 4.85714 1.27083 4.91964 1.49107 5.04464C1.71726 5.16964 2.00893 5.29762 2.36607 5.42857C2.72321 5.55357 3.07738 5.61607 3.42857 5.61607C3.82738 5.61607 4.22321 5.54762 4.61607 5.41071C4.58631 5.63095 4.57143 5.82738 4.57143 6C4.57143 6.82738 4.8125 7.58929 5.29464 8.28571ZM14.8571 13.9732C14.8571 14.6875 14.6399 15.25 14.2054 15.6607C13.7708 16.0774 13.1935 16.2857 12.4732 16.2857H4.66964C3.9494 16.2857 3.37202 16.0774 2.9375 15.6607C2.50298 15.25 2.28571 14.6875 2.28571 13.9732C2.28571 13.6577 2.29464 13.3512 2.3125 13.0536C2.33631 12.75 2.37798 12.4256 2.4375 12.0804C2.50298 11.7292 2.58333 11.4048 2.67857 11.1071C2.77381 10.8095 2.90179 10.5208 3.0625 10.2411C3.22321 9.95536 3.40774 9.71429 3.61607 9.51786C3.82441 9.31548 4.07738 9.15476 4.375 9.03571C4.67857 8.91667 5.01191 8.85714 5.375 8.85714C5.43452 8.85714 5.5625 8.92262 5.75893 9.05357C5.95536 9.17857 6.17262 9.32143 6.41071 9.48214C6.64881 9.6369 6.96726 9.77976 7.36607 9.91071C7.76488 10.0357 8.16667 10.0982 8.57143 10.0982C8.97619 10.0982 9.37798 10.0357 9.77679 9.91071C10.1756 9.77976 10.494 9.6369 10.7321 9.48214C10.9702 9.32143 11.1875 9.17857 11.3839 9.05357C11.5804 8.92262 11.7083 8.85714 11.7679 8.85714C12.131 8.85714 12.4613 8.91667 12.7589 9.03571C13.0625 9.15476 13.3185 9.31548 13.5268 9.51786C13.7351 9.71429 13.9196 9.95536 14.0804 10.2411C14.2411 10.5208 14.369 10.8095 14.4643 11.1071C14.5595 11.4048 14.6369 11.7292 14.6964 12.0804C14.7619 12.4256 14.8036 12.75 14.8214 13.0536C14.8452 13.3512 14.8571 13.6577 14.8571 13.9732ZM5.04464 0.955357C5.49107 1.40178 5.71429 1.94048 5.71429 2.57143C5.71429 3.20238 5.49107 3.74107 5.04464 4.1875C4.59821 4.63393 4.05952 4.85714 3.42857 4.85714C2.79762 4.85714 2.25893 4.63393 1.8125 4.1875C1.36607 3.74107 1.14286 3.20238 1.14286 2.57143C1.14286 1.94048 1.36607 1.40178 1.8125 0.955357C2.25893 0.508928 2.79762 0.285713 3.42857 0.285713C4.05952 0.285713 4.59821 0.508928 5.04464 0.955357ZM10.9911 3.58036C11.6637 4.24702 12 5.05357 12 6C12 6.94643 11.6637 7.75595 10.9911 8.42857C10.3244 9.09524 9.51786 9.42857 8.57143 9.42857C7.625 9.42857 6.81548 9.09524 6.14286 8.42857C5.47619 7.75595 5.14286 6.94643 5.14286 6C5.14286 5.05357 5.47619 4.24702 6.14286 3.58036C6.81548 2.90774 7.625 2.57143 8.57143 2.57143C9.51786 2.57143 10.3244 2.90774 10.9911 3.58036ZM17.1429 8.00893C17.1429 8.47321 16.9762 8.82738 16.6429 9.07143C16.3095 9.30952 15.8988 9.42857 15.4107 9.42857H14.2143C13.6012 8.69643 12.8125 8.31548 11.8482 8.28571C12.3304 7.58929 12.5714 6.82738 12.5714 6C12.5714 5.82738 12.5565 5.63095 12.5268 5.41071C12.9196 5.54762 13.3155 5.61607 13.7143 5.61607C14.0655 5.61607 14.4196 5.55357 14.7768 5.42857C15.1339 5.29762 15.4226 5.16964 15.6429 5.04464C15.869 4.91964 16 4.85714 16.0357 4.85714C16.7738 4.85714 17.1429 5.90774 17.1429 8.00893ZM15.3304 0.955357C15.7768 1.40178 16 1.94048 16 2.57143C16 3.20238 15.7768 3.74107 15.3304 4.1875C14.8839 4.63393 14.3452 4.85714 13.7143 4.85714C13.0833 4.85714 12.5446 4.63393 12.0982 4.1875C11.6518 3.74107 11.4286 3.20238 11.4286 2.57143C11.4286 1.94048 11.6518 1.40178 12.0982 0.955357C12.5446 0.508928 13.0833 0.285713 13.7143 0.285713C14.3452 0.285713 14.8839 0.508928 15.3304 0.955357Z"/>`,
-                isTab: false,
-                url: 'employee'
+                icon: 'group',
+                url: 'employee',
+                mobileLabel: 'Staff'
             },
             {
                 name: 'Positions',
-                svgPath: `<path d="M14.8571 3.42857H13.7143V1.71428C13.7143 1.25595 13.5268 0.857142 13.1518 0.482142C12.7768 0.107142 12.378 0 11.9196 0H4.08036C3.62202 0 3.22321 0.107142 2.84821 0.482142C2.47321 0.857142 2.28571 1.25595 2.28571 1.71428V3.42857H1.14286C0.827381 3.42857 0.556548 3.54167 0.330357 3.76786C0.110119 3.99405 0 4.26488 0 4.58036V14.8571C0 15.25 0.139881 15.5863 0.419643 15.8661C0.699405 16.1458 1.03571 16.2857 1.42857 16.2857H14.5714C14.9643 16.2857 15.3006 16.1458 15.5804 15.8661C15.8601 15.5863 16 15.25 16 14.8571V4.58036C16 4.26488 15.8899 3.99405 15.6696 3.76786C15.4494 3.54167 15.1786 3.42857 14.8571 3.42857ZM3.42857 1.71428C3.42857 1.53571 3.4881 1.38393 3.60714 1.25893C3.73214 1.13988 3.88988 1.08036 4.08036 1.08036H11.9196C12.1101 1.08036 12.2679 1.13988 12.3929 1.25893C12.5119 1.38393 12.5714 1.53571 12.5714 1.71428V3.42857H3.42857V1.71428Z" />`,
-                isTab: false,
-                url: 'position'
+                icon: 'badge',
+                url: 'position',
+                mobileLabel: 'Pos'
             },
             {
                 name: 'LEAVE MANAGEMENT',
@@ -147,27 +275,38 @@
             },
             {
                 name: 'Leave Types',
-                svgPath: `<path d="M5.71429 0.857142V6.57143C5.71429 6.93452 5.60714 7.26488 5.39286 7.5625C5.18452 7.86012 4.91071 8.06845 4.57143 8.1875V15.1429C4.57143 15.4524 4.45833 15.7202 4.23214 15.9464C4.00595 16.1726 3.7381 16.2857 3.42857 16.2857H2.28571C1.97619 16.2857 1.70833 16.1726 1.48214 15.9464C1.25595 15.7202 1.14286 15.4524 1.14286 15.1429V8.1875C0.803571 8.06845 0.526786 7.86012 0.3125 7.5625C0.104167 7.26488 0 6.93452 0 6.57143V0.857142C0 0.70238 0.0565476 0.568452 0.169643 0.455357C0.282738 0.342261 0.416667 0.285713 0.571429 0.285713C0.726191 0.285713 0.860119 0.342261 0.973214 0.455357C1.08631 0.568452 1.14286 0.70238 1.14286 0.857142V4.57143C1.14286 4.72619 1.1994 4.86012 1.3125 4.97321C1.4256 5.08631 1.55952 5.14286 1.71429 5.14286C1.86905 5.14286 2.00298 5.08631 2.11607 4.97321C2.22917 4.86012 2.28571 4.72619 2.28571 4.57143V0.857142C2.28571 0.70238 2.34226 0.568452 2.45536 0.455357C2.56845 0.342261 2.70238 0.285713 2.85714 0.285713C3.0119 0.285713 3.14583 0.342261 3.25893 0.455357C3.37202 0.568452 3.42857 0.70238 3.42857 0.857142V4.57143C3.42857 4.72619 3.48512 4.86012 3.59821 4.97321C3.71131 5.08631 3.84524 5.14286 4 5.14286C4.15476 5.14286 4.28869 5.08631 4.40179 4.97321C4.51488 4.86012 4.57143 4.72619 4.57143 4.57143V0.857142C4.57143 0.70238 4.62798 0.568452 4.74107 0.455357C4.85417 0.342261 4.9881 0.285713 5.14286 0.285713C5.29762 0.285713 5.43155 0.342261 5.54464 0.455357C5.65774 0.568452 5.71429 0.70238 5.71429 0.857142ZM12.5714 0.857142V15.1429C12.5714 15.4524 12.4583 15.7202 12.2321 15.9464C12.006 16.1726 11.7381 16.2857 11.4286 16.2857H10.2857C9.97619 16.2857 9.70833 16.1726 9.48214 15.9464C9.25595 15.7202 9.14286 15.4524 9.14286 15.1429V10.5714H7.14286C7.06548 10.5714 6.99702 10.5446 6.9375 10.4911C6.88393 10.4315 6.85714 10.3631 6.85714 10.2857V3.14286C6.85714 2.35714 7.13691 1.68452 7.69643 1.125C8.25595 0.565475 8.92857 0.285713 9.71429 0.285713H12C12.1548 0.285713 12.2887 0.342261 12.4018 0.455357C12.5149 0.568452 12.5714 0.70238 12.5714 0.857142Z"/>`,
-                isTab: false,
-                url: 'leave-type'
+                icon: 'event_busy',
+                url: 'leave-type',
+                mobileLabel: 'Types'
             },
             {
                 name: 'Leave Requests',
-                svgPath: `<path d="M4.57143 11.5714V9.85714C4.57143 9.77381 4.54464 9.70536 4.49107 9.65179C4.4375 9.59821 4.36905 9.57143 4.28571 9.57143H1.42857C1.34524 9.57143 1.27679 9.59821 1.22321 9.65179C1.16964 9.70536 1.14286 9.77381 1.14286 9.85714V11.5714C1.14286 11.6548 1.16964 11.7232 1.22321 11.7768C1.27679 11.8304 1.34524 11.8571 1.42857 11.8571H4.28571C4.36905 11.8571 4.4375 11.8304 4.49107 11.7768C4.54464 11.7232 4.57143 11.6548 4.57143 11.5714ZM4.57143 8.14286V6.42857C4.57143 6.34524 4.54464 6.27679 4.49107 6.22321C4.4375 6.16964 4.36905 6.14286 4.28571 6.14286H1.42857C1.34524 6.14286 1.27679 6.16964 1.22321 6.22321C1.16964 6.27679 1.14286 6.34524 1.14286 6.42857V8.14286C1.14286 8.22619 1.16964 8.29464 1.22321 8.34821C1.27679 8.40179 1.34524 8.42857 1.42857 8.42857H4.28571C4.36905 8.42857 4.4375 8.40179 4.49107 8.34821C4.54464 8.29464 4.57143 8.22619 4.57143 8.14286ZM9.14286 11.5714V9.85714C9.14286 9.77381 9.11607 9.70536 9.0625 9.65179C9.00893 9.59821 8.94048 9.57143 8.85714 9.57143H6C5.91667 9.57143 5.84821 9.59821 5.79464 9.65179C5.74107 9.70536 5.71429 9.77381 5.71429 9.85714V11.5714C5.71429 11.6548 5.74107 11.7232 5.79464 11.7768C5.84821 11.8304 5.91667 11.8571 6 11.8571H8.85714C8.94048 11.8571 9.00893 11.8304 9.0625 11.7768C9.11607 11.7232 9.14286 11.6548 9.14286 11.5714ZM4.57143 4.71428V3C4.57143 2.91667 4.54464 2.84821 4.49107 2.79464C4.4375 2.74107 4.36905 2.71428 4.28571 2.71428H1.42857C1.34524 2.71428 1.27679 2.74107 1.22321 2.79464C1.16964 2.84821 1.14286 2.91667 1.14286 3V4.71428C1.14286 4.79762 1.16964 4.86607 1.22321 4.91964C1.27679 4.97321 1.34524 5 1.42857 5H4.28571C4.36905 5 4.4375 4.97321 4.49107 4.91964C4.54464 4.86607 4.57143 4.79762 4.57143 4.71428ZM9.14286 8.14286V6.42857C9.14286 6.34524 9.11607 6.27679 9.0625 6.22321C9.00893 6.16964 8.94048 6.14286 8.85714 6.14286H6C5.91667 6.14286 5.84821 6.16964 5.79464 6.22321C5.74107 6.27679 5.71429 6.34524 5.71429 6.42857V8.14286C5.71429 8.22619 5.74107 8.29464 5.79464 8.34821C5.84821 8.40179 5.91667 8.42857 6 8.42857H8.85714C8.94048 8.42857 9.00893 8.40179 9.0625 8.34821C9.11607 8.29464 9.14286 8.22619 9.14286 8.14286ZM13.7143 11.5714V9.85714C13.7143 9.77381 13.6875 9.70536 13.6339 9.65179C13.5804 9.59821 13.5119 9.57143 13.4286 9.57143H10.5714C10.4881 9.57143 10.4196 9.59821 10.3661 9.65179C10.3125 9.70536 10.2857 9.77381 10.2857 9.85714V11.5714C10.2857 11.6548 10.3125 11.7232 10.3661 11.7768C10.4196 11.8304 10.4881 11.8571 10.5714 11.8571H13.4286C13.5119 11.8571 13.5804 11.8304 13.6339 11.7768C13.6875 11.7232 13.7143 11.6548 13.7143 11.5714ZM9.14286 4.71428V3C9.14286 2.91667 9.11607 2.84821 9.0625 2.79464C9.00893 2.74107 8.94048 2.71428 8.85714 2.71428H6C5.91667 2.71428 5.84821 2.74107 5.79464 2.79464C5.74107 2.84821 5.71429 2.91667 5.71429 3V4.71428C5.71429 4.79762 5.74107 4.86607 5.79464 4.91964C5.84821 4.97321 5.91667 5 6 5H8.85714C8.94048 5 9.00893 4.97321 9.0625 4.91964C9.11607 4.86607 9.14286 4.79762 9.14286 4.71428ZM13.7143 8.14286V6.42857C13.7143 6.34524 13.6875 6.27679 13.6339 6.22321C13.5804 6.16964 13.5119 6.14286 13.4286 6.14286H10.5714C10.4881 6.14286 10.4196 6.16964 10.3661 6.22321C10.3125 6.27679 10.2857 6.42857 10.2857 6.42857V8.14286C10.2857 8.22619 10.3125 8.29464 10.3661 8.34821C10.4196 8.40179 10.4881 8.42857 10.5714 8.42857H13.4286C13.5119 8.42857 13.5804 8.40179 13.6339 8.34821C13.6875 8.29464 13.7143 8.22619 13.7143 8.14286ZM13.7143 4.71428V3C13.7143 2.91667 13.6875 2.84821 13.6339 2.79464C13.5804 2.74107 13.5119 2.71428 13.4286 2.71428H10.5714C10.4881 2.71428 10.4196 2.74107 10.3661 2.79464C10.3125 2.84821 10.2857 2.91667 10.2857 3V4.71428C10.2857 4.79762 10.3125 4.86607 10.3661 4.91964C10.4196 4.97321 10.4881 5 10.5714 5H13.4286C13.5119 5 13.5804 4.97321 13.6339 4.91964C13.6875 4.86607 13.7143 4.79762 13.7143 4.71428ZM14.8571 1.85714V11.5714C14.8571 11.9643 14.7173 12.3006 14.4375 12.5804C14.1577 12.8601 13.8214 13 13.4286 13H1.42857C1.03571 13 0.699405 12.8601 0.419643 12.5804C0.139881 12.3006 0 11.9643 0 11.5714V1.85714C0 1.46429 0.139881 1.12798 0.419643 0.848214C0.699405 0.568452 1.03571 0.428571 1.42857 0.428571H13.4286C13.8214 0.428571 14.1577 0.568452 14.4375 0.848214C14.7173 1.12798 14.8571 1.46429 14.8571 1.85714Z"/>`,
-                isTab: false,
-                url: 'leave-request'
+                icon: 'date_range',
+                url: 'leave-request',
+                mobileLabel: 'Requests'
             },
             {
                 name: 'Leave Balances',
-                svgPath: `<path d="M14.8571 14.8571V5.14286C14.8571 5.06548 14.8274 5 14.7679 4.94643C14.7143 4.8869 14.6488 4.85714 14.5714 4.85714H4.85714C4.77976 4.85714 4.71131 4.8869 4.65179 4.94643C4.59821 5 4.57143 5.06548 4.57143 5.14286V14.8571C4.57143 14.9345 4.59821 15 4.65179 15.0536C4.71131 15.1131 4.77976 15.1429 4.85714 15.1429H14.5714C14.6488 15.1429 14.7143 15.1131 14.7679 15.0536C14.8274 15 14.8571 14.9345 14.8571 14.8571ZM16 5.14286V14.8571C16 15.25 15.8601 15.5863 15.5804 15.8661C15.3006 16.1458 14.9643 16.2857 14.5714 16.2857H4.85714C4.46429 16.2857 4.12798 16.1458 3.84821 15.8661C3.56845 15.5863 3.42857 15.25 3.42857 14.8571V5.14286C3.42857 4.75 3.56845 4.41369 3.84821 4.13393C4.12798 3.85417 4.46429 3.71428 4.85714 3.71428H14.5714C14.9643 3.71428 15.3006 3.85417 15.5804 4.13393C15.8601 4.41369 16 4.75 16 5.14286ZM12.5714 1.71428V3.14286H11.4286V1.71428C11.4286 1.6369 11.3988 1.57143 11.3393 1.51786C11.2857 1.45833 11.2202 1.42857 11.1429 1.42857H1.42857C1.35119 1.42857 1.28274 1.45833 1.22321 1.51786C1.16964 1.57143 1.14286 1.6369 1.14286 1.71428V11.4286C1.14286 11.506 1.16964 11.5744 1.22321 11.6339C1.28274 11.6875 1.35119 11.7143 1.42857 11.7143H2.85714V12.8571H1.42857C1.03571 12.8571 0.699405 12.7173 0.419643 12.4375C0.139881 12.1577 0 11.8214 0 11.4286V1.71428C0 1.32143 0.139881 0.985118 0.419643 0.705357C0.699405 0.425594 1.03571 0.285713 1.42857 0.285713H11.1429C11.5357 0.285713 11.872 0.425594 12.1518 0.705357C12.4315 0.985118 12.5714 1.32143 12.5714 1.71428Z"/>`,
-                isTab: false,
-                url: 'leave-balance'
+                icon: 'account_balance_wallet',
+                url: 'leave-balance',
+                mobileLabel: 'Balances'
             },
+            @if (viewWorkCalendar)
+            {
+                <text>
+                {
+                    name: 'Work Calendar',
+                    icon: 'calendar_today',
+                    url: 'work-calendar',
+                    mobileLabel: 'Calendar'
+                },
+                </text>
+            }
             {
                 name: 'Approver Assignments',
-                svgPath: `<path d="M12.5714 0.857142V15.1429C12.5714 15.4524 12.4583 15.7202 12.2321 15.9464C12.006 16.1726 11.7381 16.2857 11.4286 16.2857H10.2857C9.97619 16.2857 9.70833 16.1726 9.48214 15.9464C9.25595 15.7202 9.14286 15.4524 9.14286 15.1429V10.5714H7.14286C7.06548 10.5714 6.99702 10.5446 6.9375 10.4911C6.88393 10.4315 6.85714 10.3631 6.85714 10.2857V3.14286C6.85714 2.35714 7.13691 1.68452 7.69643 1.125C8.25595 0.565475 8.92857 0.285713 9.71429 0.285713H12C12.1548 0.285713 12.2887 0.342261 12.4018 0.455357C12.5149 0.568452 12.5714 0.70238 12.5714 0.857142Z"/>`,
-                isTab: false,
-                url: 'leave-approver-assignment'
+                icon: 'how_to_reg',
+                url: 'leave-approver-assignment',
+                mobileLabel: 'Approvers'
             },
             {
                 name: 'SYSTEM',
@@ -175,52 +314,127 @@
             },
             {
                 name: 'Users',
-                svgPath: `<path d="M5.29464 8.28571C4.33036 8.31548 3.54167 8.69643 2.92857 9.42857H1.73214C1.24405 9.42857 0.833333 9.30952 0.5 9.07143C0.166667 8.82738 0 8.47321 0 8.00893C0 5.90774 0.369048 4.85714 1.10714 4.85714C1.14286 4.85714 1.27083 4.91964 1.49107 5.04464C1.71726 5.16964 2.00893 5.29762 2.36607 5.42857C2.72321 5.55357 3.07738 5.61607 3.42857 5.61607C3.82738 5.61607 4.22321 5.54762 4.61607 5.41071C4.58631 5.63095 4.57143 5.82738 4.57143 6C4.57143 6.82738 4.8125 7.58929 5.29464 8.28571ZM14.8571 13.9732C14.8571 14.6875 14.6399 15.25 14.2054 15.6607C13.7708 16.0774 13.1935 16.2857 12.4732 16.2857H4.66964C3.9494 16.2857 3.37202 16.0774 2.9375 15.6607C2.50298 15.25 2.28571 14.6875 2.28571 13.9732C2.28571 13.6577 2.29464 13.3512 2.3125 13.0536C2.33631 12.75 2.37798 12.4256 2.4375 12.0804C2.50298 11.7292 2.58333 11.4048 2.67857 11.1071C2.77381 10.8095 2.90179 10.5208 3.0625 10.2411C3.22321 9.95536 3.40774 9.71429 3.61607 9.51786C3.82441 9.31548 4.07738 9.15476 4.375 9.03571C4.67857 8.91667 5.01191 8.85714 5.375 8.85714C5.43452 8.85714 5.5625 8.92262 5.75893 9.05357C5.95536 9.17857 6.17262 9.32143 6.41071 9.48214C6.64881 9.6369 6.96726 9.77976 7.36607 9.91071C7.76488 10.0357 8.16667 10.0982 8.57143 10.0982C8.97619 10.0982 9.37798 10.0357 9.77679 9.91071C10.1756 9.77976 10.494 9.6369 10.7321 9.48214C10.9702 9.32143 11.1875 9.17857 11.3839 9.05357C11.5804 8.92262 11.7083 8.85714 11.7679 8.85714C12.131 8.85714 12.4613 8.91667 12.7589 9.03571C13.0625 9.15476 13.3185 9.31548 13.5268 9.51786C13.7351 9.71429 13.9196 9.95536 14.0804 10.2411C14.2411 10.5208 14.369 10.8095 14.4643 11.1071C14.5595 11.4048 14.6369 11.7292 14.6964 12.0804C14.7619 12.4256 14.8036 12.75 14.8214 13.0536C14.8452 13.3512 14.8571 13.6577 14.8571 13.9732ZM5.04464 0.955357C5.49107 1.40178 5.71429 1.94048 5.71429 2.57143C5.71429 3.20238 5.49107 3.74107 5.04464 4.1875C4.59821 4.63393 4.05952 4.85714 3.42857 4.85714C2.79762 4.85714 2.25893 4.63393 1.8125 4.1875C1.36607 3.74107 1.14286 3.20238 1.14286 2.57143C1.14286 1.94048 1.36607 1.40178 1.8125 0.955357C2.25893 0.508928 2.79762 0.285713 3.42857 0.285713C4.05952 0.285713 4.59821 0.508928 5.04464 0.955357ZM10.9911 3.58036C11.6637 4.24702 12 5.05357 12 6C12 6.94643 11.6637 7.75595 10.9911 8.42857C10.3244 9.09524 9.51786 9.42857 8.57143 9.42857C7.625 9.42857 6.81548 9.09524 6.14286 8.42857C5.47619 7.75595 5.14286 6.94643 5.14286 6C5.14286 5.05357 5.47619 4.24702 6.14286 3.58036C6.81548 2.90774 7.625 2.57143 8.57143 2.57143C9.51786 2.57143 10.3244 2.90774 10.9911 3.58036ZM17.1429 8.00893C17.1429 8.47321 16.9762 8.82738 16.6429 9.07143C16.3095 9.30952 15.8988 9.42857 15.4107 9.42857H14.2143C13.6012 8.69643 12.8125 8.31548 11.8482 8.28571C12.3304 7.58929 12.5714 6.82738 12.5714 6C12.5714 5.82738 12.5565 5.63095 12.5268 5.41071C12.9196 5.54762 13.3155 5.61607 13.7143 5.61607C14.0655 5.61607 14.4196 5.55357 14.7768 5.42857C15.1339 5.29762 15.4226 5.16964 15.6429 5.04464C15.869 4.91964 16 4.85714 16.0357 4.85714C16.7738 4.85714 17.1429 5.90774 17.1429 8.00893ZM15.3304 0.955357C15.7768 1.40178 16 1.94048 16 2.57143C16 3.20238 15.7768 3.74107 15.3304 4.1875C14.8839 4.63393 14.3452 4.85714 13.7143 4.85714C13.0833 4.85714 12.5446 4.63393 12.0982 4.1875C11.6518 3.74107 11.4286 3.20238 11.4286 2.57143C11.4286 1.94048 11.6518 1.40178 12.0982 0.955357C12.5446 0.508928 13.0833 0.285713 13.7143 0.285713C14.3452 0.285713 14.8839 0.508928 15.3304 0.955357Z"/>`,
-                isTab: false,
-                url: 'user'
+                icon: 'manage_accounts',
+                url: 'user',
+                mobileLabel: 'Users'
             },
             {
                 name: 'Roles & Permissions',
-                svgPath: `<path d="M5.29464 8.28571C4.33036 8.31548 3.54167 8.69643 2.92857 9.42857H1.73214C1.24405 9.42857 0.833333 9.30952 0.5 9.07143C0.166667 8.82738 0 8.47321 0 8.00893C0 5.90774 0.369048 4.85714 1.10714 4.85714C1.14286 4.85714 1.27083 4.91964 1.49107 5.04464C1.71726 5.16964 2.00893 5.29762 2.36607 5.42857C2.72321 5.55357 3.07738 5.61607 3.42857 5.61607C3.82738 5.61607 4.22321 5.54762 4.61607 5.41071C4.58631 5.63095 4.57143 5.82738 4.57143 6C4.57143 6.82738 4.8125 7.58929 5.29464 8.28571ZM14.8571 13.9732C14.8571 14.6875 14.6399 15.25 14.2054 15.6607C13.7708 16.0774 13.1935 16.2857 12.4732 16.2857H4.66964C3.9494 16.2857 3.37202 16.0774 2.9375 15.6607C2.50298 15.25 2.28571 14.6875 2.28571 13.9732C2.28571 13.6577 2.29464 13.3512 2.3125 13.0536C2.33631 12.75 2.37798 12.4256 2.4375 12.0804C2.50298 11.7292 2.58333 11.4048 2.67857 11.1071C2.77381 10.8095 2.90179 10.5208 3.0625 10.2411C3.22321 9.95536 3.40774 9.71429 3.61607 9.51786C3.82441 9.31548 4.07738 9.15476 4.375 9.03571C4.67857 8.91667 5.01191 8.85714 5.375 8.85714C5.43452 8.85714 5.5625 8.92262 5.75893 9.05357C5.95536 9.17857 6.17262 9.32143 6.41071 9.48214C6.64881 9.6369 6.96726 9.77976 7.36607 9.91071C7.76488 10.0357 8.16667 10.0982 8.57143 10.0982C8.97619 10.0982 9.37798 10.0357 9.77679 9.91071C10.1756 9.77976 10.494 9.6369 10.7321 9.48214C10.9702 9.32143 11.1875 9.17857 11.3839 9.05357C11.5804 8.92262 11.7083 8.85714 11.7679 8.85714C12.131 8.85714 12.4613 8.91667 12.7589 9.03571C13.0625 9.15476 13.3185 9.31548 13.5268 9.51786C13.7351 9.71429 13.9196 9.95536 14.0804 10.2411C14.2411 10.5208 14.369 10.8095 14.4643 11.1071C14.5595 11.4048 14.6369 11.7292 14.6964 12.0804C14.7619 12.4256 14.8036 12.75 14.8214 13.0536C14.8452 13.3512 14.8571 13.6577 14.8571 13.9732ZM5.04464 0.955357C5.49107 1.40178 5.71429 1.94048 5.71429 2.57143C5.71429 3.20238 5.49107 3.74107 5.04464 4.1875C4.59821 4.63393 4.05952 4.85714 3.42857 4.85714C2.79762 4.85714 2.25893 4.63393 1.8125 4.1875C1.36607 3.74107 1.14286 3.20238 1.14286 2.57143C1.14286 1.94048 1.36607 1.40178 1.8125 0.955357C2.25893 0.508928 2.79762 0.285713 3.42857 0.285713C4.05952 0.285713 4.59821 0.508928 5.04464 0.955357ZM10.9911 3.58036C11.6637 4.24702 12 5.05357 12 6C12 6.94643 11.6637 7.75595 10.9911 8.42857C10.3244 9.09524 9.51786 9.42857 8.57143 9.42857C7.625 9.42857 6.81548 9.09524 6.14286 8.42857C5.47619 7.75595 5.14286 6.94643 5.14286 6C5.14286 5.05357 5.47619 4.24702 6.14286 3.58036C6.81548 2.90774 7.625 2.57143 8.57143 2.57143C9.51786 2.57143 10.3244 2.90774 10.9911 3.58036ZM17.1429 8.00893C17.1429 8.47321 16.9762 8.82738 16.6429 9.07143C16.3095 9.30952 15.8988 9.42857 15.4107 9.42857H14.2143C13.6012 8.69643 12.8125 8.31548 11.8482 8.28571C12.3304 7.58929 12.5714 6.82738 12.5714 6C12.5714 5.82738 12.5565 5.63095 12.5268 5.41071C12.9196 5.54762 13.3155 5.61607 13.7143 5.61607C14.0655 5.61607 14.4196 5.55357 14.7768 5.42857C15.1339 5.29762 15.4226 5.16964 15.6429 5.04464C15.869 4.91964 16 4.85714 16.0357 4.85714C16.7738 4.85714 17.1429 5.90774 17.1429 8.00893ZM15.3304 0.955357C15.7768 1.40178 16 1.94048 16 2.57143C16 3.20238 15.7768 3.74107 15.3304 4.1875C14.8839 4.63393 14.3452 4.85714 13.7143 4.85714C13.0833 4.85714 12.5446 4.63393 12.0982 4.1875C11.6518 3.74107 11.4286 3.20238 11.4286 2.57143C11.4286 1.94048 11.6518 1.40178 12.0982 0.955357C12.5446 0.508928 13.0833 0.285713 13.7143 0.285713C14.3452 0.285713 14.8839 0.508928 15.3304 0.955357Z"/>`,
-                isTab: false,
-                url: 'role'
+                icon: 'security',
+                url: 'role',
+                mobileLabel: 'Security'
             }
-        ]
-
+        ];
         const loadingOverlay = $('#loadingOverlay');
         loadingOverlay.hide();
-        const menuContainer = $('#menuList').append('')
-        const menuContainerResponsive = $('#menuListResponsive').append('')
+        const menuContainer = $('#menuList').html('');
+
+        // Render Desktop Sidebar Menu
         menuItems.forEach(i => {
             if (i.isTab){
-                menuContainer.append(`<div class="flex flex-col justify-start items-start w-full mt-2">
-                        <div class="flex items-center w-full px-4 py-1 cursor-pointer">
-                            <a class="font-semibold text-md text-wnz-yellow">${i.name}</a>
+                menuContainer.append(`<div class="flex flex-col justify-start items-start w-full mt-6 mb-2">
+                        <div class="flex items-center w-full px-6 py-1">
+                            <span class="text-[9px] font-bold tracking-widest text-[#7F7F7F] uppercase font-mono">${i.name}</span>
                         </div>
                     </div>`)
             }else{
                 const path = location.pathname.split('/')[1]?.toLowerCase()
-            menuContainer.append(
-                `<div class="flex flex-col justify-start items-start w-full ${path === i.url?.toLowerCase() ? 'bg-wnz-yellow rounded-xl' :''}">
-                        <div onclick="location.href='/${i.url}'" class="flex items-center w-full px-4 py-1 cursor-pointer group">
-                            <svg class="${path === i.url?.toLowerCase() ? 'fill-black ' : 'group-hover:fill-wnz-yellow'} transition ease-in-out" width="16" height="17" viewBox="0 0 16 17" xmlns="http://www.w3.org/2000/svg">
-                                ${i.svgPath}
-                            </svg>
-                            <a class="${path === i.url?.toLowerCase() ? 'text-black ' : 'group-hover:text-wnz-yellow'} ml-2 font-semibold text-md transition ease-in-out">${i.name}</a>
-                        </div>
-                    </div>`)
+                const isActive = path === i.url?.toLowerCase();
 
-            menuContainerResponsive.append(
-                `<div class="flex flex-col justify-start items-start w-full">
-                        <div onclick="location.href='/${i.url}'" class="flex items-center w-full px-4 py-1 cursor-pointer group my-1" title="${i.name}">
-                            <svg class="${path === i.url?.toLowerCase() ? 'fill-wnz-yellow' : ''}  group-hover:scale-110 itransition ease-in-out" width="23" height="24" viewBox="0 0 23 24" xmlns="http://www.w3.org/2000/svg">
-                                ${i.svgPath}
-                            </svg>
-                        </div>
+                menuContainer.append(
+                    `<div class="flex flex-col justify-start items-start w-full">
+                        <a href="/${i.url}" class="flex items-center w-full px-6 py-3 cursor-pointer group no-underline transition-colors duration-150 ${isActive ? 'bg-black text-white font-bold active-indicator' : 'text-[#4c4546] hover:bg-[#eeeeee] hover:text-black'}">
+                            <span class="material-symbols-outlined mr-3 transition-colors duration-150 ${isActive ? 'text-white' : 'text-[#7F7F7F] group-hover:text-black'}">${i.icon}</span>
+                            <span class="font-mono text-[11px] uppercase tracking-wider transition-colors duration-150">${i.name}</span>
+                        </a>
                     </div>`)
             }
+        });
 
-        })
+        // Render Mobile Bottom Navigation
+        const mobileNavContainer = $('<div class="flex items-center h-full w-full"></div>');
+        menuItems.forEach(i => {
+            if (!i.isTab) {
+                const path = location.pathname.split('/')[1]?.toLowerCase();
+                const isActive = path === i.url?.toLowerCase();
+
+                mobileNavContainer.append(
+                    `<a href="/${i.url}" class="mobile-nav-item flex-shrink-0 w-20 h-full flex flex-col items-center justify-center gap-1 transition-colors duration-150 ${isActive ? 'bg-black text-white font-bold' : 'text-[#4c4546] hover:bg-[#eeeeee] hover:text-black'}" style="border-radius: 0px !important; text-decoration: none !important;">
+                        <span class="material-symbols-outlined ${isActive ? 'text-white' : 'text-[#7F7F7F]'}">${i.icon}</span>
+                        <span class="font-mono text-[9px] uppercase tracking-wider">${i.mobileLabel || i.name}</span>
+                    </a>`
+                );
+            }
+        });
+        $('#mobileBottomNav').html(mobileNavContainer);
+
+        // Auto scroll active mobile item into view
+        setTimeout(() => {
+            const activeMobileItem = $('#mobileBottomNav .bg-black')[0];
+            if (activeMobileItem) {
+                activeMobileItem.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+            }
+        }, 100);
+
+        // Mobile sidebar toggle
+        $('#mobileMenuBtn').on('click', function(e) {
+            e.stopPropagation();
+            $('#sidebarMenu').removeClass('-translate-x-full');
+            $('#sidebarBackdrop').removeClass('hidden');
+        });
+        $('#sidebarBackdrop').on('click', function() {
+            $('#sidebarMenu').addClass('-translate-x-full');
+            $('#sidebarBackdrop').addClass('hidden');
+        });
+
+        // Desktop mouse drag scroll helper for mobile bottom nav
+        (function() {
+            const nav = document.getElementById('mobileBottomNav');
+            if (!nav) return;
+            let isPointerDown = false;
+            let hasDragged = false;
+            let startX = 0;
+            let startScrollLeft = 0;
+            const dragThreshold = 5;
+
+            nav.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'touch' || event.button !== 0) return;
+                isPointerDown = true;
+                hasDragged = false;
+                startX = event.clientX;
+                startScrollLeft = nav.scrollLeft;
+                nav.style.cursor = 'grabbing';
+                nav.style.userSelect = 'none';
+            });
+
+            nav.addEventListener('pointermove', (event) => {
+                if (!isPointerDown) return;
+                const deltaX = event.clientX - startX;
+                if (Math.abs(deltaX) <= dragThreshold) return;
+                hasDragged = true;
+                event.preventDefault();
+                nav.scrollLeft = startScrollLeft - deltaX;
+            });
+
+            const stopDrag = () => {
+                isPointerDown = false;
+                nav.style.cursor = 'grab';
+                nav.style.userSelect = '';
+            };
+
+            nav.addEventListener('pointerup', stopDrag);
+            nav.addEventListener('pointercancel', stopDrag);
+            nav.addEventListener('mouseleave', stopDrag);
+            nav.addEventListener('click', (event) => {
+                if (!hasDragged) return;
+                event.preventDefault();
+                event.stopPropagation();
+                hasDragged = false;
+            }, true);
+
+            // Initial styling hint
+            nav.style.cursor = 'grab';
+        })();
     </script>
     @await RenderSectionAsync("Scripts", false)
 </body>

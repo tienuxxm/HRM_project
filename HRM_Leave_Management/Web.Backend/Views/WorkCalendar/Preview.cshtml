@@ -1,0 +1,202 @@
+@model Application.WorkCalendars.GetImportBatchDetails.CalendarImportBatchDetailsResponse
+
+@{
+    ViewBag.Title = "Import Preview";
+    Layout = "_Layout";
+    bool canUpdate = ViewBag.CanUpdate;
+    bool hasErrors = Model.Rows.Any(r => !r.IsValid);
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <!-- Breadcrumb -->
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a href="/work-calendar" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Work Calendar</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2 dark:text-gray-400">Import Preview</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Preview Card -->
+        <div style="min-height: 543px" class="bg-white w-full p-6 rounded-lg mt-5 flex flex-col justify-between shadow-sm">
+            <div class="w-full">
+                <!-- Batch Summary Card -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 mb-1">Import Batch Details</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm text-gray-600 mt-2">
+                            <div><span class="font-semibold">File Name:</span> @Model.FileName</div>
+                            <div><span class="font-semibold">Uploaded At:</span> @Model.UploadedAt.ToString("yyyy-MM-dd HH:mm:ss")</div>
+                            <div>
+                                <span class="font-semibold">Status:</span> 
+                                <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10">@Model.Status</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <a href="/work-calendar" class="inline-flex items-center text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-blue-100 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                            Cancel
+                        </a>
+
+                        @if (canUpdate)
+                        {
+                            if (hasErrors)
+                            {
+                                <button type="button" disabled title="Please fix all validation errors before applying." class="inline-flex items-center text-white bg-gray-400 cursor-not-allowed font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                                    Apply Import
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" onclick="confirmImport()" id="confirmBtn" class="inline-flex items-center text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                                    Apply Import
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Error Warning Alert -->
+                @if (hasErrors)
+                {
+                    <div class="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200" role="alert">
+                        <span class="font-semibold">Warning:</span> Your Excel file contains invalid records. You must fix these errors and re-upload the file before you can apply the import.
+                    </div>
+                }
+
+                <!-- Rows Table -->
+                <div class="overflow-x-auto w-full">
+                    <h3 class="text-md font-semibold text-gray-900 mb-3 uppercase tracking-wider">Excel Rows Preview</h3>
+                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-center w-20">Row No</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Date</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Day Type</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Work Shift</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Description</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-center w-28">Validation</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Error Message</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            @foreach (var row in Model.Rows)
+                            {
+                                <tr class="@(row.IsValid ? "" : "bg-red-50/30")">
+                                    <td class="px-4 py-3 text-center text-gray-900 font-semibold">@row.RowIndex</td>
+                                    <td class="px-4 py-3 text-gray-700 font-semibold">@(row.Date.HasValue ? row.Date.Value.ToString("yyyy-MM-dd") : "-")</td>
+                                    <td class="px-4 py-3 text-gray-700">@row.DayType</td>
+                                    <td class="px-4 py-3 text-gray-700">@row.WorkShift</td>
+                                    <td class="px-4 py-3 text-gray-500">@(row.Description ?? "-")</td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if (row.IsValid)
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20">Valid</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">Invalid</span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3 text-red-600 font-medium">@(row.ErrorMessage ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="customToastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+<script>
+    function showToast(message, isSuccess = true) {
+        const id = 'toast-' + Math.random().toString(36).substr(2, 9);
+        const bgClass = isSuccess ? 'bg-white text-gray-500 border-l-4 border-green-500 shadow-lg' : 'bg-white text-gray-500 border-l-4 border-red-500 shadow-lg';
+        const iconColor = isSuccess ? 'text-green-500 bg-green-100' : 'text-red-500 bg-red-100';
+        const iconSvg = isSuccess ? 
+            `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+             </svg>` :
+            `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
+             </svg>`;
+
+        const html = `
+            <div id="${id}" class="flex items-center w-full max-w-xs p-4 rounded-lg ${bgClass} transition-all duration-300 transform translate-x-full" role="alert">
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg ${iconColor}">
+                    ${iconSvg}
+                </div>
+                <div class="ml-3 text-sm font-normal">${message}</div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 focus:outline-none" onclick="$('#${id}').remove()">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        $('#customToastContainer').append(html);
+        
+        setTimeout(() => {
+            $(`#${id}`).removeClass('translate-x-full');
+        }, 50);
+
+        setTimeout(() => {
+            $(`#${id}`).addClass('opacity-0 translate-x-full');
+            setTimeout(() => {
+                $(`#${id}`).remove();
+            }, 300);
+        }, 4000);
+    }
+
+    function confirmImport() {
+        $('#confirmBtn').prop('disabled', true).text('Processing Recalculation...');
+
+        $.ajax({
+            url: '/work-calendar/confirm',
+            type: 'POST',
+            data: { batchId: '@Model.BatchId' },
+            success: function(response) {
+                if (response.success) {
+                    showToast('Import successfully applied. Redirecting to summary...', true);
+                    setTimeout(() => {
+                        window.location.href = '/work-calendar/summary/@Model.BatchId';
+                    }, 1000);
+                } else {
+                    $('#confirmBtn').prop('disabled', false).text('Apply Import');
+                    showToast(response.message || 'Error occurred during processing.', false);
+                }
+            },
+            error: function() {
+                $('#confirmBtn').prop('disabled', false).text('Apply Import');
+                showToast('A network error occurred.', false);
+            }
+        });
+    }
+</script>

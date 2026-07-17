@@ -1,9 +1,10 @@
-﻿using System.Data;
+using System.Data;
 using Application.Abstractions.Clock;
 using Application.Exceptions;
 using Domain.Abstractions;
 using Domain.Positions;
 using Domain.LeaveApproverAssignments;
+using Domain.WorkCalendars;
 using Infrastructure.Outbox;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -109,4 +110,8 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IDataProtecti
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
     public DbSet<Position> Positions { get; set; } = null!;
     public DbSet<LeaveApproverAssignment> LeaveApproverAssignments { get; set; } = null!;
+    public DbSet<WorkCalendarDay> WorkCalendarDays { get; set; } = null!;
+    public DbSet<CalendarImportBatch> CalendarImportBatches { get; set; } = null!;
+    public DbSet<CalendarImportBatchRow> CalendarImportBatchRows { get; set; } = null!;
+    public DbSet<LeaveRequestRecalculationAudit> LeaveRequestRecalculationAudits { get; set; } = null!;
 }

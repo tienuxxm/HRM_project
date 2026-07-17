@@ -3,6 +3,7 @@ using Application.Abstractions.Role;
 using Application.LeaveTypes.Create;
 using Application.LeaveTypes.Delete;
 using Application.LeaveTypes.GetAll;
+using Application.LeaveTypes.GetPaged;
 using Application.LeaveTypes.Update;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -25,18 +26,27 @@ public class LeaveTypeController : Controller
         _roleService = roleService;
     }
 
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5,
+        CancellationToken cancellationToken = default)
     {
         var checkRoleExist = await _roleService.checkRoleExist(_userContext.IdentityId, "VIEW_LEAVE_TYPE", cancellationToken);
         if (!checkRoleExist.Value)
         {
             return Redirect("/NoPermission");
         }
-        var query = new GetAllLeaveTypesQuery();
+        var query = new GetPagedLeaveTypesQuery(page, pageSize);
         var result = await _sender.Send(query, cancellationToken);
         if (result.IsFailure)
             return BadRequest(result.Error);
-        return View(result.Value);
+
+        ViewBag.CurrentPage = result.Value.CurrentPage;
+        ViewBag.TotalPages = result.Value.TotalPages;
+        ViewBag.PageSize = result.Value.PageSize;
+        ViewBag.TotalCount = result.Value.TotalCount;
+
+        return View(result.Value.Data);
     }
 
     [HttpPost("create")]

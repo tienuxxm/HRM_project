@@ -1,4 +1,4 @@
-# HRM Refactor Mapping — Phân loại Module & Kế hoạch Hành động
+﻿# HRM Refactor Mapping — Phân loại Module & Kế hoạch Hành động
 
 > Ngày tạo: 2026-06-24
 > Cập nhật: 2026-06-24 (v3 — tiếng Việt có dấu, bổ sung Phase 2A Detailed Design)

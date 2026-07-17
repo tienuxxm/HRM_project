@@ -1,80 +1,43 @@
-<div id="createDepartmentModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative w-full max-w-md max-h-full">
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="createDepartmentModal">
-                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                </svg>
-                <span class="sr-only">Close modal</span>
-            </button>
-            <div class="px-6 py-6 lg:px-8">
-                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add Department</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label for="deptCode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department Code</label>
-                        <input type="text" placeholder="e.g. IT, HR, FIN" id="deptCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
-                        <p id="deptCodeError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
-                    </div>
-                    <div>
-                        <label for="deptName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department Name</label>
-                        <input type="text" placeholder="Enter Department Name" id="deptName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
-                        <p id="deptNameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
-                    </div>
-                    <div>
-                        <label for="deptDescription" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description (Optional)</label>
-                        <textarea placeholder="Enter Description" id="deptDescription" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
-                    </div>
-                    <button type="button" id="saveDeptButton" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create</button>
+<div id="createDepartmentModal" tabindex="-1" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <!-- Static Backdrop (Enterprise Calm Dim style) -->
+    <div class="fixed inset-0 hrm-modal-backdrop" aria-hidden="true"></div>
+    <div class="min-h-screen flex items-center justify-center p-4 relative z-10">
+        <!-- Modal content panel -->
+        <div class="w-full max-w-[480px] bg-white border border-black rounded-none shadow-none flex flex-col overflow-hidden relative">
+            <!-- Modal Header -->
+            <div class="h-12 flex items-center justify-between px-4 bg-black text-white">
+                <span class="font-geist font-bold text-[14px] uppercase tracking-wider">ADD DEPARTMENT</span>
+                <button type="button" class="bg-[#E62429] w-8 h-8 flex items-center justify-center hover:bg-[#c51f24] transition-colors" data-modal-hide="createDepartmentModal">
+                    <span class="material-symbols-outlined text-[20px] text-white">close</span>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6 flex flex-col gap-4 text-left font-geist">
+                <div>
+                    <label for="deptCode" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Department Code</label>
+                    <input type="text" placeholder="E.G. IT, HR, FIN" id="deptCode" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] uppercase focus:outline-none focus:border-black transition-colors" required autocomplete="off">
+                    <p id="deptCodeError" style="display: none;" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide"></p>
                 </div>
+                <div>
+                    <label for="deptName" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">Department Name</label>
+                    <input type="text" placeholder="ENTER DEPARTMENT NAME" id="deptName" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 text-[12px] uppercase font-bold focus:outline-none focus:border-black transition-colors" required autocomplete="off">
+                    <p id="deptNameError" style="display: none;" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide"></p>
+                </div>
+                <div>
+                    <label for="deptDescription" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">Description (Optional)</label>
+                    <textarea placeholder="ENTER DESCRIPTION" id="deptDescription" rows="3" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 text-[11px] focus:outline-none focus:border-black transition-colors" autocomplete="off"></textarea>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="h-16 flex items-center justify-end gap-3 px-6 bg-[#FBFBFB] border-t border-[#D1D1D1]">
+                <button data-modal-hide="createDepartmentModal" type="button" class="bg-white border border-[#D1D1D1] px-4 py-2 font-geist font-bold text-[11px] uppercase tracking-widest hover:bg-[#F4F3F3] transition-colors rounded-none cursor-pointer">
+                    CANCEL
+                </button>
+                <button type="button" id="saveDeptButton" class="bg-[#E62429] text-white border border-[#E62429] px-4 py-2 font-geist font-bold text-[11px] uppercase tracking-widest hover:bg-white hover:text-[#E62429] transition-all rounded-none cursor-pointer">
+                    CREATE
+                </button>
             </div>
         </div>
     </div>
 </div>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script>
-    const toastContainer = $('#toast-container')
-    const deptCodeError = $('#deptCodeError')
-    const deptNameError = $('#deptNameError')
-    deptCodeError.hide();
-    deptNameError.hide();
-    $('#saveDeptButton').on('click', function (){
-        deptCodeError.hide();
-        deptNameError.hide();
-        const deptCode = $('#deptCode').val()
-        const deptName = $('#deptName').val()
-        const deptDescription = $('#deptDescription').val()
-        
-        if(!deptCode || deptCode.trim() === ''){
-            deptCodeError.show();
-            deptCodeError.text("Please enter department code")
-            return;
-        }
-        if(!deptName || deptName.trim() === ''){
-            deptNameError.show();
-            deptNameError.text("Please enter department name")
-            return;
-        }
-    
-        const formData = new FormData()
-        formData.append('Code', deptCode)
-        formData.append('Name', deptName)
-        formData.append('Description', deptDescription)
-        $.ajax({
-            type: "POST",
-            url: `/department/create`,
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (e) {
-                toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Department created successfully" }, null)')
-                setTimeout(() => {
-                    location.href="/department"
-                }, 1500)
-            },
-            error: function (error){
-                toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Department creation failed" }, null)')
-            },
-        })
-    })
-</script>
+

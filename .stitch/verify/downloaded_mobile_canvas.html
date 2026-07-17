@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HRM PORTAL - Departments</title>
+<!-- Google Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #FAF9F9;
+            color: #1a1c1c;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hairline-border {
+            border: 1px solid #D1D1D1;
+        }
+        .hairline-border-b {
+            border-bottom: 1px solid #D1D1D1;
+        }
+        .hairline-border-t {
+            border-top: 1px solid #D1D1D1;
+        }
+        .hairline-border-r {
+            border-right: 1px solid #D1D1D1;
+        }
+        /* Strict Swiss Minimalism: No rounding */
+        * {
+            border-radius: 0px !important;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#1a1c1c",
+                    "primary": "#000000",
+                    "outline-variant": "#cfc4c5",
+                    "surface-variant": "#e2e2e2",
+                    "outline": "#7e7576",
+                    "inverse-on-surface": "#f1f1f0",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "primary-container": "#1b1b1b",
+                    "secondary-fixed": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-surface-variant": "#4c4546",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "tertiary": "#000000",
+                    "surface-container": "#eeeeee",
+                    "on-secondary-fixed": "#410003",
+                    "surface-tint": "#5e5e5e",
+                    "secondary-container": "#e32127",
+                    "on-secondary-fixed-variant": "#93000e",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#dadada",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary-container": "#848484",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#faf9f9",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "primary-fixed": "#e2e2e2",
+                    "on-primary-fixed": "#1b1b1b",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#fffbff",
+                    "tertiary-container": "#1a1c1c",
+                    "inverse-primary": "#c6c6c6",
+                    "background": "#faf9f9",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-tertiary-container": "#838484",
+                    "inverse-surface": "#2f3131",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-container-high": "#e8e8e8",
+                    "secondary-fixed-dim": "#ffb4ac",
+                    "on-surface": "#1a1c1c",
+                    "surface": "#faf9f9",
+                    "surface-container-low": "#f4f3f3",
+                    "secondary": "#bb0015",
+                    "swiss-red": "#E62429"
+            },
+            "fontFamily": {
+                    "headline-md": ["Geist"],
+                    "body-md": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "label-md": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "headline-sm": ["Geist"]
+            },
+            "fontSize": {
+                    "headline-md": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["40px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-white hairline-border-b h-14 flex items-center justify-between px-4 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center h-10 w-10 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-on-surface font-headline-sm text-headline-sm tracking-tighter uppercase font-bold">HRM PORTAL</h1>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+</div>
+</header>
+<main class="flex-grow p-4 md:max-w-md md:mx-auto w-full">
+<!-- Breadcrumb & Metadata -->
+<div class="mb-4">
+<p class="mono text-[9px] font-bold uppercase text-on-surface-variant tracking-widest">
+                SYS / STRUCTURE / DEPARTMENTS
+            </p>
+</div><div class="mb-6"><div class="flex items-stretch gap-0 hairline-border"><div class="flex-grow flex items-center bg-white px-3 hairline-border-r h-10"><span class="material-symbols-outlined text-on-surface-variant mr-2" style="font-size: 16px;">search</span><input class="w-full bg-transparent border-none focus:ring-0 text-[11px] placeholder:text-on-surface-variant p-0 font-medium" placeholder="SEARCH DEPARTMENTS" type="text"/></div><button class="bg-primary text-on-primary px-4 h-10 text-[11px] font-bold uppercase flex items-center gap-1 active:invert transition-all"><span class="material-symbols-outlined" style="font-size: 14px;">add</span>CREATE</button></div></div>
+<!-- Actions Bar -->
+<!-- Data List Container -->
+<div class="flex flex-col gap-4"><!-- Card 1: Engineering --><div class="bg-white hairline-border p-4 flex flex-col gap-3"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="mono text-[10px] text-on-surface-variant font-bold">DEPT-ENG</span><h2 class="text-headline-sm font-headline-sm uppercase tracking-tight">ENGINEERING</h2></div><span class="bg-primary text-on-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">ACTIVE</span></div><div class="grid grid-cols-2 gap-4 mono text-[11px] border-y border-[#F1F1F1] py-2"><div class="flex flex-col"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">MANAGER</span><span class="font-bold">JANE DOE</span></div><div class="flex flex-col text-right"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">Employees</span><span class="font-bold">24</span></div></div><div class="flex gap-4"><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[EDIT]</button><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[VIEW]</button><button class="ml-auto text-swiss-red text-[10px] font-bold uppercase hover:opacity-70 transition-opacity">[DEACTIVATE]</button></div></div><!-- Card 2: HR --><div class="bg-white hairline-border p-4 flex flex-col gap-3"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="mono text-[10px] text-on-surface-variant font-bold">DEPT-HR</span><h2 class="text-headline-sm font-headline-sm uppercase tracking-tight">HUMAN RESOURCES</h2></div><span class="bg-primary text-on-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">ACTIVE</span></div><div class="grid grid-cols-2 gap-4 mono text-[11px] border-y border-[#F1F1F1] py-2"><div class="flex flex-col"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">MANAGER</span><span class="font-bold">ALICE JOHNSON</span></div><div class="flex flex-col text-right"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">Employees</span><span class="font-bold">05</span></div></div><div class="flex gap-4"><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[EDIT]</button><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[VIEW]</button><button class="ml-auto text-swiss-red text-[10px] font-bold uppercase hover:opacity-70 transition-opacity">[DEACTIVATE]</button></div></div><!-- Card 3: Finance --><div class="bg-white hairline-border p-4 flex flex-col gap-3"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="mono text-[10px] text-on-surface-variant font-bold">DEPT-FIN</span><h2 class="text-headline-sm font-headline-sm uppercase tracking-tight">FINANCE</h2></div><span class="bg-primary text-on-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">ACTIVE</span></div><div class="grid grid-cols-2 gap-4 mono text-[11px] border-y border-[#F1F1F1] py-2"><div class="flex flex-col"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">MANAGER</span><span class="font-bold">JOHN SMITH</span></div><div class="flex flex-col text-right"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">Employees</span><span class="font-bold">08</span></div></div><div class="flex gap-4"><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[EDIT]</button><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[VIEW]</button><button class="ml-auto text-swiss-red text-[10px] font-bold uppercase hover:opacity-70 transition-opacity">[DEACTIVATE]</button></div></div><!-- Card 4: Marketing --><div class="bg-[#F1F1F1] hairline-border p-4 flex flex-col gap-3 opacity-80"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="mono text-[10px] text-on-surface-variant font-bold">DEPT-MKT</span><h2 class="text-headline-sm font-headline-sm uppercase tracking-tight">MARKETING</h2></div><span class="bg-on-surface-variant text-on-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">INACTIVE</span></div><div class="grid grid-cols-2 gap-4 mono text-[11px] border-y border-[#D1D1D1] py-2"><div class="flex flex-col"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">MANAGER</span><span class="font-bold">BOB WILSON</span></div><div class="flex flex-col text-right"><span class="text-on-surface-variant text-[9px] font-bold uppercase mb-1">Employees</span><span class="font-bold">00</span></div></div><div class="flex gap-4"><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[EDIT]</button><button class="text-[10px] font-bold uppercase hover:text-primary transition-colors">[VIEW]</button><button class="ml-auto text-primary text-[10px] font-bold uppercase hover:opacity-70 transition-opacity">[ACTIVATE]</button></div></div></div>
+<!-- System Status Footer -->
+<footer class="mt-stack-lg mb-20 text-center">
+<div class="inline-block p-2 border border-[#D1D1D1] bg-surface-container-low">
+<p class="mono text-[8px] uppercase tracking-[0.2em] font-bold text-on-surface-variant">
+                    REALM CONNECTIVITY SECURED BY KEYCLOAK IDENTITY PROVIDER.
+                </p>
+<div class="mt-1 flex items-center justify-center gap-2">
+<div class="w-1.5 h-1.5 bg-green-500"></div>
+<span class="mono text-[7px] uppercase font-bold text-on-surface">SYS_STATUS: NOMINAL</span>
+</div>
+</div>
+</footer>
+</main>
+<!-- BottomNavBar (Mobile Shell) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface hairline-border-t">
+<button class="flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">home</span>
+<span class="mono text-[7px] uppercase font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">search</span>
+<span class="mono text-[7px] uppercase font-bold">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">add_box</span>
+<span class="mono text-[7px] uppercase font-bold">Add</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-on-surface dark:text-inverse-on-surface border-t-4 border-on-background h-full px-2">
+<span class="material-symbols-outlined">groups</span>
+<span class="mono text-[7px] uppercase font-bold">Depts</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="mono text-[7px] uppercase font-bold">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.98)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

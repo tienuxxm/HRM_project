@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **Customer_Management_System-Cao_Thanh_Huy_01212407665** (15352 symbols, 31483 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **HRM_project** (15752 symbols, 32239 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -24,10 +24,10 @@ This project is indexed by GitNexus as **Customer_Management_System-Cao_Thanh_Hu
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/Customer_Management_System-Cao_Thanh_Huy_01212407665/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/Customer_Management_System-Cao_Thanh_Huy_01212407665/clusters` | All functional areas |
-| `gitnexus://repo/Customer_Management_System-Cao_Thanh_Huy_01212407665/processes` | All execution flows |
-| `gitnexus://repo/Customer_Management_System-Cao_Thanh_Huy_01212407665/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/HRM_project/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/HRM_project/clusters` | All functional areas |
+| `gitnexus://repo/HRM_project/processes` | All execution flows |
+| `gitnexus://repo/HRM_project/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 

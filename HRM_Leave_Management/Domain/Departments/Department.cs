@@ -43,7 +43,7 @@ public class Department : Entity<DepartmentId>
         return new Department(
             DepartmentId.New(),
             name,
-            code,
+            code.Trim().ToUpperInvariant(),
             description,
             parentDepartmentId,
             isActive: true,
@@ -53,7 +53,7 @@ public class Department : Entity<DepartmentId>
     public void Update(string name, string code, string? description, DepartmentId? parentDepartmentId)
     {
         Name = name;
-        Code = code;
+        Code = code.Trim().ToUpperInvariant();
         Description = description;
         ParentDepartmentId = parentDepartmentId;
     }

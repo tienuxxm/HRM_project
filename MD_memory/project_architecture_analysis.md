@@ -1,4 +1,4 @@
-# Báo cáo Phân tích Kiến trúc & Dự án: Project LUC (Hệ thống Quản lý Khách hàng)
+﻿# Báo cáo Phân tích Kiến trúc & Dự án: Project LUC (Hệ thống Quản lý Khách hàng)
 
 Tài liệu này cung cấp cái nhìn toàn diện về cấu trúc, kiến trúc và luồng dữ liệu của dự án nhằm giúp nhà phát triển nhanh chóng làm quen, triển khai và tùy biến hệ thống một cách hiệu quả.
 

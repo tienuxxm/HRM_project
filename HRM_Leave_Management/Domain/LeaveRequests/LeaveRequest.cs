@@ -1,4 +1,4 @@
-﻿using Domain.Abstractions;
+using Domain.Abstractions;
 using Domain.Employees;
 using Domain.LeaveTypes;
 
@@ -122,4 +122,18 @@ public class LeaveRequest : Entity<LeaveRequestId>
         ProcessedAt = utcNow;
         Comment = "Auto approved for CEO";
     }
+
+    public void UpdateDurationOnly(decimal newDuration)
+    {
+        Duration = newDuration;
+    }
+
+    public void ReopenToPending(decimal newDuration)
+    {
+        Status = LeaveRequestStatus.Pending;
+        Duration = newDuration;
+        ProcessedBy = null;
+        ProcessedAt = null;
+    }
 }
+

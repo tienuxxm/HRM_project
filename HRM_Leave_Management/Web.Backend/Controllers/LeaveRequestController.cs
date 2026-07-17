@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Authentication;
 using Application.Abstractions.Role;
 using Application.LeaveRequests.Cancel;
 using Application.LeaveRequests.Create;
@@ -35,7 +35,8 @@ public class LeaveRequestController : Controller
         [FromQuery] Guid? employeeId,
         [FromQuery] Guid? leaveTypeId,
         [FromQuery] int? status,
-        CancellationToken cancellationToken)
+        [FromQuery] int page = 1,
+        CancellationToken cancellationToken = default)
     {
         string identityId = _userContext.IdentityId;
 
@@ -53,8 +54,8 @@ public class LeaveRequestController : Controller
             return Redirect("/NoPermission");
         }
 
-        // Lấy danh sách đơn nghỉ phép
-        var query = new GetLeaveRequestsQuery(employeeId, leaveTypeId, status);
+        // Lấy danh sách đơn nghỉ phép (mặc định pageSize = 5)
+        var query = new GetLeaveRequestsQuery(employeeId, leaveTypeId, status, page, 5);
         var result = await _sender.Send(query, cancellationToken);
         if (result.IsFailure)
         {
@@ -78,6 +79,13 @@ public class LeaveRequestController : Controller
         ViewBag.CurrentFilterEmployeeId = employeeId;
         ViewBag.CurrentFilterLeaveTypeId = leaveTypeId;
         ViewBag.CurrentFilterStatus = status;
+
+        // Phân trang
+        ViewBag.CurrentPage = result.Value?.CurrentPage ?? 1;
+        ViewBag.TotalPages = result.Value?.TotalPages ?? 1;
+        ViewBag.TotalCount = result.Value?.TotalCount ?? 0;
+        ViewBag.HasPreviousPage = result.Value?.HasPrevious ?? false;
+        ViewBag.HasNextPage = result.Value?.HasNext ?? false;
 
         return View(result.Value);
     }
@@ -131,6 +139,15 @@ public class LeaveRequestController : Controller
                 return Redirect("/NoPermission");
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Load recalculation audits to check if request was reopened
+        var auditQuery = new Application.WorkCalendars.GetLeaveRequestRecalculationAudits.GetLeaveRequestRecalculationAuditsQuery(id);
+        var auditResult = await _sender.Send(auditQuery, cancellationToken);
+        if (auditResult.IsSuccess && auditResult.Value != null)
+        {
+            var reopenAudit = auditResult.Value.FirstOrDefault(a => a.OldStatus == "Approved" && a.NewStatus == "Pending");
+            ViewBag.ReopenAudit = reopenAudit;
         }
 
         return View(result.Value);

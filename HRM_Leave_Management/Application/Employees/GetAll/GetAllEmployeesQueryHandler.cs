@@ -1,6 +1,7 @@
-using Application.Abstractions.Messaging;
+﻿using Application.Abstractions.Messaging;
 using Domain.Abstractions;
 using Domain.Employees;
+using System.Linq;
 
 namespace Application.Employees.GetAll;
 
@@ -17,6 +18,10 @@ internal sealed class GetAllEmployeesQueryHandler : IQueryHandler<GetAllEmployee
         CancellationToken cancellationToken)
     {
         var employees = await _employeeRepository.GetAll(cancellationToken);
+        if (employees is not null)
+        {
+            employees = employees.Where(e => e.IsActive).ToList();
+        }
         return employees ?? new List<Employee>();
     }
 }

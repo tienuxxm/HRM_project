@@ -15,12 +15,13 @@ When architecture facts are needed, read `references/root-architecture.md`.
 
 1. **Restate the phase.** Say whether the task is baseline setup, HRM module build, UI shell change, or cleanup.
 2. **Check current evidence.** Read the relevant file(s), `MD_memory/baseline_report.md`, `MD_memory/hrm_refactor_mapping.md`, and the current code before proposing changes.
-3. **Sync plan before new work.** Before starting a new phase, update stale checklist/status in `MD_memory/hrm_refactor_mapping.md` or the active phase plan. Do not code when the previous phase status is stale.
-4. **Use GitNexus before C# symbol edits.** Run impact analysis for every function/class/method that will be changed. Report blast radius. Warn if HIGH/CRITICAL.
-5. **Prefer additive HRM work.** Add `Employee`, `Department`, `LeaveType`, `LeaveRequest`, etc. beside old modules before deleting old modules.
-6. **Keep auth and permission stable.** Do not replace Keycloak, `User`, `Role`, `Permission`, `UserToRole`, or `RoleToPermission` unless the user explicitly approves a dedicated auth redesign.
-7. **Verify before completion.** At minimum run build; for runnable changes also verify login, dashboard, and any touched route.
-8. **Document the result.** Add or update a concise `MD_memory/` report with what changed, what was verified, and what risk remains.
+3. **Discover the active architecture and implementation stack before editing.** For any touched area, scan the relevant project structure, shared files, libraries, helpers, conventions, and similar existing modules. State the actual pattern in use before adding or changing behavior.
+4. **Sync plan before new work.** Before starting a new phase, update stale checklist/status in `MD_memory/hrm_refactor_mapping.md` or the active phase plan. Do not code when the previous phase status is stale.
+5. **Use GitNexus before C# symbol edits.** Run impact analysis for every function/class/method that will be changed. Report blast radius. Warn if HIGH/CRITICAL.
+6. **Prefer additive HRM work.** Add `Employee`, `Department`, `LeaveType`, `LeaveRequest`, etc. beside old modules before deleting old modules.
+7. **Keep auth and permission stable.** Do not replace Keycloak, `User`, `Role`, `Permission`, `UserToRole`, or `RoleToPermission` unless the user explicitly approves a dedicated auth redesign.
+8. **Verify before completion.** At minimum run build; for runnable changes also verify login, dashboard, and any touched route.
+9. **Document the result.** Add or update a concise `MD_memory/` report with what changed, what was verified, and what risk remains.
 
 ## Git History Checkpoint Rules
 
@@ -93,6 +94,19 @@ Rules:
 - Do not continue browser/subagent UAT by default. Only run browser UAT when the user or Codex explicitly asks for it. Otherwise create a manual UAT report with URL, account, prerequisites, step-by-step actions, expected results, and failure capture instructions for the user to execute.
 - UAT reports must state auth mode, `UseMockAuth` value, account used, permissions seeded, and exact routes tested.
 
+## Anti Blind Debug Handoff Rule
+
+When Codex/User has already investigated a bug and wants Anti to debug independently, do not reveal Codex's discovered evidence, suspected root cause, line numbers, exact query findings, or proposed fix in the prompt to Anti.
+
+Use this handoff shape instead:
+
+1. State only the user-visible symptom, route/page, account used, expected behavior, and actual behavior.
+2. State safety constraints: read codebase first, run GitNexus impact before symbol edits, do not mutate Keycloak/DB/browser unless explicitly approved, and do not stage/commit/push.
+3. Ask Anti to find the root cause independently, provide its own evidence, and challenge Codex/User assumptions if the code proves otherwise.
+4. After Anti replies, Codex/User double-checks Anti's evidence against Codex's hidden findings and either confirms, challenges, or asks for a narrower proof.
+
+Exception: Do not hide safety-critical constraints, approved business rules, auth boundaries, or data-mutation restrictions. The blind handoff hides Codex's diagnostic answer, not the project's guardrails.
+
 ## Architecture Guardrails
 
 - Treat the root project as Clean Architecture inspired, not perfectly clean.
@@ -102,6 +116,14 @@ Rules:
 - Use EF configuration and repository patterns consistently.
 - Use `Result<T>`/domain errors for business failures where the existing pattern supports it.
 - Do not call external services from HRM DTO mapping unless a fallback/error boundary is designed.
+
+## Architecture and Stack Discovery Rules
+
+- Before adding or changing behavior in any layer, identify the architecture and technology already used in that layer. Examples include MediatR handlers, repositories, EF configurations, Razor view conventions, shared JavaScript helpers, UI libraries, validation patterns, error handling, auth/permission checks, and reporting/encoding rules.
+- Prefer established local patterns over new ad hoc code. If the project already has a helper, shared component, naming convention, error wrapper, notification adapter, modal pattern, permission pattern, or repository method that fits the task, reuse it.
+- Do not introduce one-off page-local logic, duplicated helpers, hardcoded special cases, or direct framework primitives when the project has a higher-level abstraction for the same job.
+- For UI feedback specifically, do not add new browser-native dialogs such as `window.alert()` or `window.confirm()` for normal app UX. Use the project's established notification/modal mechanism. If no suitable mechanism exists, propose a shared adapter first.
+- If existing code in the touched area uses a legacy or inconsistent pattern, report it as technical debt and either align it with the current project pattern when in scope, or explicitly leave it unchanged when out of scope.
 
 ## HRM Design Rules
 

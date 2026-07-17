@@ -8,148 +8,255 @@
     var roles = ViewBag.Roles as List<RoleResponse> ?? new List<RoleResponse>();
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">HRM Management</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Employee List</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg mt-5 flex flex-col justify-content-between">
-            <div class="w-full">
-                <div class="w-full d-flex justify-content-end py-2">
-                    <button type="button" data-modal-target="createEmployeeModal" data-modal-toggle="createEmployeeModal"
-                            class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                        Add Employee
-                    </button>
-                    @Html.Partial("_CreateEmployeePartial")
-                </div>
-                <div class="overflow-x-auto w-full h-full overflow-y-auto mt-2">
-                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center col-1">NO</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Code</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Full Name</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Department</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Position</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Join Date</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Status</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Account</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                        @foreach (var emp in @Model.Select((val, index) => new { val, index = index + 1 }))
-                        {
-                            <tr class="my-2 py-4">
-                                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
-                                    <strong>@emp.index.ToString()</strong>
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 font-semibold">
-                                    @emp.val.EmployeeCode
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-blue-500 font-semibold text-left">
-                                    @emp.val.FullName
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-500">
-                                    @(emp.val.Department?.Name ?? "-")
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-500">
-                                    @(emp.val.Position?.Name ?? "-")
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-500">
-                                    @emp.val.JoinDate.ToString("dd/MM/yyyy")
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2">
-                                    @if (emp.val.IsActive)
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Inactive</span>
-                                    }
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2">
-                                    @if (emp.val.UserId != null)
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                            <svg class="w-3 h-3 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-                                            </svg>
-                                            Đã có
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" data-modal-target="provisionAccountModal-@emp.val.Id.Value" data-modal-toggle="provisionAccountModal-@emp.val.Id.Value"
-                                                class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 hover:bg-amber-200 cursor-pointer transition">
-                                            <svg class="w-3 h-3 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                                                <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
-                                            </svg>
-                                            Cấp tài khoản
-                                        </button>
-                                        @Html.Partial("_ProvisionAccountPartial", emp.val)
-                                    }
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                    <div class="flex">
-                                        <div data-modal-target="updateEmployeeModal-@emp.val.Id.Value" data-modal-toggle="updateEmployeeModal-@emp.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer mr-4">
-                                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13.835 7.578-.005.007-1.196 1.195 1.2 1.2 1.195-1.196.007-.005a3.11 3.11 0 0 0 0-4.398 3.11 3.11 0 0 0-4.397 0L9.435 5.578l1.2 1.2 1.196-1.195.006-.007a1.11 1.11 0 0 1 1.567 0 1.11 1.11 0 0 1 0 1.567l-6.81 6.81-1.2-1.2 6.81-6.81Zm-7.61 7.61H2v-4.225h4.225V15.19Z"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Edit</a>
-                                        </div>
-                                        @Html.Partial("_UpdateEmployeePartial", emp.val)
-                                        <div data-modal-target="confirmDelete-@emp.val.Id.Value" data-modal-toggle="confirmDelete-@emp.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer">
-                                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5.71429 7.07143V13.5C5.71429 13.6042 5.6808 13.6897 5.61384 13.7567C5.54688 13.8237 5.46131 13.8571 5.35714 13.8571H4.64286C4.53869 13.8571 4.45313 13.8237 4.38616 13.7567C4.3192 13.6897 4.28571 13.6042 4.28571 13.5V7.07143C4.28571 6.96726 4.3192 6.8817 4.38616 6.81473C4.45313 6.74777 4.53869 6.71429 4.64286 6.71429H5.35714C5.46131 6.71429 5.54688 6.74777 5.61384 6.81473C5.6808 6.8817 5.71429 6.96726 5.71429 7.07143ZM8.57143 7.07143V13.5C8.57143 13.6042 8.53795 13.6897 8.47098 13.7567C8.40402 13.8237 8.31845 13.8571 8.21429 13.8571H7.5C7.39583 13.8571 7.31027 13.8237 7.2433 13.7567C7.17634 13.6897 7.14286 13.6042 7.14286 13.5V7.07143C7.14286 6.96726 7.17634 6.8817 7.2433 6.81473C7.31027 6.74777 7.39583 6.71429 7.5 6.71429H8.21429C8.31845 6.71429 8.40402 6.74777 8.47098 6.81473C8.53795 6.8817 8.57143 6.96726 8.57143 7.07143ZM11.4286 7.07143V13.5C11.4286 13.6042 11.3951 13.6897 11.3281 13.7567C11.2612 13.8237 11.1756 13.8571 11.0714 13.8571H10.3571C10.253 13.8571 10.1674 13.8237 10.1004 13.7567C10.0335 13.6897 10 13.6042 10 13.5V7.07143C10 6.96726 10.0335 6.8817 10.1004 6.81473C10.1674 6.74777 10.253 6.71429 10.3571 6.71429H11.0714C11.1756 6.71429 11.2612 6.74777 11.3281 6.81473C11.3951 6.8817 11.4286 6.96726 11.4286 7.07143ZM12.8571 15.1518V4.57143H2.85714V15.1518C2.85714 15.3155 2.88318 15.468 2.93527 15.6094C2.98735 15.7433 3.03943 15.8437 3.09152 15.9107C3.15104 15.9702 3.19196 16 3.21429 16H12.5C12.5223 16 12.5595 15.9702 12.6116 15.9107C12.6711 15.8437 12.7269 15.7433 12.779 15.6094C12.8311 15.468 12.8571 15.3155 12.8571 15.1518ZM5.35714 3.14286H10.3571L9.82143 1.83705C9.76935 1.77009 9.7061 1.72917 9.6317 1.71429H6.09375C6.01935 1.72917 5.9561 1.77009 5.90402 1.83705L5.35714 3.14286ZM15.7143 3.5V4.21429C15.7143 4.31845 15.6808 4.40402 15.6138 4.47098C15.5469 4.53795 15.4613 4.57143 15.3571 4.57143H14.2857V15.1518C14.2857 15.7693 14.1109 16.3013 13.7612 16.7478C13.4115 17.2016 12.9911 17.4286 12.5 17.4286H3.21429C2.72321 17.4286 2.30283 17.2091 1.95313 16.7701C1.60342 16.3385 1.42857 15.814 1.42857 15.1964V4.57143H0.357143C0.252976 4.57143 0.167411 4.53795 0.100446 4.47098C0.0334821 4.40402 0 4.31845 0 4.21429V3.5C0 3.39583 0.0334821 3.31027 0.100446 3.2433C0.167411 3.17634 0.252976 3.14286 0.357143 3.14286H3.8058L4.58705 1.27902C4.69866 1.00372 4.89955 0.769345 5.18973 0.575893C5.47991 0.38244 5.77381 0.285713 6.07143 0.285713H9.64286C9.94048 0.285713 10.2344 0.38244 10.5246 0.575893C10.8147 0.769345 11.0156 1.00372 11.1272 1.27902L11.9085 3.14286H15.3571C15.4613 3.14286 15.5469 3.17634 15.6138 3.2433C15.6808 3.31027 15.7143 3.39583 15.7143 3.5Z" fill="#3059EC"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Remove</a>
-                                        </div>
-                                        @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
-                                        {
-                                            Id = emp.val.Id.Value,
-                                            Type = "Employee",
-                                            Name = emp.val.FullName,
-                                            ActionName = "Delete",
-                                            ActionController = "Employee"
-                                        })
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
+<div class="w-full flex flex-col gap-6">
+    <!-- Dummy inputs to intercept browser autofill -->
+    <div style="position: absolute; top: -1000px; left: -1000px; width: 1px; height: 1px; overflow: hidden;">
+        <input type="text" name="username_fake" autocomplete="off" />
+        <input type="password" name="password_fake" autocomplete="new-password" />
+    </div>
+    <!-- Section Header -->
+    <section class="space-y-2">
+        <h2 class="font-headline-sm text-2xl font-bold uppercase tracking-tight text-black" style="font-family: 'Geist', sans-serif;">Employees</h2>
+        <p class="text-gray-500 font-body-md text-sm leading-tight max-w-[90%]" style="font-family: 'Geist', sans-serif;">Manage HRM employee records, status, departments, and reporting lines.</p>
+    </section>
+
+    <!-- Filter Bar (Desktop): visible on large screens and up -->
+    <div class="hidden lg:flex flex-wrap items-end gap-4 pb-6 border-b border-swiss-border">
+        <div class="flex flex-col gap-1">
+            <label class="text-[10px] uppercase font-bold tracking-wider text-gray-500 font-mono">Search Directory</label>
+            <div class="relative">
+                <input id="searchInput" autocomplete="off" class="w-[320px] bg-white border border-swiss-border px-4 py-2 text-xs font-mono rounded-none focus:border-black focus:ring-0 placeholder:text-gray-400" placeholder="Search by name, code or email..." type="text"/>
+                <span class="material-symbols-outlined absolute right-3 top-2.5 text-gray-400">search</span>
             </div>
         </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[10px] uppercase font-bold tracking-wider text-gray-500 font-mono">Dept</label>
+            <select id="deptFilter" class="bg-white border border-swiss-border px-3 py-2 text-xs font-mono rounded-none focus:border-black focus:ring-0 min-w-[160px]">
+                <option value="">ALL DEPARTMENTS</option>
+                @foreach (var dept in departments)
+                {
+                    <option value="@dept.Name.ToUpper()">@dept.Name.ToUpper()</option>
+                }
+            </select>
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[10px] uppercase font-bold tracking-wider text-gray-500 font-mono">Position</label>
+            <select id="positionFilter" class="bg-white border border-swiss-border px-3 py-2 text-xs font-mono rounded-none focus:border-black focus:ring-0 min-w-[160px]">
+                <option value="">ALL POSITIONS</option>
+                @foreach (var pos in ViewBag.Positions as List<Domain.Positions.Position> ?? new List<Domain.Positions.Position>())
+                {
+                    <option value="@pos.Name.ToUpper()">@pos.Name.ToUpper()</option>
+                }
+            </select>
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[10px] uppercase font-bold tracking-wider text-gray-500 font-mono">Status</label>
+            <select id="statusFilter" class="bg-white border border-swiss-border px-3 py-2 text-xs font-mono rounded-none focus:border-black focus:ring-0 min-w-[120px]">
+                <option value="">ALL STATUS</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+            </select>
+        </div>
+        <div class="ml-auto">
+            <button type="button" data-modal-target="createEmployeeModal" data-modal-toggle="createEmployeeModal"
+                    class="bg-black text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-none hover:bg-white hover:text-black hover:border hover:border-black border border-black transition-all flex items-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined">add</span> ADD EMPLOYEE
+            </button>
+        </div>
     </div>
+
+    <!-- Filter Bar (Mobile): visible on mobile devices -->
+    <div class="block lg:hidden space-y-4 pb-4 border-b border-swiss-border">
+        <button type="button" data-modal-target="createEmployeeModal" data-modal-toggle="createEmployeeModal"
+                class="w-full bg-black text-white py-4 font-bold uppercase tracking-widest text-sm hover:bg-white hover:text-black hover:border hover:border-black border border-black transition-all duration-75 cursor-pointer">
+            + Add Employee
+        </button>
+        <div class="relative">
+            <input id="mobileSearchInput" autocomplete="off" class="w-full border border-swiss-border bg-white px-4 py-3 font-mono text-[11px] placeholder:text-outline outline-none focus:border-black focus:ring-0" placeholder="SEARCH BY CODE / NAME / EMAIL..." type="text"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <select id="mobileDeptFilter" class="w-full border border-swiss-border bg-white px-3 py-3 font-mono text-[11px] outline-none focus:border-black focus:ring-0">
+                <option value="">DEPT: ALL</option>
+                @foreach (var dept in departments)
+                {
+                    <option value="@dept.Name.ToUpper()">@dept.Name.ToUpper()</option>
+                }
+            </select>
+            <select id="mobileStatusFilter" class="w-full border border-swiss-border bg-white px-3 py-3 font-mono text-[11px] outline-none focus:border-black focus:ring-0">
+                <option value="">STATUS: ALL</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Desktop Table View: visible on large screens and up -->
+    <div class="hidden lg:block bg-white border border-[#D1D1D1] overflow-x-auto w-full">
+        <table id="employeeTable" class="w-full border-collapse text-[11px] leading-[14px]">
+            <thead class="bg-[#F5F5F5]">
+                <tr class="border-b border-[#D1D1D1]">
+                    <th class="px-3 py-2 font-bold text-[#4c4546] text-left border-r border-[#D1D1D1] uppercase tracking-wider w-[120px] text-[12px]" style="font-family: 'Geist', sans-serif;">CODE</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">NAME</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">EMAIL</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">DEPT</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">POSITION</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">MANAGER</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-center w-[120px] text-[12px]" style="font-family: 'Geist', sans-serif;">STATUS</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] uppercase tracking-wider text-right w-[200px] text-[12px]" style="font-family: 'Geist', sans-serif;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1]">
+            @foreach (var emp in @Model)
+            {
+                <tr class="hover:bg-[#F8F8F8] border-b border-[#D1D1D1] transition-colors duration-150 cursor-pointer">
+                    <td class="emp-code whitespace-nowrap px-3 py-2 text-black font-mono font-bold border-r border-[#D1D1D1] text-[11px]">
+                        @emp.EmployeeCode
+                    </td>
+                    <td class="emp-name whitespace-nowrap px-3 py-2 text-black font-bold border-r border-[#D1D1D1] text-left uppercase text-[11px]">
+                        @emp.FullName
+                    </td>
+                    <td class="emp-email whitespace-nowrap px-3 py-2 text-gray-500 font-mono border-r border-[#D1D1D1] text-left text-[11px]">
+                        @(emp.EmployeeCode.ToLower() + "@hrm.local")
+                    </td>
+                    <td class="emp-dept whitespace-nowrap px-3 py-2 text-black border-r border-[#D1D1D1] uppercase text-[11px]">
+                        @(emp.Department?.Name ?? "—")
+                    </td>
+                    <td class="emp-position whitespace-nowrap px-3 py-2 text-black border-r border-[#D1D1D1] text-[11px]">
+                        @(emp.Position?.Name ?? "—")
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-2 text-black font-medium border-r border-[#D1D1D1] uppercase text-[11px]">
+                        @(emp.Manager?.FullName ?? "—")
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-2 text-center border-r border-[#D1D1D1]">
+                        <span class="emp-status hidden">@(emp.IsActive ? "ACTIVE" : "INACTIVE")</span>
+                        @if (emp.IsActive)
+                        {
+                            <span class="border border-black px-[6px] py-[2px] text-[9px] font-bold text-black uppercase tracking-widest bg-white">ACTIVE</span>
+                        }
+                        else
+                        {
+                            <span class="border border-dashed border-[#cfc4c5] text-[#4c4546] px-[6px] py-[2px] text-[9px] font-bold uppercase tracking-widest bg-[#FAF9F9]">INACTIVE</span>
+                        }
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-2 text-right">
+                        <div class="flex justify-end gap-3 text-[11px] font-bold uppercase">
+                            @if (emp.UserId == null)
+                            {
+                                <button type="button" data-modal-target="provisionAccountModal-@emp.Id.Value" data-modal-toggle="provisionAccountModal-@emp.Id.Value"
+                                        class="text-black hover:underline cursor-pointer">PROVISION</button>
+                            }
+                            else
+                            {
+                                <span class="text-gray-400 cursor-default" title="Account Provisioned">PROVISIONED</span>
+                            }
+                            <button type="button" data-modal-target="updateEmployeeModal-@emp.Id.Value" data-modal-toggle="updateEmployeeModal-@emp.Id.Value"
+                                    class="text-black hover:underline cursor-pointer">EDIT</button>
+                            <button type="button" data-modal-target="confirmDelete-@emp.Id.Value" data-modal-toggle="confirmDelete-@emp.Id.Value"
+                                    class="text-[#bb0015] hover:underline cursor-pointer">DELETE</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Stacked Card View: visible on smaller screens -->
+    <div class="block lg:hidden w-full space-y-4">
+        @foreach (var emp in @Model.Select((val, index) => new { val, index = index + 1 }))
+        {
+            <div class="mobile-card bg-white border border-[#D1D1D1] p-0 flex flex-col @(emp.val.IsActive ? "" : "border-dashed opacity-80")">
+                <!-- Card Header -->
+                <div class="p-4 border-b border-[#D1D1D1] flex justify-between items-center @(emp.val.IsActive ? "bg-[#FBFBFB]" : "border-dashed bg-[#F4F3F3]")">
+                    <span class="card-code font-mono text-[11px] font-bold text-black uppercase tracking-wider">@emp.val.EmployeeCode</span>
+                    <span class="card-status hidden">@(emp.val.IsActive ? "ACTIVE" : "INACTIVE")</span>
+                    @if (emp.val.IsActive)
+                    {
+                        <span class="text-[9px] font-bold border border-black px-2 py-0.5 tracking-tighter bg-white">ACTIVE</span>
+                    }
+                    else
+                    {
+                        <span class="text-[9px] font-bold border border-dashed border-[#cfc4c5] px-2 py-0.5 tracking-tighter text-[#4c4546] bg-[#FAF9F9]">INACTIVE</span>
+                    }
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-4 space-y-3">
+                    <h3 class="font-bold text-lg uppercase leading-none card-name @(emp.val.IsActive ? "" : "text-gray-500")">@emp.val.FullName</h3>
+                    <div class="grid grid-cols-[80px_1fr] gap-x-2 gap-y-1 text-[11px]">
+                        <span class="text-gray-500 uppercase font-semibold">Dept:</span>
+                        <span class="font-medium text-black card-dept uppercase">@(emp.val.Department?.Name ?? "—")</span>
+                        <span class="text-gray-500 uppercase font-semibold">Role:</span>
+                        <span class="font-medium text-black card-position uppercase">@(emp.val.Position?.Name ?? "—")</span>
+                        <span class="text-gray-500 uppercase font-semibold">Email:</span>
+                        <span class="font-mono text-[10px] text-black card-email">@(emp.val.EmployeeCode.ToLower() + "@hrm.local")</span>
+                        <span class="text-gray-500 uppercase font-semibold">Report To:</span>
+                        <span class="font-medium text-black uppercase">@(emp.val.Manager?.FullName ?? "—")</span>
+                    </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div class="grid grid-cols-3 divide-x divide-[#D1D1D1] border-t border-[#D1D1D1] text-center text-[10px] font-bold @(emp.val.IsActive ? "" : "border-dashed divide-dashed")">
+                    @if (emp.val.UserId == null)
+                    {
+                        <button type="button" data-modal-target="provisionAccountModal-@emp.val.Id.Value" data-modal-toggle="provisionAccountModal-@emp.val.Id.Value" class="py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">[PROVISION]</button>
+                    }
+                    else
+                    {
+                        <button type="button" disabled class="py-3 text-gray-400 cursor-not-allowed">[PROVISIONED]</button>
+                    }
+                    <button type="button" data-modal-target="updateEmployeeModal-@emp.val.Id.Value" data-modal-toggle="updateEmployeeModal-@emp.val.Id.Value" class="py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">[EDIT]</button>
+                    <button type="button" data-modal-target="confirmDelete-@emp.val.Id.Value" data-modal-toggle="confirmDelete-@emp.val.Id.Value" class="py-3 text-[#bb0015] hover:bg-[#bb0015] hover:text-white transition-colors cursor-pointer">[DELETE]</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop Pagination: visible on large screens and up -->
+    <div class="hidden lg:flex items-center justify-between border-t border-[#D1D1D1] pt-6 mt-4">
+        <div class="font-label-sm text-[10px] uppercase text-gray-500 font-medium tracking-wider" style="font-family: Geist, sans-serif;">
+            SHOWING 1-@Model.Count OF @Model.Count EMPLOYEES
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="border border-[#D1D1D1] px-4 py-2 text-xs uppercase opacity-50 cursor-not-allowed font-medium" style="font-family: Geist, sans-serif;">PREV</button>
+            <span class="text-xs uppercase font-bold" style="font-family: Geist, sans-serif;">PAGE 1 OF 1</span>
+            <button class="border border-[#D1D1D1] px-4 py-2 text-xs uppercase opacity-50 cursor-not-allowed font-medium" style="font-family: Geist, sans-serif;">NEXT</button>
+        </div>
+    </div>
+
+    <!-- Mobile Pagination: visible on mobile devices -->
+    <section class="block lg:hidden space-y-4 pt-4 border-t border-[#D1D1D1] mt-6">
+        <div class="font-mono text-[11px] text-center tracking-tight text-gray-500 uppercase">
+            Showing 1-@Model.Count of @Model.Count Employees
+        </div>
+        <div class="grid grid-cols-2 gap-2 font-mono text-[11px] font-bold">
+            <button disabled class="border border-black/30 py-3 text-gray-400 cursor-not-allowed">[PREV PAGE]</button>
+            <button disabled class="border border-black/30 py-3 text-gray-400 cursor-not-allowed">[NEXT PAGE]</button>
+        </div>
+    </section>
 </div>
 
+<!-- Modal Containers (Rendered once at bottom of page to prevent DOM ID duplication) -->
+@Html.Partial("_CreateEmployeePartial")
+@foreach (var emp in Model)
+{
+    if (emp.UserId == null)
+    {
+        @Html.Partial("_ProvisionAccountPartial", emp)
+    }
+    @Html.Partial("_UpdateEmployeePartial", emp)
+    @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+    {
+        Id = emp.Id.Value,
+        Type = "Employee",
+        Name = emp.FullName,
+        ActionName = "Delete",
+        ActionController = "Employee"
+    })
+}
+
+
+@section Scripts {
 <script>
     function submitProvisionAccount(employeeId) {
         const prefix = 'prov';
@@ -170,28 +277,28 @@
         // Client-side validation
         let hasError = false;
         if (!username || username.trim() === '') {
-            $(`#${prefix}UsernameError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập tên đăng nhập.');
+            $(`#${prefix}UsernameError-${employeeId}`).removeClass('hidden').text('Please enter username.');
             hasError = true;
         }
         if (!email || email.trim() === '') {
-            $(`#${prefix}EmailError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập email.');
+            $(`#${prefix}EmailError-${employeeId}`).removeClass('hidden').text('Please enter email.');
             hasError = true;
         }
         if (!password || password.trim() === '') {
-            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Vui lòng nhập mật khẩu.');
+            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Please enter password.');
             hasError = true;
         } else if (password.length < 6) {
-            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Mật khẩu phải có ít nhất 6 ký tự.');
+            $(`#${prefix}PasswordError-${employeeId}`).removeClass('hidden').text('Password must be at least 6 characters.');
             hasError = true;
         }
         if (!roleIds || roleIds.length === 0) {
-            $(`#${prefix}RolesError-${employeeId}`).removeClass('hidden').text('Vui lòng chọn ít nhất 1 vai trò.');
+            $(`#${prefix}RolesError-${employeeId}`).removeClass('hidden').text('Please select at least 1 role.');
             hasError = true;
         }
         if (hasError) return;
 
         // Disable button
-        submitBtn.prop('disabled', true).text('Đang xử lý...');
+        submitBtn.prop('disabled', true).text('PROCESSING...');
 
         const formData = new FormData();
         formData.append('EmployeeId', employeeId);
@@ -211,16 +318,14 @@
             processData: false,
             contentType: false,
             success: function (response) {
-                showToast('Cấp tài khoản nhân viên thành công!');
+                showToast('Employee account provisioned successfully!');
                 setTimeout(function() {
                     location.href = '/employee';
                 }, 1500);
             },
             error: function (xhr) {
-                submitBtn.prop('disabled', false).html(
-                    '<svg class="w-4 h-4 inline-block mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"><path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/></svg> Cấp tài khoản'
-                );
-                let errorMsg = 'Có lỗi xảy ra. Vui lòng thử lại.';
+                submitBtn.prop('disabled', false).text('PROVISION ACCOUNT');
+                let errorMsg = 'An error occurred. Please try again.';
                 try {
                     const resp = JSON.parse(xhr.responseText);
                     if (resp.name) errorMsg = resp.name;
@@ -233,4 +338,233 @@
             }
         });
     }
+
+    $(document).ready(function() {
+
+        // Create Employee handler
+        $(document).on('click', '#saveEmpButton', function (){
+            const toastContainer = $('#toast-container');
+            const empCodeError = $('#empCodeError');
+            const empFullNameError = $('#empFullNameError');
+            empCodeError.addClass('hidden');
+            empFullNameError.addClass('hidden');
+            const empCode = $('#empCode').val();
+            const empFullName = $('#empFullName').val();
+            const empDepartment = $('#empDepartment').val();
+            const empPosition = $('#empPosition').val();
+            const empJoinDate = $('#empJoinDate').val();
+            
+            if(!empCode || empCode.trim() === ''){
+                empCodeError.removeClass('hidden').text("Please enter employee code");
+                return;
+            }
+            if(!empFullName || empFullName.trim() === ''){
+                empFullNameError.removeClass('hidden').text("Please enter full name");
+                return;
+            }
+        
+            const formData = new FormData();
+            formData.append('EmployeeCode', empCode);
+            formData.append('FullName', empFullName);
+            if(empDepartment) formData.append('DepartmentId', empDepartment);
+            if(empPosition) formData.append('PositionId', empPosition);
+            formData.append('JoinDate', empJoinDate || new Date().toISOString().split('T')[0]);
+            $.ajax({
+                type: "POST",
+                url: `/employee/create`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (e) {
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Employee created successfully" }, null)');
+                    setTimeout(() => {
+                        location.href="/employee";
+                    }, 1500);
+                },
+                error: function (error){
+                    toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Employee creation failed" }, null)');
+                },
+            });
+        });
+
+        // Update Employee handler
+        $(document).on('click', '.save-employee-btn', function (){
+            const empId = $(this).data('employee-id');
+            const toastContainer = $('#toast-container');
+            const empCodeError = $(`#empCodeError-${empId}`);
+            const empFullNameError = $(`#empFullNameError-${empId}`);
+            empCodeError.addClass('hidden');
+            empFullNameError.addClass('hidden');
+            
+            const empCode = $(`#empCode-${empId}`).val();
+            const empFullName = $(`#empFullName-${empId}`).val();
+            const empDepartment = $(`#empDepartment-${empId}`).val();
+            const empPosition = $(`#empPosition-${empId}`).val();
+            const empJoinDate = $(`#empJoinDate-${empId}`).val();
+            
+            if(!empCode || empCode.trim() === ''){
+                empCodeError.removeClass('hidden').text("Please enter employee code");
+                return;
+            }
+            if(!empFullName || empFullName.trim() === ''){
+                empFullNameError.removeClass('hidden').text("Please enter full name");
+                return;
+            }
+        
+            const formData = new FormData();
+            formData.append('Id', empId);
+            formData.append('EmployeeCode', empCode);
+            formData.append('FullName', empFullName);
+            if(empDepartment) formData.append('DepartmentId', empDepartment);
+            if(empPosition) formData.append('PositionId', empPosition);
+            formData.append('JoinDate', empJoinDate || new Date().toISOString().split('T')[0]);
+
+            $.ajax({
+                type: "POST",
+                url: `/employee/update`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (e) {
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Employee updated successfully" }, null)');
+                    setTimeout(() => {
+                        location.href="/employee";
+                    }, 1500);
+                },
+                error: function (error){
+                    toastContainer.load('@Url.Action("FailToastPartial", "Main", new { message = "Employee update failed" }, null)');
+                },
+            });
+        });
+
+        function filterDirectory() {
+            const isMobile = window.innerWidth < 1024;
+            let searchQuery = '';
+            let selectedDept = '';
+            let selectedStatus = '';
+            let selectedPosition = '';
+
+            if (isMobile) {
+                searchQuery = $('#mobileSearchInput').val().toUpperCase().trim();
+                selectedDept = $('#mobileDeptFilter').val().toUpperCase();
+                selectedStatus = $('#mobileStatusFilter').val().toUpperCase();
+                selectedPosition = $('#positionFilter').val() ? $('#positionFilter').val().toUpperCase() : '';
+            } else {
+                searchQuery = $('#searchInput').val().toUpperCase().trim();
+                selectedDept = $('#deptFilter').val().toUpperCase();
+                selectedPosition = $('#positionFilter').val().toUpperCase();
+                selectedStatus = $('#statusFilter').val().toUpperCase();
+            }
+
+            // Filter Desktop Table
+            $('#employeeTable tbody tr').each(function() {
+                const code = $(this).find('.emp-code').text().toUpperCase().trim();
+                const name = $(this).find('.emp-name').text().toUpperCase().trim();
+                const email = $(this).find('.emp-email').text().toUpperCase().trim();
+                const dept = $(this).find('.emp-dept').text().toUpperCase().trim();
+                const position = $(this).find('.emp-position').text().toUpperCase().trim();
+                const status = $(this).find('.emp-status').text().toUpperCase().trim();
+
+                const matchesSearch = code.includes(searchQuery) || name.includes(searchQuery) || email.includes(searchQuery);
+                const matchesDept = selectedDept === "" || dept === selectedDept;
+                const matchesPosition = selectedPosition === "" || position === selectedPosition;
+                const matchesStatus = selectedStatus === "" || status === selectedStatus;
+
+                if (matchesSearch && matchesDept && matchesPosition && matchesStatus) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            // Filter Mobile Cards
+            $('.mobile-card').each(function() {
+                const code = $(this).find('.card-code').text().toUpperCase().trim();
+                const name = $(this).find('.card-name').text().toUpperCase().trim();
+                const email = $(this).find('.card-email').text().toUpperCase().trim();
+                const dept = $(this).find('.card-dept').text().toUpperCase().trim();
+                const position = $(this).find('.card-position').text().toUpperCase().trim();
+                const status = $(this).find('.card-status').text().toUpperCase().trim();
+
+                const matchesSearch = code.includes(searchQuery) || name.includes(searchQuery) || email.includes(searchQuery);
+                const matchesDept = selectedDept === "" || dept === selectedDept;
+                const matchesPosition = selectedPosition === "" || position === selectedPosition;
+                const matchesStatus = selectedStatus === "" || status === selectedStatus;
+
+                if (matchesSearch && matchesDept && matchesPosition && matchesStatus) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Sync inputs & filters
+        $('#searchInput').on('input', function() {
+            $('#mobileSearchInput').val($(this).val());
+            filterDirectory();
+        });
+        $('#mobileSearchInput').on('input', function() {
+            $('#searchInput').val($(this).val());
+            filterDirectory();
+        });
+
+        $('#deptFilter').on('change', function() {
+            $('#mobileDeptFilter').val($(this).val());
+            filterDirectory();
+        });
+        $('#mobileDeptFilter').on('change', function() {
+            $('#deptFilter').val($(this).val());
+            filterDirectory();
+        });
+
+        $('#positionFilter').on('change', filterDirectory);
+
+        $('#statusFilter').on('change', function() {
+            $('#mobileStatusFilter').val($(this).val());
+            filterDirectory();
+        });
+        $('#mobileStatusFilter').on('change', function() {
+            $('#statusFilter').val($(this).val());
+            filterDirectory();
+        });
+
+        // Clear search inputs and force filter directory once event handlers are ready
+        $('#searchInput').val('').trigger('input');
+        $('#mobileSearchInput').val('').trigger('input');
+        filterDirectory();
+
+        // Interval reset to capture and clear delayed browser autofill attempts
+        let autofillChecks = 0;
+        const autofillTimer = setInterval(function() {
+            autofillChecks++;
+            const val = $('#searchInput').val() || $('#mobileSearchInput').val();
+            if (val === 'admin' || val === 'admin@hrm.local') {
+                $('#searchInput').val('').trigger('input');
+                $('#mobileSearchInput').val('').trigger('input');
+                filterDirectory();
+            }
+            if (autofillChecks >= 15) {
+                clearInterval(autofillTimer);
+            }
+        }, 100);
+    });
 </script>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            showToast('@Html.Raw(TempData["ErrorMessage"])', false);
+        });
+    </script>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            showToast('@Html.Raw(TempData["SuccessMessage"])', true);
+        });
+    </script>
+}
+}

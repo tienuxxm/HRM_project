@@ -5,113 +5,429 @@
     Layout = "_Layout";
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">HRM Management</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Department List</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg mt-5 flex flex-col justify-content-between">
-            <div class="w-full">
-                <div class="w-full d-flex justify-content-end py-2">
-                    <button type="button" data-modal-target="createDepartmentModal" data-modal-toggle="createDepartmentModal"
-                            class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                        Add Department
-                    </button>
-                    @Html.Partial("_CreateDepartmentPartial")
-                </div>
-                <div class="overflow-x-auto w-full h-full overflow-y-auto mt-2">
-                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center col-1">NO</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Code</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Name</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Description</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Status</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                        @foreach (var dept in @Model.Select((val, index) => new { val, index = index + 1 }))
+<div class="w-full flex flex-col font-geist">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">Departments</h2>
+        <p class="text-[14px] text-[#4c4546]">Configure organizational departments and assign managers.</p>
+    </div>
+
+    <!-- Search & Action Bar -->
+    <!-- Desktop Search & Action Bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-4">
+        <div class="w-[400px] relative">
+            <input id="deptSearchInput" autocomplete="off" class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5]" placeholder="SEARCH DEPARTMENTS..." type="text"/>
+            <span class="material-symbols-outlined absolute right-3 top-2.5 text-[20px] text-[#cfc4c5]">search</span>
+        </div>
+        <div>
+            <button type="button" data-modal-target="createDepartmentModal" data-modal-toggle="createDepartmentModal" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer">
+                + Create Department
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Search & Action Bar -->
+    <div class="lg:hidden mb-4">
+        <div class="flex items-stretch gap-0 border border-[#D1D1D1]">
+            <div class="flex-grow flex items-center bg-white px-3 border-r border-[#D1D1D1] h-10">
+                <span class="material-symbols-outlined text-[#4c4546] mr-2" style="font-size: 16px;">search</span>
+                <input id="mobileSearchInput" autocomplete="off" class="w-full bg-transparent border-none focus:ring-0 text-[11px] placeholder:text-[#4c4546] p-0 font-medium" placeholder="SEARCH DEPARTMENTS" type="text"/>
+            </div>
+            <button type="button" data-modal-target="createDepartmentModal" data-modal-toggle="createDepartmentModal" class="bg-black text-white px-4 h-10 text-[11px] font-bold uppercase flex items-center gap-1 active:invert transition-all cursor-pointer">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add</span>CREATE
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Layout -->
+    <!-- Desktop Data Grid -->
+    <div class="hidden lg:flex flex-col border border-[#D1D1D1] bg-white">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-[#F5F5F5]">
+                <tr class="border-b border-[#D1D1D1]">
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-16 text-center">No</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-32">Code</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Department Name</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-[#4c4546] uppercase border-r border-[#D1D1D1]">Description</th>
+                    <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase border-r border-[#D1D1D1] w-32">Status</th>
+                    <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-48">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1]">
+                @foreach (var dept in Model.Select((val, index) => new { val, index = index + 1 }))
+                {
+                    <tr class="hover:bg-[#f4f3f3] transition-colors dept-row" data-code="@dept.val.Code" data-name="@dept.val.Name" style="transition: transform 0.15s ease;">
+                         <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@dept.index</td>
+                         <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1]">@dept.val.Code</td>
+                         <td class="px-4 py-3 font-bold text-[12px] text-black border-r border-[#D1D1D1]">@dept.val.Name</td>
+                         <td class="px-4 py-3 text-[11px] text-[#4c4546] border-r border-[#D1D1D1]">
+                             @(string.IsNullOrEmpty(dept.val.Description) ? "—" : dept.val.Description)
+                         </td>
+                         <td class="px-4 py-3 border-r border-[#D1D1D1]">
+                             @if (dept.val.IsActive)
+                             {
+                                 <span class="px-2 py-0.5 border border-emerald-500 text-emerald-600 font-bold text-[9px] uppercase tracking-tighter">Active</span>
+                             }
+                             else
+                             {
+                                 <span class="px-2 py-0.5 border border-[#D1D1D1] text-[#7e7576] font-bold text-[9px] uppercase tracking-tighter">Inactive</span>
+                             }
+                         </td>
+                         <td class="px-4 py-3 whitespace-nowrap">
+                             <div class="flex space-x-3">
+                                 <a data-modal-target="updateDepartmentModal-@dept.val.Id.Value" data-modal-toggle="updateDepartmentModal-@dept.val.Id.Value" class="text-[9px] font-bold text-black hover:text-swiss-red uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Edit</a>
+                                 <a data-modal-target="confirmDelete-@dept.val.Id.Value" data-modal-toggle="confirmDelete-@dept.val.Id.Value" class="text-[9px] font-bold text-swiss-red hover:opacity-70 uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Remove</a>
+                             </div>
+                         </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        
+        <!-- Desktop Table Pagination Footer -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-[#D1D1D1] bg-[#F5F5F5] font-mono text-[10px] font-bold text-[#4c4546] uppercase">
+            <div id="desktopShowingText">
+                SHOWING 1-4 OF 4 DEPARTMENTS
+            </div>
+            <div class="flex items-center space-x-6">
+                <button type="button" id="desktopPrevBtn" class="bg-transparent border-0 p-0 font-bold hover:text-black transition-colors uppercase font-mono cursor-pointer">PREV</button>
+                <span class="text-black font-mono" id="desktopPageText">PAGE 1 OF 1</span>
+                <button type="button" id="desktopNextBtn" class="bg-transparent border-0 p-0 font-bold hover:text-black transition-colors uppercase font-mono cursor-pointer">NEXT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Stacked List -->
+    <div class="lg:hidden flex flex-col gap-4">
+        <div class="flex flex-col gap-4">
+            @foreach (var dept in Model)
+            {
+                <div class="bg-white border border-[#D1D1D1] p-4 flex flex-col gap-3 dept-card" data-code="@dept.Code" data-name="@dept.Name">
+                    <div class="flex justify-between items-start">
+                        <div class="flex flex-col">
+                            <span class="mono text-[10px] text-[#4c4546] font-bold">@dept.Code</span>
+                            <h2 class="text-[16px] font-bold uppercase tracking-tight">@dept.Name</h2>
+                        </div>
+                        @if (dept.IsActive)
                         {
-                            <tr class="my-2 py-4">
-                                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
-                                    <strong>@dept.index.ToString()</strong>
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 font-semibold">
-                                    @dept.val.Code
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-blue-500 font-semibold text-left">
-                                    @dept.val.Name
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-500">
-                                    @(dept.val.Description ?? "-")
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2">
-                                    @if (dept.val.IsActive)
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Inactive</span>
-                                    }
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                    <div class="flex">
-                                        <div data-modal-target="updateDepartmentModal-@dept.val.Id.Value" data-modal-toggle="updateDepartmentModal-@dept.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer mr-4">
-                                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13.835 7.578-.005.007-1.196 1.195 1.2 1.2 1.195-1.196.007-.005a3.11 3.11 0 0 0 0-4.398 3.11 3.11 0 0 0-4.397 0L9.435 5.578l1.2 1.2 1.196-1.195.006-.007a1.11 1.11 0 0 1 1.567 0 1.11 1.11 0 0 1 0 1.567l-6.81 6.81-1.2-1.2 6.81-6.81Zm-7.61 7.61H2v-4.225h4.225V15.19Z"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Edit</a>
-                                        </div>
-                                        @Html.Partial("_UpdateDepartmentPartial", dept.val)
-                                        <div data-modal-target="confirmDelete-@dept.val.Id.Value" data-modal-toggle="confirmDelete-@dept.val.Id.Value" class="mx-1 flex justify-center items-center cursor-pointer">
-                                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5.71429 7.07143V13.5C5.71429 13.6042 5.6808 13.6897 5.61384 13.7567C5.54688 13.8237 5.46131 13.8571 5.35714 13.8571H4.64286C4.53869 13.8571 4.45313 13.8237 4.38616 13.7567C4.3192 13.6897 4.28571 13.6042 4.28571 13.5V7.07143C4.28571 6.96726 4.3192 6.8817 4.38616 6.81473C4.45313 6.74777 4.53869 6.71429 4.64286 6.71429H5.35714C5.46131 6.71429 5.54688 6.74777 5.61384 6.81473C5.6808 6.8817 5.71429 6.96726 5.71429 7.07143ZM8.57143 7.07143V13.5C8.57143 13.6042 8.53795 13.6897 8.47098 13.7567C8.40402 13.8237 8.31845 13.8571 8.21429 13.8571H7.5C7.39583 13.8571 7.31027 13.8237 7.2433 13.7567C7.17634 13.6897 7.14286 13.6042 7.14286 13.5V7.07143C7.14286 6.96726 7.17634 6.8817 7.2433 6.81473C7.31027 6.74777 7.39583 6.71429 7.5 6.71429H8.21429C8.31845 6.71429 8.40402 6.74777 8.47098 6.81473C8.53795 6.8817 8.57143 6.96726 8.57143 7.07143ZM11.4286 7.07143V13.5C11.4286 13.6042 11.3951 13.6897 11.3281 13.7567C11.2612 13.8237 11.1756 13.8571 11.0714 13.8571H10.3571C10.253 13.8571 10.1674 13.8237 10.1004 13.7567C10.0335 13.6897 10 13.6042 10 13.5V7.07143C10 6.96726 10.0335 6.8817 10.1004 6.81473C10.1674 6.74777 10.253 6.71429 10.3571 6.71429H11.0714C11.1756 6.71429 11.2612 6.74777 11.3281 6.81473C11.3951 6.8817 11.4286 6.96726 11.4286 7.07143ZM12.8571 15.1518V4.57143H2.85714V15.1518C2.85714 15.3155 2.88318 15.468 2.93527 15.6094C2.98735 15.7433 3.03943 15.8437 3.09152 15.9107C3.15104 15.9702 3.19196 16 3.21429 16H12.5C12.5223 16 12.5595 15.9702 12.6116 15.9107C12.6711 15.8437 12.7269 15.7433 12.779 15.6094C12.8311 15.468 12.8571 15.3155 12.8571 15.1518ZM5.35714 3.14286H10.3571L9.82143 1.83705C9.76935 1.77009 9.7061 1.72917 9.6317 1.71429H6.09375C6.01935 1.72917 5.9561 1.77009 5.90402 1.83705L5.35714 3.14286ZM15.7143 3.5V4.21429C15.7143 4.31845 15.6808 4.40402 15.6138 4.47098C15.5469 4.53795 15.4613 4.57143 15.3571 4.57143H14.2857V15.1518C14.2857 15.7693 14.1109 16.3013 13.7612 16.7478C13.4115 17.2016 12.9911 17.4286 12.5 17.4286H3.21429C2.72321 17.4286 2.30283 17.2091 1.95313 16.7701C1.60342 16.3385 1.42857 15.814 1.42857 15.1964V4.57143H0.357143C0.252976 4.57143 0.167411 4.53795 0.100446 4.47098C0.0334821 4.40402 0 4.31845 0 4.21429V3.5C0 3.39583 0.0334821 3.31027 0.100446 3.2433C0.167411 3.17634 0.252976 3.14286 0.357143 3.14286H3.8058L4.58705 1.27902C4.69866 1.00372 4.89955 0.769345 5.18973 0.575893C5.47991 0.38244 5.77381 0.285713 6.07143 0.285713H9.64286C9.94048 0.285713 10.2344 0.38244 10.5246 0.575893C10.8147 0.769345 11.0156 1.00372 11.1272 1.27902L11.9085 3.14286H15.3571C15.4613 3.14286 15.5469 3.17634 15.6138 3.2433C15.6808 3.31027 15.7143 3.39583 15.7143 3.5Z" fill="#3059EC"/>
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Remove</a>
-                                        </div>
-                                        @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
-                                        {
-                                            Id = dept.val.Id.Value,
-                                            Type = "Department",
-                                            Name = dept.val.Name,
-                                            ActionName = "Delete",
-                                            ActionController = "Department"
-                                        })
-                                    </div>
-                                </td>
-                            </tr>
+                            <span class="bg-black text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">ACTIVE</span>
                         }
-                        </tbody>
-                    </table>
+                        else
+                        {
+                            <span class="bg-[#4c4546] text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">INACTIVE</span>
+                        }
+                    </div>
+                    
+                    <div class="border-y border-[#F1F1F1] py-2">
+                        <span class="text-[#4c4546] text-[9px] font-bold uppercase mb-1 block">Description</span>
+                        <p class="text-[11px] text-black">
+                            @(string.IsNullOrEmpty(dept.Description) ? "—" : dept.Description)
+                        </p>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button type="button" data-modal-target="updateDepartmentModal-@dept.Id.Value" data-modal-toggle="updateDepartmentModal-@dept.Id.Value" class="text-[10px] font-bold uppercase hover:text-primary transition-colors cursor-pointer">[EDIT]</button>
+                        <button type="button" data-modal-target="confirmDelete-@dept.Id.Value" data-modal-toggle="confirmDelete-@dept.Id.Value" class="ml-auto text-[#E62429] text-[10px] font-bold uppercase hover:opacity-70 transition-opacity cursor-pointer">[REMOVE]</button>
+                    </div>
                 </div>
+            }
+        </div>
+        
+        <!-- Mobile Pagination Footer -->
+        <div class="mt-6 border border-[#D1D1D1] bg-white p-4 flex flex-col gap-3 font-mono text-[11px]">
+            <div class="text-center font-bold text-black uppercase" id="mobileShowingText">
+                SHOWING 1-4 OF 4 DEPARTMENTS
+            </div>
+            <div class="grid grid-cols-3 border-t border-[#D1D1D1] pt-3 text-center font-bold">
+                <button type="button" id="mobilePrevBtn" class="py-2 hover:bg-black hover:text-white transition-colors bg-transparent border-0 cursor-pointer">PREV</button>
+                <span class="py-2 text-black" id="mobilePageText">PAGE 1 OF 1</span>
+                <button type="button" id="mobileNextBtn" class="py-2 hover:bg-black hover:text-white transition-colors bg-transparent border-0 cursor-pointer">NEXT</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Container -->
+@Html.Partial("_CreateDepartmentPartial")
+
+@foreach (var dept in Model)
+{
+    @Html.Partial("_UpdateDepartmentPartial", dept)
+    @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+    {
+        Id = dept.Id.Value,
+        Type = "Department",
+        Name = dept.Name,
+        ActionName = "Delete",
+        ActionController = "Department"
+    })
+}
+
+@section Scripts {
+<script>
+    let currentPage = 1;
+    const pageSize = 10;
+
+    const successUrl = '@Url.Action("SuccessToastPartial", "Main", new { message = "__MSG__" }, null)';
+    const failUrl = '@Url.Action("FailToastPartial", "Main", new { message = "__MSG__" }, null)';
+
+    function showSuccessToast(message) {
+        const url = successUrl.replace('__MSG__', encodeURIComponent(message));
+        $('#toast-container').load(url);
+    }
+    function showFailToast(message) {
+        const url = failUrl.replace('__MSG__', encodeURIComponent(message));
+        $('#toast-container').load(url);
+    }
+
+    function applyFilterAndPagination() {
+        const searchInput = $('#deptSearchInput');
+        const searchTerm = searchInput.length ? (searchInput.val() || '').toLowerCase().trim() : '';
+        
+        const matchedDesktopRows = [];
+        const matchedMobileCards = [];
+        
+        $('.dept-row').each(function() {
+            const code = ($(this).attr('data-code') || '').toLowerCase();
+            const name = ($(this).attr('data-name') || '').toLowerCase();
+            const matches = code.includes(searchTerm) || name.includes(searchTerm);
+            if (matches) {
+                matchedDesktopRows.push(this);
+            } else {
+                $(this).hide();
+            }
+        });
+        
+        $('.dept-card').each(function() {
+            const code = ($(this).attr('data-code') || '').toLowerCase();
+            const name = ($(this).attr('data-name') || '').toLowerCase();
+            const matches = code.includes(searchTerm) || name.includes(searchTerm);
+            if (matches) {
+                matchedMobileCards.push(this);
+            } else {
+                $(this).hide();
+            }
+        });
+        
+        const totalMatches = matchedDesktopRows.length;
+        const totalPages = Math.ceil(totalMatches / pageSize) || 1;
+        
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        
+        const startIdx = (currentPage - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, totalMatches);
+        
+        // Hide all rows/cards first
+        $('.dept-row').hide();
+        $('.dept-card').hide();
+        
+        // Show current page items
+        for (let i = startIdx; i < endIdx; i++) {
+            $(matchedDesktopRows[i]).show();
+            $(matchedMobileCards[i]).show();
+        }
+        
+        // Update labels
+        const showingFrom = totalMatches === 0 ? 0 : startIdx + 1;
+        const showingTo = endIdx;
+        const showingLabel = `SHOWING ${showingFrom}-${showingTo} OF ${totalMatches} DEPARTMENTS`;
+        
+        $('#desktopShowingText').text(showingLabel);
+        $('#mobileShowingText').text(showingLabel);
+        
+        const pageLabel = `PAGE ${currentPage} OF ${totalPages}`;
+        $('#desktopPageText').text(pageLabel);
+        $('#mobilePageText').text(pageLabel);
+        
+        // Enable/Disable buttons styling
+        if (currentPage <= 1) {
+            $('#desktopPrevBtn, #mobilePrevBtn')
+                .addClass('opacity-50 pointer-events-none')
+                .removeClass('hover:text-black hover:bg-black hover:text-white');
+        } else {
+            $('#desktopPrevBtn, #mobilePrevBtn')
+                .removeClass('opacity-50 pointer-events-none');
+        }
+        
+        if (currentPage >= totalPages) {
+            $('#desktopNextBtn, #mobileNextBtn')
+                .addClass('opacity-50 pointer-events-none')
+                .removeClass('hover:text-black hover:bg-black hover:text-white');
+        } else {
+            $('#desktopNextBtn, #mobileNextBtn')
+                .removeClass('opacity-50 pointer-events-none');
+        }
+    }
+
+    $(document).ready(function() {
+        // Sync search input values
+        $('#deptSearchInput').on('input', function() {
+            $('#mobileSearchInput').val($(this).val());
+            currentPage = 1;
+            applyFilterAndPagination();
+        });
+        
+        $('#mobileSearchInput').on('input', function() {
+            $('#deptSearchInput').val($(this).val());
+            currentPage = 1;
+            applyFilterAndPagination();
+        });
+        
+        // Hook prev buttons
+        $(document).on('click', '#desktopPrevBtn, #mobilePrevBtn', function(e) {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilterAndPagination();
+            }
+        });
+        
+        // Hook next buttons
+        $(document).on('click', '#desktopNextBtn, #mobileNextBtn', function(e) {
+            e.preventDefault();
+            const searchInput = $('#deptSearchInput');
+            const searchTerm = searchInput.length ? (searchInput.val() || '').toLowerCase().trim() : '';
+            let totalMatches = 0;
+            $('.dept-row').each(function() {
+                const code = ($(this).attr('data-code') || '').toLowerCase();
+                const name = ($(this).attr('data-name') || '').toLowerCase();
+                if (code.includes(searchTerm) || name.includes(searchTerm)) {
+                    totalMatches++;
+                }
+            });
+            const totalPages = Math.ceil(totalMatches / pageSize) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFilterAndPagination();
+            }
+        });
+        
+        // Row slide-in hover micro-interactions
+        $(document).on('mouseenter', '.dept-row', function() {
+            $(this).css({
+                'transform': 'translateX(4px)',
+                'transition': 'transform 0.15s ease'
+            });
+        }).on('mouseleave', '.dept-row', function() {
+            $(this).css({
+                'transform': 'translateX(0px)'
+            });
+        });
+
+        // Event Delegation for Create Department Form Submit
+        $(document).on('click', '#saveDeptButton', function(e) {
+            e.preventDefault();
+            const button = $(this);
+            if (button.prop('disabled')) return;
+            
+            const deptCodeError = $('#deptCodeError');
+            const deptNameError = $('#deptNameError');
+            
+            deptCodeError.hide().text('');
+            deptNameError.hide().text('');
+            
+            const deptCode = ($('#deptCode').val() || '').trim().toUpperCase();
+            const deptName = ($('#deptName').val() || '').trim();
+            const deptDescription = ($('#deptDescription').val() || '').trim();
+            
+            if (!deptCode) {
+                deptCodeError.text("Please enter department code").show();
+                return;
+            }
+            if (!deptName) {
+                deptNameError.text("Please enter department name").show();
+                return;
+            }
+            
+            button.prop('disabled', true);
+            
+            const formData = new FormData();
+            formData.append('Code', deptCode);
+            formData.append('Name', deptName);
+            formData.append('Description', deptDescription);
+            
+            $.ajax({
+                type: "POST",
+                url: "/department/create",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    showSuccessToast("Department created successfully");
+                    setTimeout(() => {
+                        location.href = "/department";
+                    }, 1500);
+                },
+                error: function (xhr) {
+                    showFailToast("Department creation failed");
+                    button.prop('disabled', false);
+                }
+            });
+        });
+
+        // Event Delegation for Update Department Form Submit
+        $(document).on('click', '[id^="saveDeptButton-"]', function(e) {
+            e.preventDefault();
+            const button = $(this);
+            if (button.prop('disabled')) return;
+            
+            const buttonId = button.attr('id') || '';
+            const id = buttonId.substring("saveDeptButton-".length);
+            if (!id) return;
+            
+            const deptCodeError = $('#deptCodeError-' + id);
+            const deptNameError = $('#deptNameError-' + id);
+            
+            deptCodeError.hide().text('');
+            deptNameError.hide().text('');
+            
+            const deptCode = ($('#deptCode-' + id).val() || '').trim().toUpperCase();
+            const deptName = ($('#deptName-' + id).val() || '').trim();
+            const deptDescription = ($('#deptDescription-' + id).val() || '').trim();
+            
+            if (!deptCode) {
+                deptCodeError.text("Please enter department code").show();
+                return;
+            }
+            if (!deptName) {
+                deptNameError.text("Please enter department name").show();
+                return;
+            }
+            
+            button.prop('disabled', true);
+            
+            const formData = new FormData();
+            formData.append('Id', id);
+            formData.append('Code', deptCode);
+            formData.append('Name', deptName);
+            formData.append('Description', deptDescription);
+            
+            $.ajax({
+                type: "POST",
+                url: "/department/update",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    showSuccessToast("Department updated successfully");
+                    setTimeout(() => {
+                        location.href = "/department";
+                    }, 1500);
+                },
+                error: function (xhr) {
+                    showFailToast("Department update failed");
+                    button.prop('disabled', false);
+                }
+            });
+        });
+        
+        // Initial pagination setup
+        applyFilterAndPagination();
+    });
+</script>
+}

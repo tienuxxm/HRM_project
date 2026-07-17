@@ -1,4 +1,4 @@
-using Application.Abstractions.Authentication;
+﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Role;
 using Application.Departments.GetAll;
 using Application.Employees.Create;
@@ -100,8 +100,12 @@ public class EmployeeController : Controller
         var command = new DeleteEmployeeCommand { Id = id };
         var result = await _sender.Send(command, cancellationToken);
         if (result.IsSuccess)
+        {
+            TempData["SuccessMessage"] = result.Value.Message;
             return RedirectToAction("Index");
-        return BadRequest(result.Error);
+        }
+        TempData["ErrorMessage"] = result.Error.Name;
+        return RedirectToAction("Index");
     }
 
     [HttpPost("provision-account")]

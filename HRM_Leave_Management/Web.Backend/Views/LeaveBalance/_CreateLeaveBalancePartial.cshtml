@@ -4,65 +4,83 @@
     int currentYear = DateTime.Now.Year;
 }
 
-<div id="createLeaveBalanceModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="createLeaveBalanceModal">
-                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                </svg>
-            </button>
-            <div class="px-6 py-6 lg:px-8">
-                <h3 class="mb-4 text-xl font-medium text-gray-900">Allocate Leave Balance</h3>
-                <div class="space-y-4">
-                    <!-- Employee Dropdown -->
-                    <div>
-                        <label for="createEmpId" class="block mb-2 text-sm font-medium text-gray-900">Employee</label>
-                        <select id="createEmpId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <option value="">-- Select Employee --</option>
-                            @foreach (var emp in employees)
-                            {
-                                <option value="@emp.Id.Value">@emp.FullName (@emp.EmployeeCode)</option>
-                            }
-                        </select>
-                        <p id="createEmpIdError" class="mt-1 text-xs text-red-600 hidden"></p>
-                    </div>
+<div id="createLeaveBalanceModal" tabindex="-1" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 hrm-modal-backdrop" aria-hidden="true"></div>
+    <div class="min-h-screen flex items-center justify-center p-4 relative z-10">
+        <!-- Modal Panel -->
+        <div class="w-full max-w-[480px] bg-white border border-black rounded-none shadow-none flex flex-col overflow-hidden relative">
+            <!-- Header -->
+            <div class="h-12 flex items-center justify-between px-4 bg-black text-white">
+                <span class="font-geist font-bold text-[14px] uppercase tracking-wider">ALLOCATE LEAVE BALANCE</span>
+                <button type="button" class="bg-[#E62429] w-8 h-8 flex items-center justify-center hover:bg-[#c51f24] transition-colors" data-modal-hide="createLeaveBalanceModal">
+                    <span class="material-symbols-outlined text-[20px] text-white">close</span>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-6 flex flex-col gap-4 text-left font-geist">
+                <!-- Employee -->
+                <div>
+                    <label for="createEmpId" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Employee</label>
+                    <select id="createEmpId" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] focus:outline-none focus:border-black transition-colors" required>
+                        <option value="">-- SELECT EMPLOYEE --</option>
+                        @foreach (var emp in employees)
+                        {
+                            <option value="@emp.Id.Value">@emp.FullName (@emp.EmployeeCode)</option>
+                        }
+                    </select>
+                    <p id="createEmpIdError" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide hidden"></p>
+                </div>
 
-                    <!-- Leave Type Dropdown -->
-                    <div>
-                        <label for="createLeaveTypeId" class="block mb-2 text-sm font-medium text-gray-900">Leave Type</label>
-                        <select id="createLeaveTypeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <option value="">-- Select Leave Type --</option>
-                            @foreach (var lt in leaveTypes)
-                            {
-                                <option value="@lt.Id.Value">@lt.Name (@lt.Code)</option>
-                            }
-                        </select>
-                        <p id="createLeaveTypeIdError" class="mt-1 text-xs text-red-600 hidden"></p>
-                    </div>
+                <!-- Leave Type -->
+                <div>
+                    <label for="createLeaveTypeId" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Leave Type</label>
+                    <select id="createLeaveTypeId" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] focus:outline-none focus:border-black transition-colors" required>
+                        <option value="">-- SELECT LEAVE TYPE --</option>
+                        @foreach (var lt in leaveTypes)
+                        {
+                            <option value="@lt.Id.Value">@lt.Name (@lt.Code)</option>
+                        }
+                    </select>
+                    <p id="createLeaveTypeIdError" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide hidden"></p>
+                </div>
 
-                    <!-- Year -->
-                    <div>
-                        <label for="createYear" class="block mb-2 text-sm font-medium text-gray-900">Year</label>
-                        <input type="number" id="createYear" value="@currentYear" min="@(currentYear - 1)" max="@(currentYear + 1)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        <p id="createYearError" class="mt-1 text-xs text-red-600 hidden"></p>
-                    </div>
+                <!-- Year -->
+                <div>
+                    <label for="createYear" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Year</label>
+                    <input type="number" id="createYear" value="@currentYear" min="@(currentYear - 1)" max="@(currentYear + 1)" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] focus:outline-none focus:border-black transition-colors" required>
+                    <p id="createYearError" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide hidden"></p>
+                </div>
 
-                    <!-- Allocated Days -->
-                    <div>
-                        <label for="createAllocated" class="block mb-2 text-sm font-medium text-gray-900">Allocated Days</label>
-                        <input type="number" id="createAllocated" placeholder="e.g. 12" step="0.5" min="0" max="365" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        <p id="createAllocatedError" class="mt-1 text-xs text-red-600 hidden"></p>
-                    </div>
+                <!-- Allocated Days -->
+                <div>
+                    <label for="createAllocated" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Allocated Days</label>
+                    <input type="number" id="createAllocated" placeholder="e.g. 12" step="0.5" min="0" max="365" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] focus:outline-none focus:border-black transition-colors" required>
+                    <p id="createAllocatedError" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide hidden"></p>
+                </div>
 
-                    <!-- Used Days -->
-                    <div>
-                        <label for="createUsed" class="block mb-2 text-sm font-medium text-gray-900">Used Days</label>
-                        <input type="number" id="createUsed" value="0" step="0.5" min="0" max="365" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        <p id="createUsedError" class="mt-1 text-xs text-red-600 hidden"></p>
-                    </div>
+                <!-- Used Days -->
+                <div>
+                    <label for="createUsed" class="block mb-1 text-[10px] font-bold text-[#4c4546] uppercase tracking-wider font-mono">Used Days</label>
+                    <input type="number" id="createUsed" value="0" step="0.5" min="0" max="365" class="w-full bg-white border border-[#D1D1D1] px-3 py-2 font-mono text-[11px] focus:outline-none focus:border-black transition-colors" required>
+                    <p id="createUsedError" class="mt-1 text-[10px] font-bold text-[#E62429] uppercase tracking-wide hidden"></p>
+                </div>
 
-                    <button type="button" id="saveLbBtn" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Allocate</button>
+                <!-- Info Box -->
+                <div class="bg-[#F5F5F5] border border-[#D1D1D1] px-3 py-2 font-mono text-[10px] text-[#4c4546]">
+                    Remaining days are calculated automatically from allocated minus used days.
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="h-16 flex items-center justify-between px-6 bg-[#FBFBFB] border-t border-[#D1D1D1]">
+                <span class="font-mono text-[9px] text-[#4c4546] uppercase tracking-wider">SYSTEM: LIVE</span>
+                <div class="flex items-center gap-3">
+                    <button data-modal-hide="createLeaveBalanceModal" type="button" class="bg-white border border-[#D1D1D1] px-4 py-2 font-geist font-bold text-[11px] uppercase tracking-widest hover:bg-[#F4F3F3] transition-colors rounded-none cursor-pointer">
+                        CANCEL
+                    </button>
+                    <button type="button" id="saveLbBtn" class="bg-[#E62429] text-white border border-[#E62429] px-4 py-2 font-geist font-bold text-[11px] uppercase tracking-widest hover:bg-[#c51f24] transition-all rounded-none cursor-pointer">
+                        ALLOCATE
+                    </button>
                 </div>
             </div>
         </div>

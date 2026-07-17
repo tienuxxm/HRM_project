@@ -36,10 +36,6 @@ internal sealed class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmplo
             ? new DepartmentId(request.DepartmentId.Value)
             : null;
 
-        UserId? userId = request.UserId.HasValue
-            ? new UserId(request.UserId.Value)
-            : null;
-
         EmployeeId? managerId = request.ManagerId.HasValue
             ? new EmployeeId(request.ManagerId.Value)
             : null;
@@ -48,7 +44,7 @@ internal sealed class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmplo
             ? new PositionId(request.PositionId.Value)
             : null;
 
-        employee.Update(request.FullName, request.EmployeeCode, departmentId, userId,
+        employee.Update(request.FullName, request.EmployeeCode, departmentId,
             positionId, DateTime.SpecifyKind(request.JoinDate, DateTimeKind.Utc), managerId);
 
         _employeeRepository.Update(employee);

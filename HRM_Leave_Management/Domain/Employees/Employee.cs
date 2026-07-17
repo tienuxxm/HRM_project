@@ -75,7 +75,6 @@ public class Employee : Entity<EmployeeId>
         string fullName,
         string employeeCode,
         DepartmentId? departmentId,
-        UserId? userId,
         PositionId? positionId,
         DateTime joinDate,
         EmployeeId? managerId)
@@ -83,7 +82,6 @@ public class Employee : Entity<EmployeeId>
         FullName = fullName;
         EmployeeCode = employeeCode;
         DepartmentId = departmentId;
-        UserId = userId;
         PositionId = positionId;
         JoinDate = joinDate;
         ManagerId = managerId;

@@ -1,4 +1,4 @@
-﻿using Domain.Abstractions;
+using Domain.Abstractions;
 using Domain.Employees;
 using Domain.LeaveTypes;
 
@@ -70,6 +70,21 @@ public class LeaveBalance : Entity<LeaveBalanceId>
     public void AddUsedDays(decimal days)
     {
         UsedDays += days;
+    }
+
+    public void ReturnUsedDays(decimal days)
+    {
+        if (days <= 0)
+        {
+            throw new ArgumentException("Days to return must be greater than zero.", nameof(days));
+        }
+
+        if (UsedDays - days < 0)
+        {
+            throw new InvalidOperationException("Cannot return more used days than currently used.");
+        }
+
+        UsedDays -= days;
     }
 
     public void SetActive(bool isActive)

@@ -37,6 +37,11 @@
 | 5 | `Application/LeaveRequests/Approve/` | ApproveLeaveRequestCommand + Handler |
 | 6 | `Application/LeaveRequests/Reject/` | RejectLeaveRequestCommand + Handler |
 | 7 | `Application/LeaveRequests/GetById/` | GetLeaveRequestByIdQuery + Handler |
+
+
+
+
+
 | 8 | `Domain/LeaveApproverAssignments/` | Entity, Repository, Errors, value objects |
 | 9 | `Infrastructure/Configurations/LeaveApproverAssignmentConfiguration.cs` | EF Core config |
 | 10 | `Infrastructure/Repositories/LeaveApproverAssignmentRepository.cs` | Repository implementation |

@@ -1,210 +1,398 @@
-@model List<Application.LeaveBalances.LeaveBalanceResponse>
+@model Domain.Abstractions.PagedList<Application.LeaveBalances.LeaveBalanceResponse>
 
 @{
     ViewBag.Title = "Leave Balance Management";
     Layout = "_Layout";
     bool canUpdate = ViewBag.CanUpdate ?? false;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 5;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int startItem = totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    int endItem = Math.Min(currentPage * pageSize, totalCount);
+
+    // Build base URL with filter params for pagination links
+    var filterParams = new System.Text.StringBuilder();
+    if (ViewBag.CurrentFilterEmployeeId != null)
+    {
+        filterParams.Append($"&employeeId={ViewBag.CurrentFilterEmployeeId}");
+    }
+    if (ViewBag.CurrentFilterLeaveTypeId != null)
+    {
+        filterParams.Append($"&leaveTypeId={ViewBag.CurrentFilterLeaveTypeId}");
+    }
+    if (ViewBag.CurrentFilterYear != null)
+    {
+        filterParams.Append($"&year={ViewBag.CurrentFilterYear}");
+    }
+    string filterQuery = filterParams.ToString();
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <!-- Breadcrumb -->
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Leave Management</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Leave Balances</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
+<div class="w-full flex flex-col font-geist">
+    <!-- Section Header -->
+    <div class="mb-6">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">Leave Balances</h2>
+        <p class="text-[14px] text-[#4c4546]">Manage employee leave allocations, usage, and remaining balances.</p>
+    </div>
 
-        <!-- Main Card -->
-        <div style="min-height: 543px" class="bg-white w-full p-4 rounded-lg mt-5 flex flex-col justify-between">
-            <div class="w-full">
-                <!-- Filters and Add Button Header -->
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-200">
-                    <form method="get" action="/leave-balance" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                        @if (canUpdate)
+    <!-- Desktop Filter & Action Bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-4">
+        <form method="get" action="/leave-balance" class="flex items-center gap-3">
+            @if (canUpdate)
+            {
+                <div>
+                    <label for="filterEmployee" class="sr-only">Employee</label>
+                    <select id="filterEmployee" name="employeeId" class="h-10 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors">
+                        <option value="">ALL EMPLOYEES</option>
+                        @if (ViewBag.Employees != null)
                         {
-                            <!-- Employee Filter (Only for Admin/HR) -->
-                            <div>
-                                <label for="filterEmployee" class="sr-only">Employee</label>
-                                <select id="filterEmployee" name="employeeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
-                                    <option value="">All Employees</option>
-                                    @if (ViewBag.Employees != null)
-                                    {
-                                        foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
-                                        {
-                                            <!option value="@emp.Id.Value" selected="@(ViewBag.CurrentFilterEmployeeId == emp.Id.Value)">
-                                                @emp.FullName (@emp.EmployeeCode)
-                                            </!option>
-                                        }
-                                    }
-                                </select>
-                            </div>
+                            foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
+                            {
+                                <!option value="@emp.Id.Value" selected="@(ViewBag.CurrentFilterEmployeeId == emp.Id.Value)">
+                                    @emp.FullName (@emp.EmployeeCode)
+                                </!option>
+                            }
                         }
+                    </select>
+                </div>
+            }
+            <div>
+                <label for="filterLeaveType" class="sr-only">Leave Type</label>
+                <select id="filterLeaveType" name="leaveTypeId" class="h-10 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors">
+                    <option value="">ALL LEAVE TYPES</option>
+                    @if (ViewBag.LeaveTypes != null)
+                    {
+                        foreach (var lt in (List<Domain.LeaveTypes.LeaveType>)ViewBag.LeaveTypes)
+                        {
+                            <!option value="@lt.Id.Value" selected="@(ViewBag.CurrentFilterLeaveTypeId == lt.Id.Value)">
+                                @lt.Name (@lt.Code)
+                            </!option>
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="filterYear" class="sr-only">Year</label>
+                <input type="number" id="filterYear" name="year" value="@ViewBag.CurrentFilterYear" placeholder="YEAR" class="h-10 w-24 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors">
+            </div>
+            <button type="submit" class="h-10 px-6 bg-[#F5F5F5] border border-[#D1D1D1] text-[11px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all cursor-pointer">Filter</button>
+            <a href="/leave-balance" class="text-[11px] font-bold text-[#4c4546] uppercase underline underline-offset-4 decoration-[#cfc4c5] hover:text-black transition-colors">Clear</a>
+        </form>
+        @if (canUpdate)
+        {
+            <button type="button" data-modal-target="createLeaveBalanceModal" data-modal-toggle="createLeaveBalanceModal" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer">
+                + Allocate Balance
+            </button>
+        }
+    </div>
 
-                        <!-- Leave Type Filter -->
-                        <div>
-                            <label for="filterLeaveType" class="sr-only">Leave Type</label>
-                            <select id="filterLeaveType" name="leaveTypeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
-                                <option value="">All Leave Types</option>
-                                @if (ViewBag.LeaveTypes != null)
-                                {
-                                    foreach (var lt in (List<Domain.LeaveTypes.LeaveType>)ViewBag.LeaveTypes)
-                                    {
-                                        <!option value="@lt.Id.Value" selected="@(ViewBag.CurrentFilterLeaveTypeId == lt.Id.Value)">
-                                            @lt.Name (@lt.Code)
-                                        </!option>
-                                    }
-                                }
-                            </select>
-                        </div>
+    <!-- Mobile Filter & Action Bar -->
+    <div class="lg:hidden mb-4">
+        <form method="get" action="/leave-balance" class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
+                @if (canUpdate)
+                {
+                    <select id="filterEmployeeMobile" name="employeeId" class="h-10 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors w-full">
+                        <option value="">ALL EMPLOYEES</option>
+                        @if (ViewBag.Employees != null)
+                        {
+                            foreach (var emp in (List<Domain.Employees.Employee>)ViewBag.Employees)
+                            {
+                                <!option value="@emp.Id.Value" selected="@(ViewBag.CurrentFilterEmployeeId == emp.Id.Value)">
+                                    @emp.FullName (@emp.EmployeeCode)
+                                </!option>
+                            }
+                        }
+                    </select>
+                }
+                <select name="leaveTypeId" class="h-10 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors w-full">
+                    <option value="">ALL LEAVE TYPES</option>
+                    @if (ViewBag.LeaveTypes != null)
+                    {
+                        foreach (var lt in (List<Domain.LeaveTypes.LeaveType>)ViewBag.LeaveTypes)
+                        {
+                            <!option value="@lt.Id.Value" selected="@(ViewBag.CurrentFilterLeaveTypeId == lt.Id.Value)">
+                                @lt.Name (@lt.Code)
+                            </!option>
+                        }
+                    }
+                </select>
+                <input type="number" name="year" value="@ViewBag.CurrentFilterYear" placeholder="YEAR" class="h-10 bg-white border border-[#D1D1D1] px-3 font-mono text-[11px] focus:outline-none focus:border-black transition-colors w-full">
+            </div>
+            <div class="flex items-stretch gap-0 border border-[#D1D1D1]">
+                <button type="submit" class="flex-1 h-10 bg-[#F5F5F5] text-[11px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all cursor-pointer">Filter</button>
+                <a href="/leave-balance" class="flex-1 h-10 flex items-center justify-center text-[11px] font-bold text-[#4c4546] uppercase hover:bg-black hover:text-white transition-all border-l border-[#D1D1D1]">Clear</a>
+            </div>
+        </form>
+        @if (canUpdate)
+        {
+            <button type="button" data-modal-target="createLeaveBalanceModal" data-modal-toggle="createLeaveBalanceModal" class="w-full h-10 mt-3 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer">
+                + Allocate Balance
+            </button>
+        }
+    </div>
 
-                        <!-- Year Filter -->
-                        <div>
-                            <label for="filterYear" class="sr-only">Year</label>
-                            <input type="number" id="filterYear" name="year" value="@ViewBag.CurrentFilterYear" placeholder="Year" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 w-24">
-                        </div>
-
-                        <button type="submit" class="inline-flex items-center rounded bg-gray-100 border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-                            Filter
-                        </button>
-                        <a href="/leave-balance" class="inline-flex items-center text-sm font-medium text-blue-600 hover:underline">
-                            Clear
-                        </a>
-                    </form>
-
+    <!-- Desktop Data Grid -->
+    <div class="hidden lg:flex flex-col border border-[#D1D1D1] bg-white">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-[#F5F5F5]">
+                <tr class="border-b border-[#D1D1D1]">
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-12 text-center">No</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Employee</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1]">Leave Type</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-20 text-center">Year</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-24 text-center">Allocated</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-20 text-center">Used</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-24 text-center">Remaining</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-20 text-center">Pending</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase @(canUpdate ? "border-r border-[#D1D1D1]" : "") w-24 text-center">Available</th>
                     @if (canUpdate)
                     {
-                        <div class="mt-3 md:mt-0 flex justify-end">
-                            <button type="button" data-modal-target="createLeaveBalanceModal" data-modal-toggle="createLeaveBalanceModal"
-                                    class="inline-block rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                                Allocate Leave Balance
-                            </button>
-                            @Html.Partial("_CreateLeaveBalancePartial")
-                        </div>
+                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-32">Actions</th>
+                    }
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1]">
+                @if (Model.Data == null || !Model.Data.Any())
+                {
+                    <tr>
+                        <td colspan="@(canUpdate ? 10 : 9)" class="text-center py-8 text-[#4c4546] font-mono text-[11px] uppercase">
+                            No leave balances found.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var lb in Model.Data.Select((val, index) => new { val, index = startItem + index }))
+                    {
+                        <tr class="hover:bg-[#f4f3f3] transition-colors" style="transition: transform 0.15s ease;">
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.index</td>
+                            <td class="px-4 py-3 font-bold text-[12px] text-black border-r border-[#D1D1D1]">
+                                @lb.val.EmployeeName
+                                <span class="block font-mono text-[10px] text-[#4c4546]">@lb.val.EmployeeCode</span>
+                            </td>
+                            <td class="px-4 py-3 font-mono text-[11px] border-r border-[#D1D1D1]">@lb.val.LeaveTypeName</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.val.Year</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.val.AllocatedDays.ToString("G29")</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.val.UsedDays.ToString("G29")</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.val.RemainingDays.ToString("G29")</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@lb.val.PendingDays.ToString("G29")</td>
+                            <td class="px-4 py-3 font-mono text-[11px] font-bold @(canUpdate ? "border-r border-[#D1D1D1]" : "") text-center @(lb.val.AvailableDays > 0 ? "text-green-600" : "text-[#E62429]")">@lb.val.AvailableDays.ToString("G29")</td>
+                            @if (canUpdate)
+                            {
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex space-x-3">
+                                        <a data-modal-target="updateLeaveBalanceModal-@lb.val.Id" data-modal-toggle="updateLeaveBalanceModal-@lb.val.Id" class="text-[9px] font-bold text-black hover:text-[#E62429] uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Edit</a>
+                                        <a data-modal-target="confirmDelete-@lb.val.Id" data-modal-toggle="confirmDelete-@lb.val.Id" class="text-[9px] font-bold text-[#E62429] hover:opacity-70 uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Remove</a>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <!-- Pagination Button Styles -->
+        <style>
+            .lb-page-btn {
+                display:inline-block !important;
+                padding:2px 12px !important;
+                font-family:monospace !important;
+                font-size:10px !important;
+                font-weight:700 !important;
+                text-transform:uppercase !important;
+                text-decoration:none !important;
+                border:1px solid #D1D1D1 !important;
+                background:#fff !important;
+                color:#000 !important;
+                cursor:pointer !important;
+            }
+            .lb-page-btn:link, .lb-page-btn:visited, .lb-page-btn:active { color:#000 !important; text-decoration:none !important; }
+            .lb-page-btn:hover, .lb-page-btn:hover:link, .lb-page-btn:hover:visited { background:#E0E0E0 !important; color:#000 !important; border-color:#999 !important; }
+            .lb-page-btn-disabled {
+                display:inline-block !important;
+                padding:2px 12px !important;
+                font-family:monospace !important;
+                font-size:10px !important;
+                font-weight:700 !important;
+                text-transform:uppercase !important;
+                border:1px solid #E0E0E0 !important;
+                background:#F0F0F0 !important;
+                color:#999 !important;
+                cursor:not-allowed !important;
+            }
+            .lb-page-btn-mobile {
+                display:inline-block !important;
+                padding:6px 16px !important;
+                font-family:monospace !important;
+                font-size:10px !important;
+                font-weight:700 !important;
+                text-transform:uppercase !important;
+                text-decoration:none !important;
+                border:1px solid #D1D1D1 !important;
+                background:#fff !important;
+                color:#000 !important;
+                cursor:pointer !important;
+            }
+            .lb-page-btn-mobile:link, .lb-page-btn-mobile:visited, .lb-page-btn-mobile:active { color:#000 !important; text-decoration:none !important; }
+            .lb-page-btn-mobile:hover, .lb-page-btn-mobile:hover:link, .lb-page-btn-mobile:hover:visited { background:#E0E0E0 !important; color:#000 !important; border-color:#999 !important; }
+            .lb-page-btn-mobile-disabled {
+                display:inline-block !important;
+                padding:6px 16px !important;
+                font-family:monospace !important;
+                font-size:10px !important;
+                font-weight:700 !important;
+                text-transform:uppercase !important;
+                border:1px solid #E0E0E0 !important;
+                background:#F0F0F0 !important;
+                color:#999 !important;
+                cursor:not-allowed !important;
+            }
+        </style>
+        <!-- Desktop Table Footer with Pagination -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-[#D1D1D1] bg-[#F5F5F5]">
+            <div class="font-mono text-[10px] font-bold text-[#4c4546] uppercase">
+                SHOWING @startItem–@endItem OF @totalCount LEAVE BALANCES
+            </div>
+            @if (totalPages > 1)
+            {
+                <div class="flex items-center gap-2">
+                    @if (Model.HasPrevious)
+                    {
+                        <a href="/leave-balance?page=@(currentPage - 1)&pageSize=@pageSize@(filterQuery)" class="lb-page-btn">PREV</a>
+                    }
+                    else
+                    {
+                        <span class="lb-page-btn-disabled">PREV</span>
+                    }
+                    <span class="px-3 py-1 font-mono text-[10px] font-bold text-black uppercase">
+                        PAGE @currentPage OF @totalPages
+                    </span>
+                    @if (Model.HasNext)
+                    {
+                        <a href="/leave-balance?page=@(currentPage + 1)&pageSize=@pageSize@(filterQuery)" class="lb-page-btn">NEXT</a>
+                    }
+                    else
+                    {
+                        <span class="lb-page-btn-disabled">NEXT</span>
                     }
                 </div>
-
-                <!-- Table Content -->
-                <div class="overflow-x-auto w-full h-full mt-4">
-                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                        <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
-                            <tr>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-12">No</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-left">Employee</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-left">Leave Type</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-24">Year</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Allocated (Days)</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Used (Days)</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Remaining (Days)</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Pending (Days)</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Available (Days)</th>
-                                @if (canUpdate)
-                                {
-                                    <th class="whitespace-nowrap px-4 py-3 font-medium text-black text-center w-32">Actions</th>
-                                }
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @if (Model == null || !Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="@(canUpdate ? 10 : 9)" class="text-center py-8 text-gray-500 font-medium">
-                                        No leave balances found.
-                                    </td>
-                                </tr>
-                            }
-                            else
-                            {
-                                @foreach (var lb in Model.Select((val, index) => new { val, index = index + 1 }))
-                                {
-                                    <tr class="hover:bg-gray-50 transition duration-150">
-                                        <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-950 text-center">
-                                            @lb.index.ToString()
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-950 font-semibold text-left">
-                                            @lb.val.EmployeeName
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-900 text-left">
-                                            @lb.val.LeaveTypeName
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-medium">
-                                            @lb.val.Year
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold">
-                                            @lb.val.AllocatedDays.ToString("G29")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-amber-600">
-                                            @lb.val.UsedDays.ToString("G29")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-blue-600">
-                                            @lb.val.RemainingDays.ToString("G29")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center font-semibold text-amber-500">
-                                            @lb.val.PendingDays.ToString("G29")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-center font-bold @(lb.val.AvailableDays > 0 ? "text-green-600" : "text-red-500")">
-                                            @lb.val.AvailableDays.ToString("G29")
-                                        </td>
-                                        @if (canUpdate)
-                                        {
-                                            <td class="whitespace-nowrap px-4 py-3 text-gray-700 text-center">
-                                                <div class="flex justify-center items-center gap-3">
-                                                    <!-- Edit Action -->
-                                                    <div data-modal-target="updateLeaveBalanceModal-@lb.val.Id" data-modal-toggle="updateLeaveBalanceModal-@lb.val.Id" class="inline-flex items-center cursor-pointer text-blue-600 hover:text-blue-800">
-                                                        <svg class="w-4 h-4 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13.835 7.578-.005.007-1.196 1.195 1.2 1.2 1.195-1.196.007-.005a3.11 3.11 0 0 0 0-4.398 3.11 3.11 0 0 0-4.397 0L9.435 5.578l1.2 1.2 1.196-1.195.006-.007a1.11 1.11 0 0 1 1.567 0 1.11 1.11 0 0 1 0 1.567l-6.81 6.81-1.2-1.2 6.81-6.81Zm-7.61 7.61H2v-4.225h4.225V15.19Z"/>
-                                                        </svg>
-                                                        <span class="font-medium text-sm">Edit</span>
-                                                    </div>
-                                                    @Html.Partial("_UpdateLeaveBalancePartial", lb.val)
-
-                                                    <!-- Remove Action -->
-                                                    <div data-modal-target="confirmDelete-@lb.val.Id" data-modal-toggle="confirmDelete-@lb.val.Id" class="inline-flex items-center cursor-pointer text-red-600 hover:text-red-800">
-                                                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 16 18" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 4h14M3 4v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4M5 4V2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-                                                        </svg>
-                                                        <span class="font-medium text-sm">Remove</span>
-                                                    </div>
-                                                    @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
-                                                    {
-                                                        Id = lb.val.Id,
-                                                        Type = "Leave Balance for Employee",
-                                                        Name = lb.val.EmployeeName,
-                                                        ActionName = "Delete",
-                                                        ActionController = "LeaveBalance"
-                                                    })
-                                                </div>
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            }
         </div>
     </div>
+
+    <!-- Mobile Stacked Cards -->
+    <div class="lg:hidden flex flex-col gap-4">
+        @if (Model.Data == null || !Model.Data.Any())
+        {
+            <div class="bg-white border border-[#D1D1D1] p-6 text-center">
+                <p class="font-mono text-[11px] text-[#4c4546] uppercase">No leave balances found.</p>
+            </div>
+        }
+        else
+        {
+            <div class="flex flex-col gap-4">
+                @foreach (var lb in Model.Data)
+                {
+                    <div class="bg-white border border-[#D1D1D1] p-4 flex flex-col gap-3">
+                        <!-- Card Header -->
+                        <div class="flex justify-between items-start">
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[10px] text-[#4c4546] font-bold">@lb.EmployeeCode</span>
+                                <h3 class="text-[16px] font-bold uppercase tracking-tight">@lb.EmployeeName</h3>
+                            </div>
+                            <span class="bg-black text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">@lb.Year</span>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="border-t border-[#F1F1F1] pt-3 grid grid-cols-2 gap-y-2 gap-x-4">
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Leave Type</span>
+                                <span class="font-bold text-[12px]">@lb.LeaveTypeName</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Allocated</span>
+                                <span class="font-bold text-[12px]">@lb.AllocatedDays.ToString("G29")</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Used</span>
+                                <span class="font-bold text-[12px]">@lb.UsedDays.ToString("G29")</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Remaining</span>
+                                <span class="font-bold text-[12px]">@lb.RemainingDays.ToString("G29")</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Pending</span>
+                                <span class="font-bold text-[12px]">@lb.PendingDays.ToString("G29")</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-mono text-[9px] text-[#4c4546] uppercase">Available</span>
+                                <span class="font-bold text-[12px] @(lb.AvailableDays > 0 ? "text-green-600" : "text-[#E62429]")">@lb.AvailableDays.ToString("G29")</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Actions -->
+                        @if (canUpdate)
+                        {
+                            <div class="flex gap-4 border-t border-[#F1F1F1] pt-3">
+                                <button type="button" data-modal-target="updateLeaveBalanceModal-@lb.Id" data-modal-toggle="updateLeaveBalanceModal-@lb.Id" class="text-[10px] font-bold uppercase hover:text-[#E62429] transition-colors cursor-pointer">[EDIT]</button>
+                                <button type="button" data-modal-target="confirmDelete-@lb.Id" data-modal-toggle="confirmDelete-@lb.Id" class="ml-auto text-[#E62429] text-[10px] font-bold uppercase hover:opacity-70 transition-opacity cursor-pointer">[REMOVE]</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Mobile Footer with Pagination -->
+            <div class="mt-2 border border-[#D1D1D1] bg-white p-4 font-mono text-[11px]">
+                <div class="text-center font-bold text-black uppercase mb-3">
+                    SHOWING @startItem–@endItem OF @totalCount LEAVE BALANCES
+                </div>
+                @if (totalPages > 1)
+                {
+                    <div class="flex items-center justify-center gap-2">
+                        @if (Model.HasPrevious)
+                        {
+                            <a href="/leave-balance?page=@(currentPage - 1)&pageSize=@pageSize@(filterQuery)" class="lb-page-btn-mobile">PREV</a>
+                        }
+                        else
+                        {
+                            <span class="lb-page-btn-mobile-disabled">PREV</span>
+                        }
+                        <span class="px-3 py-2 font-mono text-[10px] font-bold text-black uppercase">
+                            @currentPage / @totalPages
+                        </span>
+                        @if (Model.HasNext)
+                        {
+                            <a href="/leave-balance?page=@(currentPage + 1)&pageSize=@pageSize@(filterQuery)" class="lb-page-btn-mobile">NEXT</a>
+                        }
+                        else
+                        {
+                            <span class="lb-page-btn-mobile-disabled">NEXT</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
+
+<!-- Modal Container (rendered outside table body) -->
+@if (canUpdate)
+{
+    @Html.Partial("_CreateLeaveBalancePartial")
+
+    @foreach (var lb in Model.Data)
+    {
+        @Html.Partial("_UpdateLeaveBalancePartial", lb)
+        @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+        {
+            Id = lb.Id,
+            Type = "Leave Balance for Employee",
+            Name = lb.EmployeeName,
+            ActionName = "Delete",
+            ActionController = "LeaveBalance"
+        })
+    }
+}

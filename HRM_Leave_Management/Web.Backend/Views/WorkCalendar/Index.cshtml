@@ -1,0 +1,724 @@
+@model List<Application.WorkCalendars.GetWorkCalendarDays.WorkCalendarDayResponse>
+
+@{
+    ViewBag.Title = "Work Calendar List";
+    Layout = "_Layout";
+    int currentYear = ViewBag.CurrentYear;
+    int? currentMonth = ViewBag.CurrentMonth;
+    bool canUpdate = ViewBag.CanUpdate;
+}
+
+<div class="w-full">
+    <div class="w-full flex flex-col">
+        <!-- Breadcrumb -->
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">HRM Management</span>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2 dark:text-gray-400">Work Calendar</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Card -->
+        <div style="min-height: 543px" class="bg-white w-full p-4 rounded-lg mt-5 flex flex-col justify-between shadow-sm">
+            <div class="w-full">
+                <!-- Header Actions -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-100 gap-4">
+                    <form method="get" action="/work-calendar" class="flex flex-wrap items-center gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Year</label>
+                            <input type="number" name="year" value="@currentYear" min="2000" max="2100" 
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-24" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Month</label>
+                            <select name="month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-36">
+                                <option value="">All Months</option>
+                                @for (int m = 1; m <= 12; m++)
+                                {
+                                    if (currentMonth == m)
+                                    {
+                                        <option value="@m" selected>@(new DateTime(2026, m, 1).ToString("MMMM"))</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@m">@(new DateTime(2026, m, 1).ToString("MMMM"))</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="self-end">
+                            <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                                Filter
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="flex items-center gap-2 self-end">
+                        <a href="/work-calendar/download-template" class="inline-flex items-center text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-blue-100 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Download Template
+                        </a>
+
+                        @if (canUpdate)
+                        {
+                            <button type="button" onclick="openManualModal('', 'PublicHoliday', 'None', '', true)" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add Calendar Day
+                            </button>
+                            <button type="button" onclick="openImportModal()" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Import Excel
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto w-full mt-4">
+                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-center w-16">NO</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Date</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Day Type</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Work Shift</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-left">Description</th>
+                                <th class="px-4 py-3 font-semibold text-gray-900 text-center w-32">Status</th>
+                                @if (canUpdate)
+                                {
+                                    <th class="px-4 py-3 font-semibold text-gray-900 text-center w-24">Actions</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="@(canUpdate ? 7 : 6)" class="px-4 py-8 text-center text-gray-500">
+                                        No work calendar days defined for this period.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int index = 1;
+                                foreach (var day in Model)
+                                {
+                                    <tr>
+                                        <td class="px-4 py-3 text-center text-gray-900 font-semibold">@index</td>
+                                        <td class="px-4 py-3 text-gray-700 font-semibold">@day.Date.ToString("yyyy-MM-dd")</td>
+                                        <td class="px-4 py-3">
+                                            @if (day.DayType == "PublicHoliday")
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Public Holiday</span>
+                                            }
+                                            else if (day.DayType == "CompanyCustomNonWorkingDay")
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Company Non-Working</span>
+                                            }
+                                            else if (day.DayType == "StandardWorkingDayOverride")
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">Working Override</span>
+                                            }
+                                            else if (day.DayType == "WorkingSaturdayOverride")
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">Working Saturday</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-800">@day.DayType</span>
+                                            }
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">@day.WorkShift</td>
+                                        <td class="px-4 py-3 text-gray-500">@(day.Description ?? "-")</td>
+                                        <td class="px-4 py-3 text-center">
+                                            @if (day.IsActive)
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center rounded-full bg-red-55 px-2.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Inactive</span>
+                                            }
+                                        </td>
+                                        @if (canUpdate)
+                                        {
+                                            <td class="px-4 py-3 text-center">
+                                                <button type="button" 
+                                                        class="js-edit-calendar text-blue-600 hover:text-blue-900 font-medium" data-date="@day.Date.ToString("yyyy-MM-dd")" data-day-type="@day.DayType" data-work-shift="@day.WorkShift" data-description="@(day.Description ?? "")" data-is-active="@(day.IsActive ? "true" : "false")"
+                                                        >
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        }
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Excel Modal -->
+<div id="importModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-lg max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" onclick="closeImportModal()">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <div class="flex items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-semibold text-gray-900" id="modal-title">Import Work Calendar</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Select a valid Excel file to import day overrides. Duplicate dates in Excel will update current day records.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <input type="file" id="excelFile" accept=".xlsx" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        </div>
+                        <div id="uploadError" class="mt-2 text-sm text-red-600 hidden font-semibold"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end space-x-3 border-t border-gray-200 pt-4">
+                    <button type="button" onclick="closeImportModal()"
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="uploadExcel()" id="uploadBtn"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Upload
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast element dynamically inserted via JS -->
+<div id="customToastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+@section Scripts {
+<script>
+    function cleanupModalFocusAndBackdrop(modalElement) {
+        if (modalElement && modalElement.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+
+        document.querySelectorAll('[modal-backdrop]').forEach(backdrop => backdrop.remove());
+    }
+
+    function openImportModal() {
+        $('#excelFile').val('');
+        $('#uploadError').addClass('hidden').text('');
+        
+        const $targetEl = document.getElementById('importModal');
+        const instanceOptions = {
+            id: 'importModal',
+            override: true
+        };
+        const modal = new Modal($targetEl, { closable: true }, instanceOptions);
+        modal.show();
+    }
+
+    function closeImportModal() {
+        const $targetEl = document.getElementById('importModal');
+        cleanupModalFocusAndBackdrop($targetEl);
+        const instanceOptions = {
+            id: 'importModal',
+            override: true
+        };
+        const modal = new Modal($targetEl, { closable: true }, instanceOptions);
+        modal.hide();
+        cleanupModalFocusAndBackdrop($targetEl);
+    }
+
+    function showToast(message, isSuccess = true) {
+        const id = 'toast-' + Math.random().toString(36).substr(2, 9);
+        const bgClass = isSuccess ? 'bg-white text-gray-500 border-l-4 border-green-500 shadow-lg' : 'bg-white text-gray-500 border-l-4 border-red-500 shadow-lg';
+        const iconColor = isSuccess ? 'text-green-500 bg-green-100' : 'text-red-500 bg-red-100';
+        const iconSvg = isSuccess ? 
+            `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+             </svg>` :
+            `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
+             </svg>`;
+
+        const html = `
+            <div id="${id}" class="flex items-center w-full max-w-xs p-4 rounded-lg ${bgClass} transition-all duration-300 transform translate-x-full" role="alert">
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg ${iconColor}">
+                    ${iconSvg}
+                </div>
+                <div class="ml-3 text-sm font-normal">${message}</div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 focus:outline-none" onclick="$('#${id}').remove()">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        $('#customToastContainer').append(html);
+        
+        // Animate slide in
+        setTimeout(() => {
+            $(`#${id}`).removeClass('translate-x-full');
+        }, 50);
+
+        // Auto remove
+        setTimeout(() => {
+            $(`#${id}`).addClass('opacity-0 translate-x-full');
+            setTimeout(() => {
+                $(`#${id}`).remove();
+            }, 300);
+        }, 4000);
+    }
+
+    function uploadExcel() {
+        const fileInput = document.getElementById('excelFile');
+        if (!fileInput.files || fileInput.files.length === 0) {
+            $('#uploadError').removeClass('hidden').text('Please select a file.');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        $('#uploadBtn').prop('disabled', true).text('Uploading...');
+        $('#uploadError').addClass('hidden');
+
+        $.ajax({
+            url: '/work-calendar/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    closeImportModal();
+                    showToast('Excel uploaded successfully. Redirecting to preview...', true);
+                    setTimeout(() => {
+                        window.location.href = '/work-calendar/preview/' + response.batchId;
+                    }, 1000);
+                } else {
+                    $('#uploadBtn').prop('disabled', false).text('Upload');
+                    $('#uploadError').removeClass('hidden').text(response.message || 'Failed to upload.');
+                }
+            },
+            error: function() {
+                $('#uploadBtn').prop('disabled', false).text('Upload');
+                $('#uploadError').removeClass('hidden').text('An error occurred during upload.');
+            }
+        });
+    }
+</script>
+
+<!-- Manual Day Modal -->
+<div id="manualModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-3xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" onclick="closeManualModal()">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+            <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900" id="manual-modal-title">
+                    Manual Calendar Day
+                </h3>
+                <form id="manualForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="manualDate" class="block mb-2 text-sm font-medium text-gray-900">Date</label>
+                            <input type="date" id="manualDate" required
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                        </div>
+                        <div>
+                            <label for="manualIsActive" class="block mb-2 text-sm font-medium text-gray-900">Active Status</label>
+                            <div class="flex items-center h-[46px] px-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                <input type="checkbox" id="manualIsActive" checked
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" />
+                                <span class="ml-2 text-sm font-medium text-gray-900">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="manualDayType" class="block mb-2 text-sm font-medium text-gray-900">Day Type</label>
+                            <select id="manualDayType" onchange="adjustWorkShiftOptions()"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="PublicHoliday">Public Holiday</option>
+                                <option value="CompanyCustomNonWorkingDay">Company Non-Working</option>
+                                <option value="StandardWorkingDayOverride">Standard Working Day Override</option>
+                                <option value="WorkingSaturdayOverride">Working Saturday Override</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="manualWorkShift" class="block mb-2 text-sm font-medium text-gray-900">Work Shift</label>
+                            <select id="manualWorkShift"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="None">None</option>
+                                <option value="FullDay">FullDay</option>
+                                <option value="MorningOnly">MorningOnly</option>
+                                <option value="AfternoonOnly">AfternoonOnly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="manualDescription" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+                        <textarea id="manualDescription" rows="2"
+                                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" 
+                                  placeholder="E.g., National Day, Make up day..."></textarea>
+                    </div>
+
+                    <div id="manualValidationError" class="text-sm text-red-600 hidden font-semibold"></div>
+
+                    <!-- Dynamic Preview Section inside Form -->
+                    <div id="manualDynamicPreview" class="mt-6 pt-6 border-t border-gray-200 hidden">
+                        <h4 class="text-sm font-medium text-gray-900 mb-3">Affected Leave Requests (Preview)</h4>
+                        
+                        <div id="manualPreviewLoading" class="flex items-center justify-center py-4 hidden">
+                            <svg class="animate-spin h-5 w-5 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Analyzing affected requests...</span>
+                        </div>
+
+                        <div id="previewWarningBanner" class="p-4 mb-4 rounded-lg bg-amber-50 border-l-4 border-amber-500 text-amber-800 text-sm hidden">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <div>
+                                    <span class="font-bold">Attention!</span> Some approved requests will be reopened to <span class="font-bold">Pending</span> and their leave balance will be restored.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="previewNoEffects" class="p-3 rounded-lg bg-green-50 text-green-800 text-xs font-semibold hidden">
+                            No leave requests are affected by this calendar change.
+                        </div>
+
+                        <div id="previewTableContainer" class="overflow-x-auto w-full max-h-60 border border-gray-200 rounded-lg hidden">
+                            <table class="min-w-full divide-y divide-gray-200 text-xs">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-900">Employee</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-900">Dates</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-900">Type</th>
+                                        <th class="px-4 py-3 text-center font-medium text-gray-900">Old</th>
+                                        <th class="px-4 py-3 text-center font-medium text-gray-900">New</th>
+                                        <th class="px-4 py-3 text-center font-medium text-gray-900">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody" class="divide-y divide-gray-200 bg-white">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-end space-x-3 border-t border-gray-200 pt-4">
+                        <button type="button" onclick="closeManualModal()"
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                            Cancel
+                        </button>
+                        <button type="button" onclick="saveManualChange()" id="confirmSaveBtn" disabled
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:bg-gray-300 disabled:cursor-not-allowed">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openManualModal(dateStr = '', dayType = 'PublicHoliday', workShift = 'None', description = '', isActive = true) {
+        $('#manualValidationError').addClass('hidden').text('');
+        $('#manualDynamicPreview').addClass('hidden');
+        $('#confirmSaveBtn').prop('disabled', true).text('Save');
+
+        $('#manualDate').val(dateStr);
+        if (dateStr) {
+            $('#manualDate').prop('readonly', true);
+            $('#manualDate').removeAttr('min');
+        } else {
+            $('#manualDate').prop('readonly', false);
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            $('#manualDate').attr('min', todayStr);
+        }
+
+        $('#manualDayType').val(dayType);
+        $('#manualWorkShift').val(workShift);
+        $('#manualDescription').val(description);
+        $('#manualIsActive').prop('checked', isActive);
+
+        adjustWorkShiftOptions();
+
+        const $targetEl = document.getElementById('manualModal');
+        const instanceOptions = {
+            id: 'manualModal',
+            override: true
+        };
+        const modal = new Modal($targetEl, { closable: true }, instanceOptions);
+        modal.show();
+
+        // Trigger preview if we edit an existing configuration
+        if (dateStr) {
+            triggerPreviewManualChange();
+        }
+    }
+
+    function closeManualModal() {
+        const $targetEl = document.getElementById('manualModal');
+        cleanupModalFocusAndBackdrop($targetEl);
+        const instanceOptions = {
+            id: 'manualModal',
+            override: true
+        };
+        const modal = new Modal($targetEl, { closable: true }, instanceOptions);
+        modal.hide();
+        cleanupModalFocusAndBackdrop($targetEl);
+        $('#manualForm')[0].reset();
+        $('#manualValidationError').addClass('hidden').text('');
+        $('#manualDynamicPreview').addClass('hidden');
+        $('#confirmSaveBtn').prop('disabled', true).text('Save');
+    }
+
+    function adjustWorkShiftOptions() {
+        const dayType = $('#manualDayType').val();
+        const workShiftSelect = $('#manualWorkShift');
+
+        if (dayType === 'PublicHoliday' || dayType === 'CompanyCustomNonWorkingDay') {
+            workShiftSelect.val('None');
+            workShiftSelect.find('option[value!="None"]').prop('disabled', true);
+        } else {
+            workShiftSelect.find('option').prop('disabled', false);
+            if (workShiftSelect.val() === 'None') {
+                workShiftSelect.val('FullDay');
+            }
+        }
+    }
+
+    let previewTimeout = null;
+
+    function triggerPreviewManualChange() {
+        if (previewTimeout) {
+            clearTimeout(previewTimeout);
+        }
+
+        previewTimeout = setTimeout(() => {
+            const date = $('#manualDate').val();
+            if (!date) {
+                $('#manualDynamicPreview').addClass('hidden');
+                $('#confirmSaveBtn').prop('disabled', true);
+                $('#manualValidationError').addClass('hidden').text('');
+                return;
+            }
+
+            const dayType = $('#manualDayType').val();
+            const workShift = $('#manualWorkShift').val();
+            const isActive = $('#manualIsActive').is(':checked');
+
+            if ((dayType === 'PublicHoliday' || dayType === 'CompanyCustomNonWorkingDay') && workShift !== 'None') {
+                $('#manualValidationError').removeClass('hidden').text('Non-working days must have Work Shift set to None.');
+                $('#manualDynamicPreview').addClass('hidden');
+                $('#confirmSaveBtn').prop('disabled', true);
+                return;
+            }
+            if ((dayType === 'StandardWorkingDayOverride' || dayType === 'WorkingSaturdayOverride') && workShift === 'None') {
+                $('#manualValidationError').removeClass('hidden').text('Working override days cannot have Work Shift set to None.');
+                $('#manualDynamicPreview').addClass('hidden');
+                $('#confirmSaveBtn').prop('disabled', true);
+                return;
+            }
+
+            $('#manualValidationError').addClass('hidden').text('');
+            $('#manualDynamicPreview').removeClass('hidden');
+            
+            $('#manualPreviewLoading').removeClass('hidden');
+            $('#previewWarningBanner').addClass('hidden');
+            $('#previewNoEffects').addClass('hidden');
+            $('#previewTableContainer').addClass('hidden');
+            $('#confirmSaveBtn').prop('disabled', true);
+
+            $.ajax({
+                url: '/work-calendar/preview-manual',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    date: date,
+                    dayType: dayType,
+                    workShift: workShift,
+                    isActive: isActive
+                }),
+                success: function(response) {
+                    $('#manualPreviewLoading').addClass('hidden');
+                    if (response.success) {
+                        showPreviewResults(response.affectedRequests);
+                        $('#confirmSaveBtn').prop('disabled', false);
+                    } else {
+                        $('#manualValidationError').removeClass('hidden').text(response.message || 'Error loading preview.');
+                        $('#manualDynamicPreview').addClass('hidden');
+                        $('#confirmSaveBtn').prop('disabled', true);
+                    }
+                },
+                error: function() {
+                    $('#manualPreviewLoading').addClass('hidden');
+                    $('#manualValidationError').removeClass('hidden').text('Failed to load preview from server.');
+                    $('#manualDynamicPreview').addClass('hidden');
+                    $('#confirmSaveBtn').prop('disabled', true);
+                }
+            });
+        }, 300);
+    }
+
+    function showPreviewResults(affectedRequests) {
+        const tbody = $('#previewTableBody');
+        tbody.empty();
+
+        if (!affectedRequests || affectedRequests.length === 0) {
+            $('#previewNoEffects').removeClass('hidden');
+            $('#previewWarningBanner').addClass('hidden');
+            $('#previewTableContainer').addClass('hidden');
+            return;
+        }
+
+        $('#previewNoEffects').addClass('hidden');
+        $('#previewTableContainer').removeClass('hidden');
+
+        let hasApproved = false;
+        affectedRequests.forEach(req => {
+            if (req.oldStatus === 'Approved' || req.newStatus === 'Pending') {
+                hasApproved = true;
+            }
+
+            const row = `
+                <tr>
+                    <td class="px-3 py-2 text-gray-900 font-medium">${req.employeeName}</td>
+                    <td class="px-3 py-2 text-gray-500">${req.startDate} to ${req.endDate}</td>
+                    <td class="px-3 py-2 text-gray-700">${req.leaveTypeName}</td>
+                    <td class="px-3 py-2 text-center text-gray-500 font-semibold">${req.oldDuration}</td>
+                    <td class="px-3 py-2 text-center text-blue-600 font-bold">${req.newDuration}</td>
+                    <td class="px-3 py-2 text-center">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            req.oldStatus === 'Approved' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' : 'bg-gray-100 text-gray-800'
+                        }">${req.oldStatus} &rarr; ${req.newStatus}</span>
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+        });
+
+        if (hasApproved) {
+            $('#previewWarningBanner').removeClass('hidden');
+        } else {
+            $('#previewWarningBanner').addClass('hidden');
+        }
+    }
+
+    function saveManualChange() {
+        const date = $('#manualDate').val();
+        const dayType = $('#manualDayType').val();
+        const workShift = $('#manualWorkShift').val();
+        const description = $('#manualDescription').val();
+        const isActive = $('#manualIsActive').is(':checked');
+
+        $('#confirmSaveBtn').prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: '/work-calendar/save-manual',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                date: date,
+                dayType: dayType,
+                workShift: workShift,
+                description: description,
+                isActive: isActive
+            }),
+            success: function(response) {
+                if (response.success) {
+                    closeManualModal();
+                    showToast('Calendar day saved successfully.', true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    $('#confirmSaveBtn').prop('disabled', false).text('Save');
+                    $('#manualValidationError').removeClass('hidden').text('Error: ' + response.message);
+                    showToast('Failed to save configuration: ' + response.message, false);
+                }
+            },
+            error: function() {
+                $('#confirmSaveBtn').prop('disabled', false).text('Save');
+                $('#manualValidationError').removeClass('hidden').text('An error occurred while saving.');
+                showToast('An error occurred while saving configuration.', false);
+            }
+        });
+    }
+
+    // Attach reactive event handlers
+    $(document).ready(function() {
+        $('#manualDate, #manualDayType, #manualWorkShift, #manualIsActive').on('change input', function() {
+            triggerPreviewManualChange();
+        });
+
+        $(document).on('click', '.js-edit-calendar', function() {
+            const dateStr = $(this).data('date') || '';
+            const dayType = $(this).data('day-type') || 'PublicHoliday';
+            const workShift = $(this).data('work-shift') || 'None';
+            const description = $(this).data('description') || '';
+            const isActive = $(this).data('is-active') === true || $(this).data('is-active') === 'true';
+            
+            openManualModal(dateStr, dayType, workShift, description, isActive);
+        });
+    });
+</script>
+}

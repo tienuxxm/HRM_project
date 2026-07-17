@@ -165,10 +165,14 @@ description: Quy tac lam viec cho du an HRM/Leave Management tach tu Project LUC
 ## Frontend Rules (Razor / Tailwind / Flowbite)
 
 - Giu pattern UI hien co neu dang lam tren Razor MVC.
+- Truoc khi them/sua hanh vi o bat ky layer nao, phai doc nhanh kien truc va cong nghe dang van hanh trong khu vuc do: module tuong tu, shared helper, convention, package/library, validation, error handling, auth/permission, repository/EF pattern, UI layout/component neu co.
+- Khong them logic cuc bo mot lan, helper trung lap, hardcode special case, hoac dung primitive truc tiep cua framework neu du an da co abstraction/pattern phu hop.
 - Khong tao landing page marketing khi muc tieu la app quan tri.
 - UI HRM nen gon, ro, de scan: danh sach don nghi, trang tao don, trang duyet, dashboard.
 - Khong de text/element overlap. Kiem tra mobile va desktop neu sua layout lon.
 - Neu them icon/button/control, uu tien pattern san co trong project.
+- Voi UI feedback, khong them moi browser-native dialog nhu `window.alert()`/`window.confirm()` cho UX nguoi dung binh thuong. Phai dung co che thong bao/modal san co cua du an; neu chua co co che phu hop thi de xuat shared adapter truoc.
+- Neu gap pattern legacy/khong nhat quan trong khu vuc dang sua, phai ghi nhan technical debt va canh chinh theo pattern hien hanh neu nam trong scope; neu ngoai scope thi noi ro la de nguyen.
 
 ## Cau Hinh External Services
 

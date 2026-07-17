@@ -122,7 +122,7 @@ internal sealed class AuthenticationService : IAuthenticationService
     {
         var result = await _httpClient.DeleteAsync(
             $"users/{userId}", cancellationToken);
-        return result.StatusCode == HttpStatusCode.NoContent
+        return (result.StatusCode == HttpStatusCode.NoContent || result.StatusCode == HttpStatusCode.NotFound)
             ? Result.Success()
             : Result.Failure(AuthenticationErrors.DeleteUserError);
     }

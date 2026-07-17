@@ -1,4 +1,4 @@
-# Phase 1.5 - UI Shell Parity: Gap Analysis
+﻿# Phase 1.5 - UI Shell Parity: Gap Analysis
 
 > Muc tieu: Giao dien HRM giong layout tong the project goc (sidebar, header, login style, mau sac, spacing).
 > Noi dung nghiep vu phai doi sang HRM, khong giu menu/data nha hang.

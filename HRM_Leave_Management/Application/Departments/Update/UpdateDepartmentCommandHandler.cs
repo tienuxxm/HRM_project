@@ -23,9 +23,10 @@ internal sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDep
             return Result.Failure<Department>(DepartmentErrors.NotFound);
         }
 
+        var normalizedCode = request.Code.Trim().ToUpperInvariant();
         // Check duplicate code (exclude self)
         var isDuplicate = await _departmentRepository.IsExistedAsync(
-            x => x.Code == request.Code && x.Id != new DepartmentId(request.Id));
+            x => x.Code.ToUpper() == normalizedCode && x.Id != new DepartmentId(request.Id));
         if (isDuplicate)
             return Result.Failure<Department>(DepartmentErrors.DepartmentExisted);
 
@@ -33,7 +34,7 @@ internal sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDep
             ? new DepartmentId(request.ParentDepartmentId.Value)
             : null;
 
-        department.Update(request.Name, request.Code, request.Description, parentId);
+        department.Update(request.Name, normalizedCode, request.Description, parentId);
 
         _departmentRepository.Update(department);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
