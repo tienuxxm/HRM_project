@@ -1,119 +1,139 @@
-﻿@model Application.Roles.GetAllPaged.GetAllRolePagedResponse
+@model Application.Roles.GetAllPaged.GetAllRolePagedResponse
 
 @{
     ViewBag.Title = "Permission group";
     Layout = "_Layout";
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Account</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Group</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        <div class="w-full d-flex justify-content-end py-2">
-            <a href="@Url.Action("CreateRoleview", "Role")" type="button"
-               class="inline-block rounded bg-indigo-600 px-4 py-1 px-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                Create Group
+<div class="w-full flex flex-col font-geist">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">Permission Groups</h2>
+        <p class="text-[14px] text-[#4c4546]">Manage user roles, permission mappings, and access control policies for the HRM system.</p>
+    </div>
+
+    <!-- Desktop Search & Action Bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-4">
+        <div></div> <!-- Spacer -->
+        <div>
+            <a href="@Url.Action("CreateRoleview", "Role")" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center cursor-pointer rounded-none">
+                + Add Group
             </a>
         </div>
-        <div style="min-height: 543px" class="bg-white w-full p-3 rounded-lg">
-            <div class="overflow-x-auto w-full h-full overflow-y-auto">
-                <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                    <thead class="ltr:text-left rtl:text-right bg-[#F4F7FC]">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black text-center">
-                                NO
-                            </th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
-                                ID
-                            </th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-black">
-                                Group Permission
-                            </th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Permission
-                            </th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                Update
-                            </th>
-                        </tr>
-                    </thead>
+    </div>
 
-                    <tbody class="divide-y divide-gray-200">
-
-                        @foreach (var user in @Model.Data.Select((val, index) => new { val, index = index + 1 }))
-                        {
-                            <tr class="my-2 py-4">
-                                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center">
-                                    <strong>@user.index.ToString()</strong>
-                                </td>
-
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 text-left">
-                                    <strong>@user.val.Id</strong>
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 text-left">
-                                    <strong>@user.val.DisplayName</strong>
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700 text-left"
-                                    style="max-width: 250px;
-                                       overflow: hidden;
-                                       text-overflow: ellipsis;">
-                                    @user.val.PermissionsResponse
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                    <div class="flex">
-                                        <div onclick="location.href='@Url.Action("Detail", "Role", new { id = @user.val.Id })'" class="mx-1 flex justify-center items-center cursor-pointer">
-                                            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M9.91071 12.0714L11.2054 10.7768L9.50893 9.08036L8.21429 10.375V11H9.28571V12.0714H9.91071ZM14.8103 4.40402C14.9368 4.27753 14.9405 4.15476 14.8214 4.03571C14.7024 3.91667 14.5796 3.92039 14.4531 4.04688L10.5469 7.95312C10.4204 8.07961 10.4167 8.20238 10.5357 8.32143C10.6548 8.44048 10.7775 8.43676 10.904 8.31027L14.8103 4.40402ZM15.7143 10.6652V12.7857C15.7143 13.6711 15.3981 14.4301 14.7656 15.0625C14.1406 15.6875 13.3854 16 12.5 16H3.21429C2.32887 16 1.56994 15.6875 0.9375 15.0625C0.3125 14.4301 0 13.6711 0 12.7857V3.5C0 2.61458 0.3125 1.85937 0.9375 1.23437C1.56994 0.601934 2.32887 0.285713 3.21429 0.285713H12.5C12.9688 0.285713 13.404 0.378719 13.8058 0.564731C13.9174 0.616814 13.9844 0.70238 14.0067 0.821428C14.029 0.947916 13.9955 1.0558 13.9063 1.14509L13.3594 1.69196C13.2552 1.79613 13.1362 1.82589 13.0022 1.78125C12.8311 1.73661 12.6637 1.71429 12.5 1.71429H3.21429C2.72321 1.71429 2.30283 1.88914 1.95313 2.23884C1.60342 2.58854 1.42857 3.00893 1.42857 3.5V12.7857C1.42857 13.2768 1.60342 13.6972 1.95313 14.0469C2.30283 14.3966 2.72321 14.5714 3.21429 14.5714H12.5C12.9911 14.5714 13.4115 14.3966 13.7612 14.0469C14.1109 13.6972 14.2857 13.2768 14.2857 12.7857V11.3795C14.2857 11.2827 14.3192 11.2009 14.3862 11.1339L15.1004 10.4196C15.2121 10.308 15.3423 10.282 15.4911 10.3415C15.6399 10.401 15.7143 10.5089 15.7143 10.6652ZM14.6429 2.42857L17.8571 5.64286L10.3571 13.1429H7.14286V9.92857L14.6429 2.42857ZM19.5982 3.90179L18.5714 4.92857L15.3571 1.71429L16.3839 0.687499C16.5923 0.479165 16.8452 0.374999 17.1429 0.374999C17.4405 0.374999 17.6935 0.479165 17.9018 0.687499L19.5982 2.38393C19.8065 2.59226 19.9107 2.84524 19.9107 3.14286C19.9107 3.44048 19.8065 3.69345 19.5982 3.90179Z" fill="#3059EC" />
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Edit</a>
-                                        </div>
-                                        <div data-modal-target="confirmDelete-@user.val.Id" data-modal-toggle="confirmDelete-@user.val.Id" class="mx-1 flex justify-center items-center cursor-pointer">
-                                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5.71429 7.07143V13.5C5.71429 13.6042 5.6808 13.6897 5.61384 13.7567C5.54688 13.8237 5.46131 13.8571 5.35714 13.8571H4.64286C4.53869 13.8571 4.45313 13.8237 4.38616 13.7567C4.3192 13.6897 4.28571 13.6042 4.28571 13.5V7.07143C4.28571 6.96726 4.3192 6.8817 4.38616 6.81473C4.45313 6.74777 4.53869 6.71429 4.64286 6.71429H5.35714C5.46131 6.71429 5.54688 6.74777 5.61384 6.81473C5.6808 6.8817 5.71429 6.96726 5.71429 7.07143ZM8.57143 7.07143V13.5C8.57143 13.6042 8.53795 13.6897 8.47098 13.7567C8.40402 13.8237 8.31845 13.8571 8.21429 13.8571H7.5C7.39583 13.8571 7.31027 13.8237 7.2433 13.7567C7.17634 13.6897 7.14286 13.6042 7.14286 13.5V7.07143C7.14286 6.96726 7.17634 6.8817 7.2433 6.81473C7.31027 6.74777 7.39583 6.71429 7.5 6.71429H8.21429C8.31845 6.71429 8.40402 6.74777 8.47098 6.81473C8.53795 6.8817 8.57143 6.96726 8.57143 7.07143ZM11.4286 7.07143V13.5C11.4286 13.6042 11.3951 13.6897 11.3281 13.7567C11.2612 13.8237 11.1756 13.8571 11.0714 13.8571H10.3571C10.253 13.8571 10.1674 13.8237 10.1004 13.7567C10.0335 13.6897 10 13.6042 10 13.5V7.07143C10 6.96726 10.0335 6.8817 10.1004 6.81473C10.1674 6.74777 10.253 6.71429 10.3571 6.71429H11.0714C11.1756 6.71429 11.2612 6.74777 11.3281 6.81473C11.3951 6.8817 11.4286 6.96726 11.4286 7.07143ZM12.8571 15.1518V4.57143H2.85714V15.1518C2.85714 15.3155 2.88318 15.468 2.93527 15.6094C2.98735 15.7433 3.03943 15.8437 3.09152 15.9107C3.15104 15.9702 3.19196 16 3.21429 16H12.5C12.5223 16 12.5595 15.9702 12.6116 15.9107C12.6711 15.8437 12.7269 15.7433 12.779 15.6094C12.8311 15.468 12.8571 15.3155 12.8571 15.1518ZM5.35714 3.14286H10.3571L9.82143 1.83705C9.76935 1.77009 9.7061 1.72917 9.6317 1.71429H6.09375C6.01935 1.72917 5.9561 1.77009 5.90402 1.83705L5.35714 3.14286ZM15.7143 3.5V4.21429C15.7143 4.31845 15.6808 4.40402 15.6138 4.47098C15.5469 4.53795 15.4613 4.57143 15.3571 4.57143H14.2857V15.1518C14.2857 15.7693 14.1109 16.3013 13.7612 16.7478C13.4115 17.2016 12.9911 17.4286 12.5 17.4286H3.21429C2.72321 17.4286 2.30283 17.2091 1.95313 16.7701C1.60342 16.3385 1.42857 15.814 1.42857 15.1964V4.57143H0.357143C0.252976 4.57143 0.167411 4.53795 0.100446 4.47098C0.0334821 4.40402 0 4.31845 0 4.21429V3.5C0 3.39583 0.0334821 3.31027 0.100446 3.2433C0.167411 3.17634 0.252976 3.14286 0.357143 3.14286H3.8058L4.58705 1.27902C4.69866 1.00372 4.89955 0.769345 5.18973 0.575893C5.47991 0.38244 5.77381 0.285713 6.07143 0.285713H9.64286C9.94048 0.285713 10.2344 0.38244 10.5246 0.575893C10.8147 0.769345 11.0156 1.00372 11.1272 1.27902L11.9085 3.14286H15.3571C15.4613 3.14286 15.5469 3.17634 15.6138 3.2433C15.6808 3.31027 15.7143 3.39583 15.7143 3.5Z" fill="#3059EC" />
-                                            </svg>
-                                            <a class="font-medium text-md mx-2 text-blue-600 dark:text-blue-500">Delete</a>
-                                            @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
-                                   {
-                                       Id = user.val.Id,
-                                       Type = "Decentralization",
-                                       Name = user.val.DisplayName,
-                                       ActionName = "Delete",
-                                       ActionController = "Role"
-                                   })
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+    <!-- Mobile Search & Action Bar -->
+    <div class="lg:hidden mb-4">
+        <div class="flex items-stretch justify-end">
+            <a href="@Url.Action("CreateRoleview", "Role")" class="bg-black text-white px-4 h-10 text-[11px] font-bold uppercase flex items-center gap-1 active:invert transition-all cursor-pointer rounded-none">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add</span>ADD
+            </a>
         </div>
     </div>
+
+    <!-- Desktop Data Grid -->
+    <div class="hidden lg:flex flex-col border border-[#D1D1D1] bg-white rounded-none">
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-[#F5F5F5]">
+                    <tr class="border-b border-[#D1D1D1]">
+                        <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-16 text-center">No</th>
+                        <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-48">ID</th>
+                        <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Group Name</th>
+                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase border-r border-[#D1D1D1]">Permissions</th>
+                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-40">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#D1D1D1]">
+                    @foreach (var user in Model.Data.Select((val, index) => new { val, index = index + 1 }))
+                    {
+                        <tr class="hover:bg-[#F8F8F8] transition-colors border-b border-[#D1D1D1]">
+                            <td class="px-4 py-3 font-mono text-[10px] text-[#4c4546] border-r border-[#D1D1D1] text-center font-bold">@user.index</td>
+                            <td class="px-4 py-3 font-mono text-[10px] text-[#4c4546] border-r border-[#D1D1D1] font-bold">@user.val.Id</td>
+                            <td class="px-4 py-3 text-[11px] text-black border-r border-[#D1D1D1] font-bold">@user.val.DisplayName</td>
+                            <td class="px-4 py-3 text-[11px] text-[#4c4546] border-r border-[#D1D1D1]" style="max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                @user.val.PermissionsResponse
+                            </td>
+                            <td class="px-4 py-3 text-[11px] text-black">
+                                <div class="flex items-center gap-4">
+                                    <a href="@Url.Action("Detail", "Role", new { id = user.val.Id })" class="text-black font-bold uppercase tracking-wider hover:underline">Edit</a>
+                                    <button type="button" data-modal-target="confirmDelete-@user.val.Id" data-modal-toggle="confirmDelete-@user.val.Id" class="text-[#E62429] font-bold uppercase tracking-wider hover:underline bg-transparent border-none p-0 cursor-pointer">
+                                        Remove
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mobile Stacked List -->
+    <div class="lg:hidden flex flex-col gap-4">
+        @foreach (var user in Model.Data.Select((val, index) => new { val, index = index + 1 }))
+        {
+            <div class="border border-[#D1D1D1] bg-white p-4 flex flex-col gap-3 rounded-none shadow-none font-geist">
+                <div class="flex justify-between items-start border-b border-[#F1F1F1] pb-2">
+                    <div class="flex flex-col">
+                        <span class="font-mono text-[9px] text-[#7e7576] uppercase font-bold">NO. @user.index</span>
+                        <h3 class="font-bold text-[13px] text-black uppercase tracking-tight">@user.val.DisplayName</h3>
+                    </div>
+                    <span class="font-mono text-[9px] bg-[#F5F5F5] border border-[#D1D1D1] px-2 py-0.5 text-[#4c4546] font-bold">ID: @user.val.Id</span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="font-mono text-[9px] text-[#7e7576] uppercase font-bold">Permissions</span>
+                    <p class="text-[11px] text-[#4c4546] break-words line-clamp-3 leading-relaxed">
+                        @user.val.PermissionsResponse
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-[#F1F1F1] pt-2 mt-1">
+                    <div class="flex gap-4">
+                        <a href="@Url.Action("Detail", "Role", new { id = user.val.Id })" class="text-[11px] font-bold text-black uppercase tracking-wider hover:underline">Edit</a>
+                        <button type="button" data-modal-target="confirmDelete-@user.val.Id" data-modal-toggle="confirmDelete-@user.val.Id" class="text-[11px] font-bold text-[#E62429] uppercase tracking-wider hover:underline bg-transparent border-none p-0 cursor-pointer">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="mt-4 flex justify-center py-3 border border-[#D1D1D1] bg-[#F5F5F5] rounded-none shadow-none">
+        @Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model.CurrentPage, TotalPage = Model.TotalPages, PageSize = Model.PageSize, HasNext = Model.HasNext, HasPrevious = Model.HasPrevious, TotalItem = Model.TotalCount })
+    </div>
+
+    <!-- Modal Containers (Rendered once per Role to avoid duplicate IDs) -->
+    @foreach (var role in Model.Data)
+    {
+        @Html.Partial("_ConfirmDeletePartial", new ConfirmDeleteViewModel()
+        {
+            Id = role.Id,
+            Type = "Decentralization",
+            Name = role.DisplayName,
+            ActionName = "Delete",
+            ActionController = "Role"
+        })
+    }
 </div>
-@Html.Partial("_Pagination", new PaginationViewModel() { CurrentPage = Model.CurrentPage, TotalPage = Model.TotalPages, PageSize = Model.PageSize, HasNext = Model.HasNext, HasPrevious = Model.HasPrevious, TotalItem = Model.TotalCount })
+
+<style>
+    /* Swiss Style CSS Overrides for dynamically generated confirm modal */
+    div[id^="confirmDelete-"] {
+        z-index: 100 !important;
+        border-radius: 0px !important;
+    }
+    div[id^="confirmDelete-"] .relative.w-full {
+        border-radius: 0px !important;
+        box-shadow: none !important;
+    }
+    div[id^="confirmDelete-"] button {
+        border-radius: 0px !important;
+    }
+    .hrm-modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.6) !important;
+    }
+</style>

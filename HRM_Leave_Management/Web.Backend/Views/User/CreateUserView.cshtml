@@ -1,107 +1,184 @@
-﻿@model ManageUserViewModel
+@model ManageUserViewModel
 
 @{
     ViewBag.Title = "Add User";
     Layout = "_Layout";
 }
 
-<nav class="flex mb-4" aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-            <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                </svg>
-            </a>
-        </li>
-        <li>
-            <div class="flex items-center">
-                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Account</span>
-            </div>
-        </li>
-        <li>
-            <div class="flex items-center">
-                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <a href="/user" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">The user list</a>
-            </div>
-        </li>
-        <li aria-current="page">
-            <div class="flex items-center">
-                <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Add User</a>
-            </div>
-        </li>
-    </ol>
-</nav>
+<div class="w-full flex flex-col font-geist gap-6">
+    <!-- Header Section with Back to List Button -->
+    <div class="flex flex-row items-center justify-between border-b border-[#D1D1D1] pb-4">
+        <div>
+            <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">Create User</h2>
+            <p class="text-[14px] text-[#4c4546]">Configure account details and assign permissions for the new user profile.</p>
+        </div>
+        <a href="/user" class="text-[11px] font-bold uppercase tracking-wider text-[#4c4546] hover:text-black transition-colors flex items-center gap-1 select-none whitespace-nowrap min-w-[120px] justify-end">
+            [← BACK TO LIST]
+        </a>
+    </div>
 
-<div style="min-height: 500px" class="w-full bg-white p-4 rounded-md flex flex-col justify-between">
-    <div class="w-full flex flex-col">
-        <h1 class="text-black font-bold text-xl">Add User</h1>
-        <div class="grid grid-cols-12 gap-2 mt-3">
-            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="fullname" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Full name</label>
-                <input onchange="inputChange('fullname')" asp-for="ManageUserModel.Name" type="text" id="fullname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Full Name" required>
-                <p id="fullnameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+    <!-- Form Container -->
+    <div class="w-full bg-white border border-[#D1D1D1] p-6 lg:p-8 rounded-none">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <!-- Full Name -->
+            <div class="flex flex-col">
+                <label for="fullname" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Full name <span class="text-red-500">*</span>
+                </label>
+                <input onchange="inputChange('fullname')" asp-for="ManageUserModel.Name" type="text" id="fullname"
+                       class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] rounded-none focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5] text-black"
+                       placeholder="ENTER FULL NAME" required>
+                <p id="fullnameError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
-            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="usernameInput" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                <input onchange="inputChange('username')" asp-for="ManageUserModel.Username" type="text" id="usernameInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Username" required>
-                <p id="usernameError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+
+            <!-- Username -->
+            <div class="flex flex-col">
+                <label for="usernameInput" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Username <span class="text-red-500">*</span>
+                </label>
+                <input onchange="inputChange('username')" asp-for="ManageUserModel.Username" type="text" id="usernameInput"
+                       class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] rounded-none focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5] text-black"
+                       placeholder="ENTER USERNAME" required>
+                <p id="usernameError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
-            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="email" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                <input onchange="inputChange('email')" required asp-for="ManageUserModel.Email" type="text" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Email">
-                <p id="emailError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+
+            <!-- Email -->
+            <div class="flex flex-col">
+                <label for="email" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input onchange="inputChange('email')" required asp-for="ManageUserModel.Email" type="text" id="email"
+                       class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] rounded-none focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5] text-black"
+                       placeholder="ENTER EMAIL">
+                <p id="emailError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
-            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="RoleIds" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Group Permission</label>
+
+            <!-- Group Permission -->
+            <div class="flex flex-col">
+                <label for="RoleIds" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Group Permission <span class="text-red-500">*</span>
+                </label>
                 <select onchange="inputChange('role')" multiple asp-for="ManageUserModel.RoleIds" id="RoleIds">
                     @foreach (var op in Model.Roles)
                     {
                         <option value="@op.Id">@op.DisplayName</option>
                     }
                 </select>
-                <p id="roleError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+                <p id="roleError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
-            <div class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="password" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                <input onchange="inputChange('password')" asp-for="ManageUserModel.Password" type="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter password" required>
-                <p id="passwordError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+
+            <!-- Password -->
+            <div class="flex flex-col">
+                <label for="password" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Password <span class="text-red-500">*</span>
+                </label>
+                <input onchange="inputChange('password')" asp-for="ManageUserModel.Password" type="password" id="password"
+                       class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] rounded-none focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5] text-black"
+                       placeholder="ENTER PASSWORD" required>
+                <p id="passwordError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
-            <div onchange="inputChange('rePassword')" class="2xl:col-span-6 xl:col-span-6 lg:col-span-6 md:col-span-6 col-span-12">
-                <label for="rePassword" class="required-label block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm Password</label>
-                <input asp-for="ManageUserModel.Password" type="password" id="rePassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter re-password" required>
-                <p id="rePasswordError" class="mt-2 text-sm text-red-600 dark:text-red-500"></p>
+
+            <!-- Confirm Password -->
+            <div class="flex flex-col">
+                <label for="rePassword" class="block mb-2 font-mono text-[10px] font-bold text-[#4c4546] uppercase tracking-wider">
+                    Confirm Password <span class="text-red-500">*</span>
+                </label>
+                <input onchange="inputChange('rePassword')" asp-for="ManageUserModel.Password" type="password" id="rePassword"
+                       class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] rounded-none focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5] text-black"
+                       placeholder="CONFIRM PASSWORD" required>
+                <p id="rePasswordError" class="mt-1 font-mono text-[10px] font-bold text-red-600 uppercase"></p>
             </div>
         </div>
-    </div>
-    <div class="w-full flex justify-content-end">
-        <a href="/user" type="button" class="mx-1 border border-wnz-yellow block rounded bg-white px-3 py-2 text-sm font-medium text-black transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-            <div class="flex justify-center items-center">
-                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14.8887 8.41675C14.8887 9.28133 14.5579 10.4558 13.8965 11.9402C13.8809 11.9766 13.8522 12.0391 13.8105 12.1277C13.7741 12.2162 13.7402 12.2944 13.709 12.3621C13.6777 12.4298 13.6439 12.4871 13.6074 12.5339C13.5449 12.6225 13.472 12.6667 13.3887 12.6667C13.3105 12.6667 13.248 12.6407 13.2012 12.5886C13.1595 12.5365 13.1387 12.4714 13.1387 12.3933C13.1387 12.3464 13.1439 12.2761 13.1543 12.1824C13.1699 12.0938 13.1777 12.0339 13.1777 12.0027C13.2038 11.6485 13.2168 11.3282 13.2168 11.0417C13.2168 10.5157 13.1699 10.0444 13.0762 9.62769C12.9876 9.21102 12.8626 8.85164 12.7012 8.54956C12.5397 8.24227 12.3314 7.97925 12.0762 7.7605C11.821 7.53654 11.5449 7.35425 11.248 7.21362C10.9564 7.073 10.61 6.96362 10.209 6.8855C9.81315 6.80216 9.41211 6.74487 9.00586 6.71362C8.60482 6.68237 8.14909 6.66675 7.63867 6.66675H5.88867V8.66675C5.88867 8.80216 5.83919 8.91935 5.74023 9.01831C5.64128 9.11727 5.52409 9.16675 5.38867 9.16675C5.25326 9.16675 5.13607 9.11727 5.03711 9.01831L1.03711 5.01831C0.938151 4.91935 0.888672 4.80216 0.888672 4.66675C0.888672 4.53133 0.938151 4.41414 1.03711 4.31519L5.03711 0.315185C5.13607 0.216227 5.25326 0.166748 5.38867 0.166748C5.52409 0.166748 5.64128 0.216227 5.74023 0.315185C5.83919 0.414143 5.88867 0.531331 5.88867 0.666747V2.66675H7.63867C11.3522 2.66675 13.6309 3.71623 14.4746 5.81519C14.7507 6.5131 14.8887 7.38029 14.8887 8.41675Z" fill="black"/>
-                </svg>
-                <span class="mx-1">Cancel</span>
-            </div>
-        </a>
-        <button id="saveButton" type="submit" class="mx-1 block rounded bg-wnz-yellow px-3 py-2 text-sm font-medium text-white transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-            <div class="flex justify-center items-center">
-                <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 11.6667H9V8.66675H3V11.6667ZM10 11.6667H11V4.66675C11 4.59383 10.974 4.49487 10.9219 4.36987C10.8698 4.23966 10.8177 4.14852 10.7656 4.09644L8.57031 1.90112C8.51823 1.84904 8.42969 1.79696 8.30469 1.74487C8.17969 1.69279 8.07813 1.66675 8 1.66675V4.91675C8 5.12508 7.92708 5.30216 7.78125 5.448C7.63542 5.59383 7.45833 5.66675 7.25 5.66675H2.75C2.54167 5.66675 2.36458 5.59383 2.21875 5.448C2.07292 5.30216 2 5.12508 2 4.91675V1.66675H1V11.6667H2V8.41675C2 8.20841 2.07292 8.03133 2.21875 7.8855C2.36458 7.73966 2.54167 7.66675 2.75 7.66675H9.25C9.45833 7.66675 9.63542 7.73966 9.78125 7.8855C9.92708 8.03133 10 8.20841 10 8.41675V11.6667ZM7 4.41675V1.91675C7 1.84904 6.97396 1.79175 6.92188 1.74487C6.875 1.69279 6.81771 1.66675 6.75 1.66675H5.25C5.18229 1.66675 5.1224 1.69279 5.07031 1.74487C5.02344 1.79175 5 1.84904 5 1.91675V4.41675C5 4.48446 5.02344 4.54435 5.07031 4.59644C5.1224 4.64331 5.18229 4.66675 5.25 4.66675H6.75C6.81771 4.66675 6.875 4.64331 6.92188 4.59644C6.97396 4.54435 7 4.48446 7 4.41675ZM12 4.66675V11.9167C12 12.1251 11.9271 12.3022 11.7813 12.448C11.6354 12.5938 11.4583 12.6667 11.25 12.6667H0.75C0.541667 12.6667 0.364583 12.5938 0.21875 12.448C0.0729167 12.3022 0 12.1251 0 11.9167V1.41675C0 1.20841 0.0729167 1.03133 0.21875 0.885497C0.364583 0.739664 0.541667 0.666747 0.75 0.666747H8C8.20833 0.666747 8.4375 0.718831 8.6875 0.822998C8.9375 0.927165 9.13542 1.05216 9.28125 1.198L11.4688 3.3855C11.6146 3.53133 11.7396 3.72925 11.8438 3.97925C11.9479 4.22925 12 4.45841 12 4.66675Z" fill="white"/>
-                </svg>
-                <span class="mx-1">Save</span>
-            </div>
-        </button>
-    </div>
 
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 mt-6 border-t border-[#D1D1D1] pt-6">
+            <a href="/user" class="h-10 px-6 border border-[#D1D1D1] text-black text-[11px] font-bold uppercase tracking-widest hover:bg-neutral-50 transition-all flex items-center justify-center cursor-pointer rounded-none whitespace-nowrap select-none">
+                Cancel
+            </a>
+            <button id="saveButton" type="submit" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center cursor-pointer rounded-none border border-black select-none">
+                Save
+            </button>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* SumoSelect Overrides for Swiss Design Parity */
+    .SumoSelect {
+        width: 100% !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+    }
+    .SumoSelect > .CaptionCont {
+        border-radius: 0px !important;
+        border: 1px solid #D1D1D1 !important;
+        min-height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 16px !important;
+        background-color: #fff !important;
+        box-shadow: none !important;
+    }
+    .SumoSelect > .CaptionCont > span {
+        color: #000 !important;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 11px;
+    }
+    .SumoSelect > .CaptionCont > span.placeholder {
+        color: #cfc4c5 !important;
+        font-style: normal !important;
+        font-weight: normal;
+        text-transform: uppercase;
+    }
+    .SumoSelect > .CaptionCont > label {
+        border-left: none !important;
+        background-color: transparent !important;
+    }
+    .SumoSelect > .CaptionCont > label > i {
+        background-image: none !important;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #000;
+        width: 0;
+        height: 0;
+        display: inline-block;
+    }
+    .SumoSelect.open > .CaptionCont > label > i {
+        border-top: none;
+        border-bottom: 4px solid #000;
+    }
+    .SumoSelect > .optWrapper {
+        border-radius: 0px !important;
+        border: 1px solid #D1D1D1 !important;
+        box-shadow: none !important;
+        top: 40px !important;
+    }
+    .SumoSelect > .optWrapper > .options li.opt {
+        border-bottom: 1px solid #F5F5F5 !important;
+        padding: 10px 16px !important;
+        border-radius: 0px !important;
+    }
+    .SumoSelect > .optWrapper > .options li.opt label {
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #000;
+    }
+    .SumoSelect > .optWrapper > .options li.opt.selected {
+        background-color: #F5F5F5 !important;
+    }
+    .SumoSelect > .optWrapper > .options li.opt:hover {
+        background-color: #F8F8F8 !important;
+    }
+    .SumoSelect > .optWrapper.multiple > .options li.opt span i {
+        border-radius: 0px !important;
+        border: 1px solid #D1D1D1 !important;
+    }
+    .SumoSelect > .optWrapper.multiple > .options li.opt.selected span i {
+        background-color: #000 !important;
+        border-color: #000 !important;
+    }
+</style>
 
 @section Scripts
 {
@@ -109,11 +186,12 @@
         $(document).ready(function (){
             $('#RoleIds').SumoSelect({
                 placeholder: 'select permission',
+                floatWidth: 0
             });
         })
         const loading = $("#loadingSpinner");
         loading.hide();
-        
+
         const saveButton = $('#saveButton')
         let isFormValid = false;
         const fullnameError =  $('#fullnameError')
@@ -122,7 +200,7 @@
         const roleError  =  $('#roleError')
         const passwordError =  $('#passwordError')
         const rePasswordError =  $('#rePasswordError')
-        
+
         function resetFormError(){
             fullnameError.hide();
             usernameError.hide();
@@ -131,7 +209,7 @@
             passwordError.hide();
             rePasswordError.hide();
         }
-        
+
         function inputChange(inputName){
             switch (inputName){
                 case 'fullname':
@@ -154,64 +232,64 @@
                     break;
             }
         }
-        
+
         resetFormError()
-        
+
         function formValidate(){
-            
+
             resetFormError();
-            
+
             const fullname = $('#fullname').val();
             const username = $('#usernameInput').val()
             const email = $('#email').val()
-            const password = $('#password ').val()
+            const password = $('#password').val()
             const rePassword = $('#rePassword').val()
-            const role = $('#RoleIds ').val()
-            
+            const role = $('#RoleIds').val()
+
             const errors = [];
-            
+
             if (fullname === '' || !fullname){
                 const error = 'Please Enter Full Name'
                 fullnameError.show();
                 fullnameError.text(error);
                 errors.push(error);
             }
-            
+
             if (username === '' || !username){
                 const error = 'Please Enter Username'
                 usernameError.show();
                 usernameError.text(error);
                 errors.push(error);
             }
-            
-            
+
+
             if (email === null || !email){
                 const error = 'Please Enter email'
                 emailError.show();
                 emailError.text(error);
                 errors.push(error);
             }
-            
+
             if (password === null || !password){
                 const error = 'Please Enter Password'
                 passwordError.show();
                 passwordError.text(error);
                 errors.push(error);
             }
-            
+
             if (rePassword === null || !rePassword){
                 const error = 'Please Enter Re-Password'
                 rePasswordError.show();
                 rePasswordError.text(error);
                 errors.push(error);
             }
-            
+
             if (password && rePassword){
                 if (password !== rePassword){
                     const error = 'Password does not match'
                     rePasswordError.show();
                     rePasswordError.text(error);
-                    errors.push(error);   
+                    errors.push(error);
                 }
             }
             if(role.length <= 0){
@@ -220,28 +298,28 @@
                 roleError.text(error);
                 errors.push(error);
             }
-            
+
             isFormValid = errors.length === 0;
         }
-        
+
         const submitButton = $('#submitButton')
-        
+
         saveButton.on('click', (event) => {
             event.preventDefault();
             formValidate();
             if(!isFormValid){
                 return;
             }
-            
+
             const loadingOverlay = $('#loadingOverlay');
             loadingOverlay.show();
-            
+
             const fullname = $("#fullname").val();
             const username = $("#usernameInput").val();
             const email = $("#email").val();
             const roleIds = $("#RoleIds").val();
-            const password = $("#password ").val();
-            
+            const password = $("#password").val();
+
             let request = {
                  name: fullname,
                  username,
@@ -249,9 +327,9 @@
                  password,
                  roleIds
             }
-            
+
             const toastContainer = $('#toast-container')
-            
+
             $.ajax({
                 type: "POST",
                 url:  '/User/Create',
@@ -282,7 +360,7 @@
                 }
             })
         })
-        
+
         function debounce(func, timeout = 500){
           let timer;
           return (...args) => {
@@ -290,6 +368,6 @@
             timer = setTimeout(() => { func.apply(this, args); }, timeout);
           };
         }
-       
+
     </script>
 }

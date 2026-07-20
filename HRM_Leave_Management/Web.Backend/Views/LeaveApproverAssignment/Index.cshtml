@@ -6,122 +6,188 @@
     bool canUpdate = ViewBag.CanUpdate ?? false;
 }
 
-<div class="w-full">
-    <div class="w-full flex flex-col">
-        <!-- Breadcrumb -->
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Leave Management</span>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Approval Configuration</a>
-                    </div>
-                </li>
-            </ol>
-        </nav>
+<div class="w-full flex flex-col font-geist pb-24">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">APPROVAL CONFIGURATIONS</h2>
+        <p class="text-[14px] text-[#4c4546]">Configure the assignment process for leave request approvers based on department and position.</p>
+    </div>
 
-        <!-- Main Card -->
-        <div style="min-height: 543px" class="bg-white w-full p-6 rounded-lg mt-5 flex flex-col justify-between shadow-sm border border-gray-200">
-            <div class="w-full">
-                <!-- Header -->
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-200">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">Leave Approval Configuration</h2>
-                        <p class="text-sm text-gray-500 mt-1">Manage the assignment process for leave request approvers based on department and position.</p>
-                    </div>
-                    @if (canUpdate)
+    <!-- Search & Action Bar -->
+    <!-- Desktop Search & Action Bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-4">
+        <div class="w-[400px] relative">
+            <input id="assignmentSearchInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full h-10 bg-white border border-[#D1D1D1] px-4 font-mono text-[11px] focus:outline-none focus:border-black transition-colors placeholder:text-[#cfc4c5]" placeholder="SEARCH CONFIGURATIONS..." type="text"/>
+            <span class="material-symbols-outlined absolute right-3 top-2.5 text-[20px] text-[#cfc4c5]">search</span>
+        </div>
+        @if (canUpdate)
+        {
+            <div>
+                <button type="button" data-modal-target="createAssignmentModal" data-modal-toggle="createAssignmentModal" class="h-10 px-8 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer rounded-none">
+                    + Create Configuration
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Mobile Search & Action Bar -->
+    <div class="lg:hidden mb-4">
+        <div class="flex items-stretch gap-0 border border-[#D1D1D1]">
+            <div class="flex-grow flex items-center bg-white px-3 border-r border-[#D1D1D1] h-10">
+                <span class="material-symbols-outlined text-[#4c4546] mr-2" style="font-size: 16px;">search</span>
+                <input id="mobileAssignmentSearchInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full bg-transparent border-none focus:ring-0 text-[11px] placeholder:text-[#4c4546] p-0 font-medium" placeholder="SEARCH CONFIGURATIONS" type="text"/>
+            </div>
+            @if (canUpdate)
+            {
+                <button type="button" data-modal-target="createAssignmentModal" data-modal-toggle="createAssignmentModal" class="bg-black text-white px-4 h-10 text-[11px] font-bold uppercase flex items-center gap-1 active:invert transition-all cursor-pointer rounded-none">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">add</span>CREATE
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Desktop Data Grid -->
+    <div class="hidden lg:flex flex-col border border-[#D1D1D1] bg-white">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-[#F5F5F5]">
+                <tr class="border-b border-[#D1D1D1]">
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-16 text-center">No</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black border-r border-[#D1D1D1]">Approver</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black border-r border-[#D1D1D1]">Target Department</th>
+                    <th class="px-4 py-3 font-bold text-[11px] text-black border-r border-[#D1D1D1]">Target Position</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase w-48 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1]">
+                @if (Model == null || !Model.Any())
+                {
+                    <tr class="assignment-empty-row">
+                        <td colspan="5" class="px-4 py-8 text-center text-[12px] text-gray-500 font-medium">
+                            No approval configurations have been created yet.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var assignment in Model.Select((val, index) => new { val, index = index + 1 }))
                     {
-                        <div class="mt-3 md:mt-0 flex justify-end">
-                            <button type="button" data-modal-target="createAssignmentModal" data-modal-toggle="createAssignmentModal"
-                                    class="inline-block rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:scale-105 hover:shadow-xl focus:outline-none focus:ring active:bg-indigo-500">
-                                Add New Configuration
-                            </button>
-                        </div>
-                    }
-                </div>
+                        var approverName = assignment.val.Approver?.FullName ?? "";
+                        var approverCode = assignment.val.Approver?.EmployeeCode ?? "";
+                        var deptName = assignment.val.TargetDepartment?.Name ?? "All Departments";
+                        var posName = assignment.val.TargetPosition?.Name ?? "All Positions";
 
-                <!-- Table Content -->
-                <div class="overflow-x-auto w-full h-full mt-4">
-                    <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
-                        <thead class="bg-[#F4F7FC]">
-                            <tr>
-                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-center w-16">No</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Approver</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Target Department</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-left">Target Position</th>
-                                <th class="whitespace-nowrap px-4 py-3 font-semibold text-black text-center w-36">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @if (Model == null || !Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center py-8 text-gray-500 font-medium">
-                                        No approval configurations have been created yet.
-                                    </td>
-                                </tr>
-                            }
-                            else
-                            {
-                                @foreach (var assignment in Model.Select((val, index) => new { val, index = index + 1 }))
-                                {
-                                    <tr class="hover:bg-gray-50 transition duration-150">
-                                        <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-950 text-center">
-                                            @assignment.index.ToString()
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-950 font-semibold">
-                                            @(assignment.val.Approver?.FullName) (@(assignment.val.Approver?.EmployeeCode))
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
-                                            @(assignment.val.TargetDepartment?.Name ?? "All Departments")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
-                                            @(assignment.val.TargetPosition?.Name ?? "All Positions")
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-center">
-                                            <div class="flex justify-center items-center gap-3">
-                                                @if (canUpdate)
-                                                {
-                                                    <button type="button" 
-                                                            onclick="openEditModal('@assignment.val.Id.Value', '@assignment.val.ApproverEmployeeId.Value', '@(assignment.val.TargetDepartmentId?.Value)', '@(assignment.val.TargetPositionId?.Value)')"
-                                                            class="inline-flex items-center rounded bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-600/20 hover:bg-indigo-100 transition duration-150 cursor-pointer">
-                                                        Edit
-                                                    </button>
-                                                    <button type="button" 
-                                                            onclick="deleteAssignment('@assignment.val.Id.Value')"
-                                                            class="inline-flex items-center rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20 hover:bg-red-100 transition duration-150 cursor-pointer">
-                                                        Delete
-                                                    </button>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-gray-400 text-xs italic">No Permission</span>
-                                                }
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                        <tr class="hover:bg-[#f4f3f3] transition-colors assignment-row"
+                            data-approver="@approverName"
+                            data-approver-code="@approverCode"
+                            data-dept="@deptName"
+                            data-pos="@posName"
+                            style="transition: transform 0.15s ease;">
+                             <td class="px-4 py-3 font-mono text-[11px] font-bold border-r border-[#D1D1D1] text-center">@assignment.index</td>
+                             <td class="px-4 py-3 font-bold text-[12px] text-black border-r border-[#D1D1D1]">
+                                 @approverName <span class="font-mono text-[10px] text-[#4c4546] font-bold">(@approverCode)</span>
+                             </td>
+                             <td class="px-4 py-3 text-[12px] text-[#4c4546] border-r border-[#D1D1D1]">@deptName</td>
+                             <td class="px-4 py-3 text-[12px] text-[#4c4546] border-r border-[#D1D1D1]">@posName</td>
+                             <td class="px-4 py-3 whitespace-nowrap text-center">
+                                 <div class="flex justify-center space-x-3">
+                                     @if (canUpdate)
+                                     {
+                                         <a onclick="openEditModal('@assignment.val.Id.Value', '@assignment.val.ApproverEmployeeId.Value', '@(assignment.val.TargetDepartmentId?.Value)', '@(assignment.val.TargetPositionId?.Value)')"
+                                            class="text-[9px] font-bold text-black hover:text-[#E62429] uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Edit</a>
+                                         <a onclick="deleteAssignment('@assignment.val.Id.Value')"
+                                            class="text-[9px] font-bold text-swiss-red hover:opacity-70 uppercase underline decoration-[#cfc4c5] underline-offset-4 cursor-pointer" href="javascript:void(0)">Remove</a>
+                                     }
+                                     else
+                                     {
+                                         <span class="text-gray-400 text-xs italic">No Permission</span>
+                                     }
+                                 </div>
+                             </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <!-- Desktop Table Pagination Footer -->
+        <div id="desktopPaginationFooter" class="flex items-center justify-between px-4 py-3 border-t border-[#D1D1D1] bg-[#F5F5F5] font-mono text-[10px] font-bold text-[#4c4546] uppercase">
+            <div id="desktopShowingText">
+                SHOWING 0-0 OF 0 CONFIGURATIONS
+            </div>
+            <div class="flex items-center space-x-6">
+                <button type="button" id="desktopPrevBtn" class="bg-transparent border-0 p-0 font-bold hover:text-black transition-colors uppercase font-mono cursor-pointer">PREV</button>
+                <span class="text-black font-mono" id="desktopPageText">PAGE 1 OF 1</span>
+                <button type="button" id="desktopNextBtn" class="bg-transparent border-0 p-0 font-bold hover:text-black transition-colors uppercase font-mono cursor-pointer">NEXT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Stacked List -->
+    <div class="lg:hidden flex flex-col gap-4">
+        <div class="flex flex-col gap-4">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="bg-white border border-[#D1D1D1] p-6 text-center text-[12px] text-gray-500 font-medium assignment-empty-card">
+                    No approval configurations have been created yet.
                 </div>
+            }
+            else
+            {
+                @foreach (var assignment in Model)
+                {
+                    var approverName = assignment.Approver?.FullName ?? "";
+                    var approverCode = assignment.Approver?.EmployeeCode ?? "";
+                    var deptName = assignment.TargetDepartment?.Name ?? "All Departments";
+                    var posName = assignment.TargetPosition?.Name ?? "All Positions";
+
+                    <div class="bg-white border border-[#D1D1D1] p-4 flex flex-col gap-3 assignment-card"
+                         data-approver="@approverName"
+                         data-approver-code="@approverCode"
+                         data-dept="@deptName"
+                         data-pos="@posName">
+                        <div class="flex justify-between items-start">
+                            <div class="flex flex-col">
+                                <span class="mono text-[10px] text-[#4c4546] font-bold">@approverCode</span>
+                                <h2 class="text-[16px] font-bold uppercase tracking-tight">@approverName</h2>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-[#F1F1F1] pt-3 flex flex-col gap-1 text-[12px]">
+                            <div class="flex justify-between">
+                                <span class="text-[#4c4546]">Department:</span>
+                                <span class="font-bold text-black text-right">@deptName</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#4c4546]">Position:</span>
+                                <span class="font-bold text-black text-right">@posName</span>
+                            </div>
+                        </div>
+
+                        @if (canUpdate)
+                        {
+                            <div class="flex gap-4 border-t border-[#F1F1F1] pt-3">
+                                <button type="button"
+                                        onclick="openEditModal('@assignment.Id.Value', '@assignment.ApproverEmployeeId.Value', '@(assignment.TargetDepartmentId?.Value)', '@(assignment.TargetPositionId?.Value)')"
+                                        class="text-[10px] font-bold uppercase hover:text-black transition-colors cursor-pointer bg-transparent border-none p-0">[EDIT]</button>
+                                <button type="button"
+                                        onclick="deleteAssignment('@assignment.Id.Value')"
+                                        class="ml-auto text-[#E62429] text-[10px] font-bold uppercase hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0">[REMOVE]</button>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Mobile Pagination Footer -->
+        <div id="mobilePaginationFooter" class="mt-6 border border-[#D1D1D1] bg-white p-4 flex flex-col gap-3 font-mono text-[11px]">
+            <div class="text-center font-bold text-black uppercase" id="mobileShowingText">
+                SHOWING 0-0 OF 0 CONFIGURATIONS
+            </div>
+            <div class="grid grid-cols-3 border-t border-[#D1D1D1] pt-3 text-center font-bold">
+                <button type="button" id="mobilePrevBtn" class="py-2 hover:bg-black hover:text-white transition-colors bg-transparent border-0 cursor-pointer">PREV</button>
+                <span class="py-2 text-black" id="mobilePageText">PAGE 1 OF 1</span>
+                <button type="button" id="mobileNextBtn" class="py-2 hover:bg-black hover:text-white transition-colors bg-transparent border-0 cursor-pointer">NEXT</button>
             </div>
         </div>
     </div>
@@ -132,19 +198,16 @@
 {
     <div id="createAssignmentModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="createAssignmentModal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="px-6 py-6 lg:px-8">
-                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add New Approval Configuration</h3>
-                    <form id="createAssignmentForm" class="space-y-4">
+            <div class="relative bg-white rounded-none border border-[#D1D1D1] shadow-none">
+                <div class="flex items-center justify-between bg-black text-white px-4 py-3 rounded-none border-b border-[#D1D1D1]">
+                    <h3 class="text-[12px] font-bold uppercase tracking-wider font-mono">Create Approval Configuration</h3>
+                    <button type="button" class="text-[#E62429] hover:opacity-85 font-mono text-[11px] font-bold uppercase cursor-pointer bg-transparent border-none" data-modal-hide="createAssignmentModal">CLOSE</button>
+                </div>
+                <div class="px-6 py-6">
+                    <form id="createAssignmentForm" class="space-y-4 font-geist">
                         <div>
-                            <label for="createApprover" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Approver <span class="text-red-500">*</span></label>
-                            <select id="createApprover" name="ApproverEmployeeId" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="createApprover" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Approver <span class="text-[#E62429]">*</span></label>
+                            <select id="createApprover" name="ApproverEmployeeId" required class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">-- Select Approver --</option>
                                 @if (ViewBag.Employees != null)
                                 {
@@ -156,8 +219,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="createDepartment" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Department</label>
-                            <select id="createDepartment" name="targetDepartmentId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="createDepartment" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Target Department</label>
+                            <select id="createDepartment" name="targetDepartmentId" class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">All Departments</option>
                                 @if (ViewBag.Departments != null)
                                 {
@@ -169,8 +232,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="createPosition" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Position</label>
-                            <select id="createPosition" name="targetPositionId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="createPosition" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Target Position</label>
+                            <select id="createPosition" name="targetPositionId" class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">All Positions</option>
                                 @if (ViewBag.Positions != null)
                                 {
@@ -181,7 +244,9 @@
                                 }
                             </select>
                         </div>
-                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">Save Configuration</button>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full h-10 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer rounded-none">Save Configuration</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -191,20 +256,17 @@
     <!-- Update Modal -->
     <div id="editAssignmentModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="closeEditModal()">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="px-6 py-6 lg:px-8">
-                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Update Approval Configuration</h3>
-                    <form id="editAssignmentForm" class="space-y-4">
+            <div class="relative bg-white rounded-none border border-[#D1D1D1] shadow-none">
+                <div class="flex items-center justify-between bg-black text-white px-4 py-3 rounded-none border-b border-[#D1D1D1]">
+                    <h3 class="text-[12px] font-bold uppercase tracking-wider font-mono">Update Approval Configuration</h3>
+                    <button type="button" class="text-[#E62429] hover:opacity-85 font-mono text-[11px] font-bold uppercase cursor-pointer bg-transparent border-none" onclick="closeEditModal()">CLOSE</button>
+                </div>
+                <div class="px-6 py-6">
+                    <form id="editAssignmentForm" class="space-y-4 font-geist">
                         <input type="hidden" id="editId" name="id" />
                         <div>
-                            <label for="editApprover" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Approver <span class="text-red-500">*</span></label>
-                            <select id="editApprover" name="ApproverEmployeeId" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="editApprover" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Approver <span class="text-[#E62429]">*</span></label>
+                            <select id="editApprover" name="ApproverEmployeeId" required class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">-- Select Approver --</option>
                                 @if (ViewBag.Employees != null)
                                 {
@@ -216,8 +278,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="editDepartment" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Department</label>
-                            <select id="editDepartment" name="targetDepartmentId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="editDepartment" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Target Department</label>
+                            <select id="editDepartment" name="targetDepartmentId" class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">All Departments</option>
                                 @if (ViewBag.Departments != null)
                                 {
@@ -229,8 +291,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="editPosition" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Target Position</label>
-                            <select id="editPosition" name="targetPositionId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <label for="editPosition" class="block mb-1.5 text-[11px] font-bold text-black uppercase tracking-wider">Target Position</label>
+                            <select id="editPosition" name="targetPositionId" class="w-full h-10 bg-white border border-[#D1D1D1] rounded-none px-3 text-[12px] font-medium text-black focus:outline-none focus:border-black">
                                 <option value="">All Positions</option>
                                 @if (ViewBag.Positions != null)
                                 {
@@ -241,7 +303,9 @@
                                 }
                             </select>
                         </div>
-                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition font-semibold">Update Configuration</button>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full h-10 bg-black text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer rounded-none">Update Configuration</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -251,23 +315,16 @@
     <!-- Delete Confirmation Modal -->
     <div id="deleteConfirmModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="closeDeleteConfirm()">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="p-6 text-center">
-                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                    </svg>
-                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete this approval configuration?</h3>
-                    <div class="w-full flex justify-center items-center">
-                        <button onclick="confirmDeleteAssignment()" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
-                            Confirm
-                        </button>
-                        <button onclick="closeDeleteConfirm()" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Cancel</button>
+            <div class="relative bg-white rounded-none border border-[#D1D1D1] shadow-none">
+                <div class="flex items-center justify-between bg-black text-white px-4 py-3 rounded-none border-b border-[#D1D1D1]">
+                    <h3 class="text-[12px] font-bold uppercase tracking-wider font-mono">Delete Configuration</h3>
+                    <button type="button" class="text-[#E62429] hover:opacity-85 font-mono text-[11px] font-bold uppercase cursor-pointer bg-transparent border-none" onclick="closeDeleteConfirm()">CLOSE</button>
+                </div>
+                <div class="p-6">
+                    <p class="text-[14px] text-[#4c4546] mb-6 font-medium font-geist">Are you sure you want to delete this approval configuration?</p>
+                    <div class="w-full flex justify-end gap-3 font-geist">
+                        <button onclick="closeDeleteConfirm()" type="button" class="h-10 px-6 border border-[#D1D1D1] bg-white text-black text-[11px] font-bold uppercase tracking-widest hover:bg-[#F5F5F5] cursor-pointer rounded-none">Cancel</button>
+                        <button onclick="confirmDeleteAssignment()" type="button" class="h-10 px-6 bg-[#E62429] text-white text-[11px] font-bold uppercase tracking-widest hover:opacity-95 cursor-pointer rounded-none">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -276,13 +333,133 @@
 }
 
 <script>
+    let currentPage = 1;
+    const pageSize = 5;
+
+    function applyFilterAndPagination() {
+        const searchInput = $('#assignmentSearchInput');
+        const searchTerm = searchInput.length ? (searchInput.val() || '').toLowerCase().trim() : '';
+
+        const matchedDesktopRows = [];
+        const matchedMobileCards = [];
+
+        $('.assignment-row').each(function() {
+            const approver = ($(this).attr('data-approver') || '').toLowerCase();
+            const approverCode = ($(this).attr('data-approver-code') || '').toLowerCase();
+            const dept = ($(this).attr('data-dept') || '').toLowerCase();
+            const pos = ($(this).attr('data-pos') || '').toLowerCase();
+
+            const matches = approver.includes(searchTerm) ||
+                            approverCode.includes(searchTerm) ||
+                            dept.includes(searchTerm) ||
+                            pos.includes(searchTerm);
+
+            if (matches) {
+                matchedDesktopRows.push(this);
+            } else {
+                $(this).hide();
+            }
+        });
+
+        $('.assignment-card').each(function() {
+            const approver = ($(this).attr('data-approver') || '').toLowerCase();
+            const approverCode = ($(this).attr('data-approver-code') || '').toLowerCase();
+            const dept = ($(this).attr('data-dept') || '').toLowerCase();
+            const pos = ($(this).attr('data-pos') || '').toLowerCase();
+
+            const matches = approver.includes(searchTerm) ||
+                            approverCode.includes(searchTerm) ||
+                            dept.includes(searchTerm) ||
+                            pos.includes(searchTerm);
+
+            if (matches) {
+                matchedMobileCards.push(this);
+            } else {
+                $(this).hide();
+            }
+        });
+
+        const totalMatches = matchedDesktopRows.length;
+        const totalPages = Math.ceil(totalMatches / pageSize) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        const startIdx = (currentPage - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, totalMatches);
+
+        // Hide all rows/cards first
+        $('.assignment-row').hide();
+        $('.assignment-card').hide();
+
+        // Show current page items
+        for (let i = startIdx; i < endIdx; i++) {
+            $(matchedDesktopRows[i]).show();
+            $(matchedMobileCards[i]).show();
+        }
+
+        // Show/hide empty messages
+        if (totalMatches === 0) {
+            // Show empty messages if no match
+            if ($('.assignment-empty-row').length === 0) {
+                $('tbody').append('<tr class="assignment-empty-row"><td colspan="5" class="px-4 py-8 text-center text-[12px] text-gray-500 font-medium">No matching configuration found.</td></tr>');
+            } else {
+                $('.assignment-empty-row').show();
+            }
+
+            if ($('.assignment-empty-card').length === 0) {
+                $('.assignment-card').parent().append('<div class="bg-white border border-[#D1D1D1] p-6 text-center text-[12px] text-gray-500 font-medium assignment-empty-card">No matching configuration found.</div>');
+            } else {
+                $('.assignment-empty-card').show();
+            }
+        } else {
+            $('.assignment-empty-row').remove();
+            $('.assignment-empty-card').remove();
+        }
+
+        // Update labels
+        const showingFrom = totalMatches === 0 ? 0 : startIdx + 1;
+        const showingTo = endIdx;
+        const showingLabel = `SHOWING ${showingFrom}-${showingTo} OF ${totalMatches} CONFIGURATIONS`;
+
+        $('#desktopShowingText').text(showingLabel);
+        $('#mobileShowingText').text(showingLabel);
+
+        const pageLabel = `PAGE ${currentPage} OF ${totalPages}`;
+        $('#desktopPageText').text(pageLabel);
+        $('#mobilePageText').text(pageLabel);
+
+        // Enable/Disable buttons styling
+        if (currentPage <= 1) {
+            $('#desktopPrevBtn, #mobilePrevBtn')
+                .addClass('opacity-50 pointer-events-none')
+                .removeClass('hover:text-black hover:bg-black hover:text-white');
+        } else {
+            $('#desktopPrevBtn, #mobilePrevBtn')
+                .removeClass('opacity-50 pointer-events-none');
+        }
+
+        if (currentPage >= totalPages) {
+            $('#desktopNextBtn, #mobileNextBtn')
+                .addClass('opacity-50 pointer-events-none')
+                .removeClass('hover:text-black hover:bg-black hover:text-white');
+        } else {
+            $('#desktopNextBtn, #mobileNextBtn')
+                .removeClass('opacity-50 pointer-events-none');
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const createForm = document.getElementById("createAssignmentForm");
         if (createForm) {
             createForm.addEventListener("submit", function(e) {
                 e.preventDefault();
                 const formData = new FormData(createForm);
-                
+
                 fetch("/leave-approver-assignment/create", {
                     method: "POST",
                     body: formData
@@ -308,7 +485,7 @@
             editForm.addEventListener("submit", function(e) {
                 e.preventDefault();
                 const formData = new FormData(editForm);
-                
+
                 fetch("/leave-approver-assignment/update", {
                     method: "POST",
                     body: formData
@@ -406,4 +583,65 @@
             showToast("An error occurred while deleting the configuration.", false);
         });
     }
+
+    $(document).ready(function() {
+        // Sync search input values
+        $('#assignmentSearchInput').on('input', function() {
+            $('#mobileAssignmentSearchInput').val($(this).val());
+            currentPage = 1;
+            applyFilterAndPagination();
+        });
+
+        $('#mobileAssignmentSearchInput').on('input', function() {
+            $('#assignmentSearchInput').val($(this).val());
+            currentPage = 1;
+            applyFilterAndPagination();
+        });
+
+        // Hook prev buttons
+        $(document).on('click', '#desktopPrevBtn, #mobilePrevBtn', function(e) {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilterAndPagination();
+            }
+        });
+
+        // Hook next buttons
+        $(document).on('click', '#desktopNextBtn, #mobileNextBtn', function(e) {
+            e.preventDefault();
+            const searchInput = $('#assignmentSearchInput');
+            const searchTerm = searchInput.length ? (searchInput.val() || '').toLowerCase().trim() : '';
+            let totalMatches = 0;
+            $('.assignment-row').each(function() {
+                const approver = ($(this).attr('data-approver') || '').toLowerCase();
+                const approverCode = ($(this).attr('data-approver-code') || '').toLowerCase();
+                const dept = ($(this).attr('data-dept') || '').toLowerCase();
+                const pos = ($(this).attr('data-pos') || '').toLowerCase();
+                if (approver.includes(searchTerm) || approverCode.includes(searchTerm) || dept.includes(searchTerm) || pos.includes(searchTerm)) {
+                    totalMatches++;
+                }
+            });
+            const totalPages = Math.ceil(totalMatches / pageSize) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFilterAndPagination();
+            }
+        });
+
+        // Row slide-in hover micro-interactions
+        $(document).on('mouseenter', '.assignment-row', function() {
+            $(this).css({
+                'transform': 'translateX(4px)',
+                'transition': 'transform 0.15s ease'
+            });
+        }).on('mouseleave', '.assignment-row', function() {
+            $(this).css({
+                'transform': 'translateX(0px)'
+            });
+        });
+
+        // Initial pagination setup
+        applyFilterAndPagination();
+    });
 </script>
