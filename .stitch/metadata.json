@@ -201,6 +201,13 @@
       "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
       "status": "GENERATED_FOR_REVIEW"
     },
+    "position_list_swiss_international_mobile": {
+      "id": "e7f3855fe06442768c5faec12a4fdfec",
+      "sourceScreen": "projects/17479353588209716186/screens/e7f3855fe06442768c5faec12a4fdfec",
+      "width": 780,
+      "height": 1454,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
     },
     "leave_request_create_modal_desktop": {
       "id": "782896a972f04dfc9f0bcc47f3cb4f82",
@@ -247,6 +254,54 @@
       "sourceScreen": "projects/17479353588209716186/screens/6d0a4188b1e74029889bc08b5a552b3c",
       "width": 780,
       "height": 2864,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_list_desktop": {
+      "id": "620ee6b4d320478a87b8d81ce4e4d6a8",
+      "sourceScreen": "projects/17479353588209716186/screens/620ee6b4d320478a87b8d81ce4e4d6a8",
+      "width": 2560,
+      "height": 2048,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_list_mobile": {
+      "id": "47a25a50787e45448378c89b7d8ec88b",
+      "sourceScreen": "projects/17479353588209716186/screens/47a25a50787e45448378c89b7d8ec88b",
+      "width": 780,
+      "height": 1778,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_import_preview_desktop": {
+      "id": "f78119eb8ce845eaae5dae9c9c855a8f",
+      "sourceScreen": "projects/17479353588209716186/screens/f78119eb8ce845eaae5dae9c9c855a8f",
+      "width": 2560,
+      "height": 2048,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_import_preview_mobile": {
+      "id": "f8bf01ec2ca34b6ea17e4bf648f5a5e3",
+      "sourceScreen": "projects/17479353588209716186/screens/f8bf01ec2ca34b6ea17e4bf648f5a5e3",
+      "width": 780,
+      "height": 1778,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_import_summary_desktop": {
+      "id": "b048dc088e8647dd808a61abe8c8f6d3",
+      "sourceScreen": "projects/17479353588209716186/screens/b048dc088e8647dd808a61abe8c8f6d3",
+      "width": 2560,
+      "height": 2048,
+      "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
+      "status": "GENERATED_FOR_REVIEW"
+    },
+    "work_calendar_import_summary_mobile": {
+      "id": "4298007a8f994d81ba6bca66c32e4c32",
+      "sourceScreen": "projects/17479353588209716186/screens/4298007a8f994d81ba6bca66c32e4c32",
+      "width": 780,
+      "height": 1778,
       "designSystemAssetId": "f4fbeeb3791c4c52991dd52c4fb92635",
       "status": "GENERATED_FOR_REVIEW"
     }

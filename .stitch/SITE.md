@@ -38,9 +38,13 @@ Below is the status of the screens to be designed and generated:
 - [ ] **Leave Request Cancel Modal** (GENERATED_FOR_REVIEW) — Strict Swiss-style destructive modal for confirming leave request cancellation. (Desktop Screen ID: `4d87aaefa5e544f7bb752f6a640a781d`, Mobile Screen ID: `6ef407fb37ef4ee9b32abcef2add0149`)
 - [ ] **Leave Request List** — Directory of all leave applications with quick-action approve/reject controls.
 - [ ] **Leave Request Detail** (GENERATED_FOR_REVIEW) — Detailed timeline and context view for specific leave request approval decisions. (Desktop Screen ID: `4028307b15f649c981342540ec3b3508`, Mobile Screen ID: `6d0a4188b1e74029889bc08b5a552b3c`)
-- [ ] **WorkCalendar** — Ultra-high density grid showing active leaves and scheduling overlap for team planning.
+- [ ] **Work Calendar Module** (GENERATED_FOR_REVIEW) — Management grid and import workflows for team calendar settings.
+  - **Work Calendar List & Overrides** (Desktop Screen ID: `620ee6b4d320478a87b8d81ce4e4d6a8`, Mobile Screen ID: `47a25a50787e45448378c89b7d8ec88b`)
+  - **Work Calendar Import Preview** (Desktop Screen ID: `f78119eb8ce845eaae5dae9c9c855a8f`, Mobile Screen ID: `f8bf01ec2ca34b6ea17e4bf648f5a5e3`)
+  - **Work Calendar Import Summary** (Desktop Screen ID: `b048dc088e8647dd808a61abe8c8f6d3`, Mobile Screen ID: `4298007a8f994d81ba6bca66c32e4c32`)
 
 ## 5. Development Log
+*   **2026-07-20:** Generated Work Calendar design screens (List, Preview, Summary) under Swiss International HR for Desktop and Mobile viewports at status GENERATED_FOR_REVIEW.
 *   **2026-07-16:** Generated design screens for "Leave Request Detail" under Swiss International HR for Desktop and Mobile viewports at status GENERATED_FOR_REVIEW.
 *   **2026-07-16:** Generated design screens for "Leave Request Create Modal" and "Leave Request Cancel Modal" under Swiss International HR for Desktop and Mobile viewports at status GENERATED_FOR_REVIEW.
 *   **2026-07-14:** Refined column structure of "Position List" Desktop screen (ID: `9714fc9d811e4b3e829eeeceed9195bd`) to match exact entity database properties (Code, Name, Level), eliminating mismatch columns (Department, Count, Description).
