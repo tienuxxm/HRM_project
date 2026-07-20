@@ -36,6 +36,11 @@ coverage.*
 # Generated/code intelligence caches
 .gitnexus/
 .understand-anything/
+.codex_tmp/
+
+# Local frontend/debug scratch files
+**/tailwind.debug.config.js
+**/test.html
 
 # Local backup/reference copy, do not commit
 HRM_Leave_Management_old/
