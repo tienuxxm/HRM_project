@@ -11,8 +11,8 @@ internal sealed class CreateEmployeeCommandValidator : AbstractValidator<CreateE
             .MaximumLength(200);
 
         RuleFor(x => x.EmployeeCode)
-            .NotEmpty()
-            .MaximumLength(20);
+            .MaximumLength(20)
+            .When(x => !string.IsNullOrWhiteSpace(x.EmployeeCode));
 
         RuleFor(x => x.JoinDate)
             .NotEmpty();

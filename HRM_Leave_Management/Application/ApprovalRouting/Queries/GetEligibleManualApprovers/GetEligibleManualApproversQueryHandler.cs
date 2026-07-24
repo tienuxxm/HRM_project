@@ -54,11 +54,13 @@ internal sealed class GetEligibleManualApproversQueryHandler
                 "Approval route level assignment or policy context was not found."));
         }
 
+        var targetEmployeeId = new EmployeeId(request.TargetEmployeeId);
+
         var employeesQuery = _employeeRepository.GetEntitiesAsQueryable()
             .Include(e => e.Position)
             .Include(e => e.Department)
             .AsNoTracking()
-            .Where(e => e.IsActive && e.Id.Value != request.TargetEmployeeId && e.UserId != null);
+            .Where(e => e.IsActive && e.Id != targetEmployeeId && e.UserId != null);
 
         // Blocker 4: Strict scope matching based on policy.DepartmentId config:
         // - If department policy (DepartmentId != null): filter active employees belonging strictly to the SAME department.

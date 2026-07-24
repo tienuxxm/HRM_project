@@ -46,17 +46,25 @@ internal sealed class UnassignApprovalLevelCommandHandler
             .ToListAsync(cancellationToken);
 
         ApprovalRouteLevelAssignment? targetAssignment = null;
+        ApprovalRouteLevel? targetLevel = null;
+        ApprovalRoutePolicy? targetPolicy = null;
+
         foreach (var policy in policies)
         {
             foreach (var level in policy.Levels)
             {
                 targetAssignment = level.Assignments.FirstOrDefault(a => a.Id == targetAssignmentId);
-                if (targetAssignment != null) break;
+                if (targetAssignment != null)
+                {
+                    targetLevel = level;
+                    targetPolicy = policy;
+                    break;
+                }
             }
             if (targetAssignment != null) break;
         }
 
-        if (targetAssignment == null)
+        if (targetAssignment == null || targetLevel == null || targetPolicy == null)
         {
             return Result.Failure<UnassignApprovalLevelResponse>(
                 new Error("ApprovalRouting.LevelAssignmentNotFound", "The specified level assignment was not found."));
@@ -74,7 +82,9 @@ internal sealed class UnassignApprovalLevelCommandHandler
             NewApproverEmployeeId: request.NewApproverEmployeeId,
             AutoRerouteUsingResolver: request.AutoRerouteUsingResolver,
             Reason: $"Unassigning level slot assignment ID {request.LevelAssignmentId}: {request.Reason}",
-            TargetLevelAssignmentId: request.LevelAssignmentId);
+            TargetLevelAssignmentId: request.LevelAssignmentId,
+            TargetPolicyId: targetPolicy.Id.Value,
+            TargetLevelId: targetLevel.Id.Value);
 
         var reassignResult = await _reassignmentService.ExecuteReassignmentAsync(reassignCommand, cancellationToken);
         if (reassignResult.IsFailure)

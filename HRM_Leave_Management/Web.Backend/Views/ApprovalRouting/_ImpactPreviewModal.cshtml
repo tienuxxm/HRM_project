@@ -1,98 +1,119 @@
 @model Web.Backend.Models.ApprovalRouting.ImpactPreviewModalViewModel
 @{
     var impact = Model.ImpactData;
+    var hasImpact = impact.TotalPendingRequestsCount > 0;
 }
 
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4 font-sans overflow-y-auto">
-    <div class="bg-white border border-black w-full max-w-4xl rounded-none shadow-none my-8 max-h-[90vh] flex flex-col">
-        <!-- Header -->
-        <div class="bg-black text-white p-4 flex justify-between items-center flex-shrink-0">
-            <div>
-                <div class="text-[10px] font-mono uppercase text-[#D1D1D1] tracking-wider">
+<div id="impactModalBackdrop" onclick="window.handleBackdropClick(event)" class="fixed inset-0 z-[9999] bg-black/75 p-3 sm:p-4 font-sans flex items-center justify-center overflow-hidden">
+    <div class="bg-white border-2 border-black w-full max-w-3xl rounded-none shadow-none max-h-[85vh] flex flex-col overflow-hidden text-[#111111] leading-normal min-h-0">
+        <!-- Modal Header -->
+        <div class="bg-black text-white px-4 sm:px-5 py-3 flex justify-between items-center flex-shrink-0 border-b border-black gap-2">
+            <div class="min-w-0 flex-1">
+                <div class="text-[10px] font-mono uppercase text-[#D1D1D1] tracking-wider truncate">
                     SYSTEM IMPACT SIMULATION & REASSIGNMENT DECISION
                 </div>
-                <h2 class="text-lg font-bold uppercase tracking-tight">
-                    DRY-RUN IMPACT PREVIEW & REASSIGNMENT DECISION
+                <h2 class="text-xs sm:text-base font-bold uppercase tracking-tight text-white truncate">
+                    UNASSIGN LEVEL SLOT - DRY-RUN IMPACT PREVIEW
                 </h2>
-                <p class="text-xs text-[#D1D1D1] font-mono mt-0.5">
-                    Target: Unassign @Model.TargetSlotName - @Model.AssignedEmployeeName
+                <p class="text-[10px] sm:text-[11px] text-[#D1D1D1] font-mono mt-0.5 truncate">
+                    Target: @Model.TargetSlotName - Assigned: @Model.AssignedEmployeeName
                 </p>
             </div>
-            <button type="button" onclick="closeImpactModal()" class="text-white text-lg font-bold px-3 py-1 hover:bg-neutral-800 border border-white">
-                X
+            <button type="button" onclick="window.closeImpactModal()" class="flex-shrink-0 whitespace-nowrap text-[#E62429] bg-black border border-[#E62429] hover:bg-[#E62429] hover:text-white transition-colors cursor-pointer text-xs font-mono font-bold px-2.5 py-1" title="Close Modal (Esc)">
+                [ X ]
             </button>
         </div>
 
         <!-- Inline Modal Error Banner -->
-        <div id="modalErrorMessage" class="hidden p-3 bg-white border-b border-[#E62429] text-[#E62429] text-xs font-semibold uppercase"></div>
+        <div id="modalErrorMessage" class="hidden p-3 bg-[#FFF5F5] border-b border-[#E62429] text-[#E62429] text-xs font-semibold uppercase font-mono"></div>
 
         <!-- Scrollable Modal Body -->
-        <div class="p-6 space-y-6 overflow-y-auto flex-1 text-[#111111] bg-[#FAF9F9]">
-            <!-- Summary Metrics Cards Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Total Impacted Card -->
-                <div class="bg-white border border-[#D1D1D1] p-4 rounded-none">
-                    <p class="text-[10px] font-mono uppercase text-[#4C4546] font-bold">TOTAL IMPACTED PENDING REQUESTS</p>
-                    <p class="text-2xl font-bold font-mono text-black mt-1">@impact.TotalPendingRequestsCount</p>
-                    <p class="text-[11px] text-[#4C4546]">Pending requests currently assigned to this level slot.</p>
-                </div>
-                <!-- Auto Re-routable Card -->
-                <div class="bg-white border border-[#D1D1D1] p-4 rounded-none">
-                    <p class="text-[10px] font-mono uppercase text-[#4C4546] font-bold">AUTOMATIC RESOLVER RE-ROUTABLE</p>
-                    <p class="text-2xl font-bold font-mono text-black mt-1">@impact.AutoReroutableCount</p>
-                    <p class="text-[11px] text-[#4C4546]">Requests that can route to active priority candidates.</p>
-                </div>
-                <!-- Escalation / Needs Admin Attention Card -->
-                <div class="bg-white border border-[#D1D1D1] p-4 rounded-none">
-                    <p class="text-[10px] font-mono uppercase text-[#E62429] font-bold">ROUTE ESCALATION / NEEDS ATTENTION</p>
-                    <p class="text-2xl font-bold font-mono text-[#E62429] mt-1">@impact.NeedsAdminAttentionCount</p>
-                    <p class="text-[11px] text-[#4C4546]">Requests with no active candidate slot.</p>
-                </div>
-            </div>
+        <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 min-h-0 text-[#111111] bg-[#FAF9F9]">
 
-            <!-- Affected Pending Requests Table -->
-            <div class="bg-white border border-[#D1D1D1] rounded-none p-4 space-y-3">
-                <h3 class="font-bold text-xs uppercase text-black">AFFECTED PENDING LEAVE REQUESTS DETAILED BREAKDOWN</h3>
-                @if (!impact.AffectedRequests.Any())
-                {
-                    <div class="p-4 text-center text-xs text-[#4C4546] italic bg-[#FAF9F9] border border-[#D1D1D1]">
-                        No pending leave requests are impacted by this action. Slot can be safely deactivated.
+            @if (!hasImpact)
+            {
+                <!-- Safe Unassignment Card (0 Pending Impacted Requests) -->
+                <div class="p-4 bg-white border border-black rounded-none space-y-2">
+                    <div class="flex items-center gap-2 text-black font-bold text-xs uppercase tracking-wide">
+                        <span class="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase">SAFE</span>
+                        <span>SAFE UNASSIGNMENT - NO PENDING LEAVE REQUESTS IMPACTED</span>
                     </div>
-                }
-                else
-                {
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse font-sans text-xs">
-                            <thead>
-                                <tr class="bg-[#F4F3F3] border-b border-[#D1D1D1] text-[10px] font-semibold text-black uppercase">
-                                    <th class="py-2 px-3 border-r border-[#D1D1D1]">Request Code</th>
-                                    <th class="py-2 px-3 border-r border-[#D1D1D1]">Requester</th>
-                                    <th class="py-2 px-3 border-r border-[#D1D1D1]">Leave Type</th>
-                                    <th class="py-2 px-3 border-r border-[#D1D1D1]">Dates</th>
-                                    <th class="py-2 px-3 border-r border-[#D1D1D1]">Proposed Approver</th>
-                                    <th class="py-2 px-3">Resolver Action Status</th>
+                    <p class="text-xs text-[#4C4546] leading-relaxed">
+                        No pending leave requests are impacted by this action. Slot can be safely deactivated.
+                    </p>
+                </div>
+
+                <!-- Simple Form for 0 Impact -->
+                <form id="reassignmentExecutionForm" class="bg-white border border-[#D1D1D1] p-4 rounded-none space-y-3">
+                    <input type="hidden" name="levelAssignmentId" value="@Model.TargetLevelAssignmentId" />
+                    <input type="hidden" name="employeeId" value="@Model.TargetEmployeeId" />
+                    <input type="hidden" name="strategy" value="AUTO" />
+
+                    <div class="space-y-1 text-xs">
+                        <label class="font-semibold text-black uppercase block text-[11px]">Reason for Unassign (Optional):</label>
+                        <input type="text" name="reason" value="Operator level slot unassignment via UI console" class="w-full px-3 py-1.5 bg-white text-black border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans text-xs" />
+                    </div>
+                </form>
+            }
+            else
+            {
+                <!-- Summary Metrics Cards Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Total Impacted Card -->
+                    <div class="bg-white border border-[#D1D1D1] p-3 rounded-none">
+                        <p class="text-[10px] font-mono uppercase text-[#4C4546] font-bold">TOTAL PENDING IMPACTED</p>
+                        <p class="text-xl font-bold font-mono text-black mt-0.5">@impact.TotalPendingRequestsCount</p>
+                        <p class="text-[10px] text-[#4C4546]">Assigned to this slot.</p>
+                    </div>
+                    <!-- Auto Re-routable Card -->
+                    <div class="bg-white border border-[#D1D1D1] p-3 rounded-none">
+                        <p class="text-[10px] font-mono uppercase text-[#4C4546] font-bold">AUTO RE-ROUTABLE</p>
+                        <p class="text-xl font-bold font-mono text-black mt-0.5">@impact.AutoReroutableCount</p>
+                        <p class="text-[10px] text-[#4C4546]">Valid active candidates exist.</p>
+                    </div>
+                    <!-- Escalation / Needs Admin Attention Card -->
+                    <div class="bg-white border border-[#E62429] p-3 rounded-none">
+                        <p class="text-[10px] font-mono uppercase text-[#E62429] font-bold">NEEDS ADMIN ATTENTION</p>
+                        <p class="text-xl font-bold font-mono text-[#E62429] mt-0.5">@impact.NeedsAdminAttentionCount</p>
+                        <p class="text-[10px] text-[#4C4546]">No active candidate slot.</p>
+                    </div>
+                </div>
+
+                <!-- Affected Pending Requests Table -->
+                <div class="bg-white border border-[#D1D1D1] rounded-none p-3.5 space-y-2">
+                    <h3 class="font-bold text-xs uppercase text-black">AFFECTED PENDING LEAVE REQUESTS</h3>
+                    <div class="overflow-x-auto max-h-48 overflow-y-auto border border-[#D1D1D1]">
+                        <table class="w-full text-left border-collapse font-sans text-xs min-w-[500px]">
+                            <thead class="sticky top-0 bg-[#F4F3F3]">
+                                <tr class="border-b border-[#D1D1D1] text-[10px] font-semibold text-black uppercase">
+                                    <th class="py-2 px-2.5 border-r border-[#D1D1D1]">Code</th>
+                                    <th class="py-2 px-2.5 border-r border-[#D1D1D1]">Requester</th>
+                                    <th class="py-2 px-2.5 border-r border-[#D1D1D1]">Type</th>
+                                    <th class="py-2 px-2.5 border-r border-[#D1D1D1]">Dates</th>
+                                    <th class="py-2 px-2.5 border-r border-[#D1D1D1]">Proposed Approver</th>
+                                    <th class="py-2 px-2.5">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-[#D1D1D1]">
                                 @foreach (var req in impact.AffectedRequests)
                                 {
-                                    <tr>
-                                        <td class="py-2 px-3 border-r border-[#D1D1D1] font-mono text-[11px]">
+                                    <tr class="hover:bg-[#FAF9F9]">
+                                        <td class="py-1.5 px-2.5 border-r border-[#D1D1D1] font-mono text-[11px]">
                                             LR-@req.LeaveRequestId.ToString().Substring(0, 8).ToUpper()
                                         </td>
-                                        <td class="py-2 px-3 border-r border-[#D1D1D1] font-medium text-black">
+                                        <td class="py-1.5 px-2.5 border-r border-[#D1D1D1] font-medium text-black">
                                             @req.RequesterName
                                         </td>
-                                        <td class="py-2 px-3 border-r border-[#D1D1D1] text-[#4C4546]">
+                                        <td class="py-1.5 px-2.5 border-r border-[#D1D1D1] text-[#4C4546]">
                                             @req.LeaveTypeName
                                         </td>
-                                        <td class="py-2 px-3 border-r border-[#D1D1D1] font-mono text-[11px]">
-                                            @req.StartDate.ToString("yyyy-MM-dd") -> @req.EndDate.ToString("yyyy-MM-dd")
+                                        <td class="py-1.5 px-2.5 border-r border-[#D1D1D1] font-mono text-[11px]">
+                                            @req.StartDate.ToString("MM-dd") -> @req.EndDate.ToString("MM-dd")
                                         </td>
-                                        <td class="py-2 px-3 border-r border-[#D1D1D1] font-medium">
+                                        <td class="py-1.5 px-2.5 border-r border-[#D1D1D1] font-medium">
                                             @req.ProposedApproverName
                                         </td>
-                                        <td class="py-2 px-3">
+                                        <td class="py-1.5 px-2.5">
                                             @if (req.IsAutoReroutable)
                                             {
                                                 <span class="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase">
@@ -111,128 +132,68 @@
                             </tbody>
                         </table>
                     </div>
-                }
-            </div>
-
-            <!-- Reassignment Strategy Decision Selection -->
-            <form id="reassignmentExecutionForm" class="bg-white border border-[#D1D1D1] p-4 rounded-none space-y-4">
-                <h3 class="font-bold text-xs uppercase text-black border-b border-[#D1D1D1] pb-2">
-                    REASSIGNMENT STRATEGY DECISION
-                </h3>
-
-                <input type="hidden" name="levelAssignmentId" value="@Model.TargetLevelAssignmentId" />
-                <input type="hidden" name="employeeId" value="@Model.TargetEmployeeId" />
-
-                <div class="space-y-3 text-xs">
-                    <label class="flex items-start gap-3 p-3 bg-[#FAF9F9] border border-[#D1D1D1] cursor-pointer">
-                        <input type="radio" name="strategy" value="AUTO" checked onclick="toggleManualApprover(false)" class="mt-0.5 rounded-none accent-black" />
-                        <div>
-                            <span class="font-bold text-black uppercase">Strategy 1: Automatic Re-route via Resolver (Recommended)</span>
-                            <p class="text-[#4C4546] text-[11px] mt-0.5">
-                                Automatically re-route pending requests to the next active candidate in the position rule candidate sequence. Requests with no valid candidates will be marked as NeedsAdminAttention.
-                            </p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 p-3 bg-[#FAF9F9] border border-[#D1D1D1] cursor-pointer">
-                        <input type="radio" name="strategy" value="MANUAL" onclick="toggleManualApprover(true)" class="mt-0.5 rounded-none accent-black" />
-                        <div>
-                            <span class="font-bold text-black uppercase">Strategy 2: Manual Reassign All to Specific Employee</span>
-                            <p class="text-[#4C4546] text-[11px] mt-0.5">
-                                Manually select a single active employee with approval permission to take over all impacted pending leave requests.
-                            </p>
-                        </div>
-                    </label>
                 </div>
 
-                <!-- Manual Approver Select Dropdown (Hidden by default) -->
-                <div id="manualApproverSelectContainer" class="hidden p-3 bg-white border border-black space-y-2 text-xs">
-                    <label class="font-bold text-black uppercase block">Select Manual Replacement Approver:</label>
-                    <select name="newApproverEmployeeId" class="w-full px-3 py-2 bg-white text-black border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans">
-                        <option value="">-- Select Active Replacement Approver --</option>
-                        @foreach (var emp in Model.AvailableApprovers)
-                        {
-                            <option value="@emp.EmployeeId">@emp.FullName (@emp.EmployeeCode) - @emp.PositionName, @emp.DepartmentName</option>
-                        }
-                    </select>
-                    <p class="text-[11px] text-[#4C4546] italic">Note: Candidates pre-filtered for active employee status, linked user account, APPROVE_LEAVE_REQUEST permission, and department / company-level scope.</p>
-                </div>
+                <!-- Reassignment Strategy Decision Selection Form -->
+                <form id="reassignmentExecutionForm" class="bg-white border border-[#D1D1D1] p-3.5 rounded-none space-y-3">
+                    <h3 class="font-bold text-xs uppercase text-black border-b border-[#D1D1D1] pb-1.5">
+                        REASSIGNMENT STRATEGY DECISION
+                    </h3>
 
-                <div class="space-y-1 text-xs">
-                    <label class="font-semibold text-black uppercase block">Reason for Unassign / Reassignment:</label>
-                    <input type="text" name="reason" value="Operator level slot unassignment via UI console" class="w-full px-3 py-2 bg-white text-black border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans" />
-                </div>
-            </form>
+                    <input type="hidden" name="levelAssignmentId" value="@Model.TargetLevelAssignmentId" />
+                    <input type="hidden" name="employeeId" value="@Model.TargetEmployeeId" />
+
+                    <div class="space-y-2 text-xs">
+                        <label class="flex items-start gap-2.5 p-2.5 bg-[#FAF9F9] border border-[#D1D1D1] cursor-pointer hover:border-black transition-colors">
+                            <input type="radio" name="strategy" value="AUTO" checked onclick="window.toggleManualApprover(false)" class="mt-0.5 rounded-none accent-black" />
+                            <div>
+                                <span class="font-bold text-black uppercase">Strategy 1: Automatic Re-route via Resolver (Recommended)</span>
+                                <p class="text-[#4C4546] text-[11px] mt-0.5">
+                                    Automatically re-route pending requests to the next active candidate in rule sequence.
+                                </p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2.5 p-2.5 bg-[#FAF9F9] border border-[#D1D1D1] cursor-pointer hover:border-black transition-colors">
+                            <input type="radio" name="strategy" value="MANUAL" onclick="window.toggleManualApprover(true)" class="mt-0.5 rounded-none accent-black" />
+                            <div>
+                                <span class="font-bold text-black uppercase">Strategy 2: Manual Reassign All to Specific Employee</span>
+                                <p class="text-[#4C4546] text-[11px] mt-0.5">
+                                    Manually select a single active replacement employee with approval permission.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Manual Approver Select Dropdown -->
+                    <div id="manualApproverSelectContainer" class="hidden p-3 bg-white border border-black space-y-1.5 text-xs">
+                        <label class="font-bold text-black uppercase block text-[11px]">Select Manual Replacement Approver:</label>
+                        <select name="newApproverEmployeeId" class="w-full px-3 py-1.5 bg-white text-black border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans text-xs">
+                            <option value="">-- Select Active Replacement Approver --</option>
+                            @foreach (var emp in Model.AvailableApprovers)
+                            {
+                                <option value="@emp.EmployeeId">@emp.FullName (@emp.EmployeeCode) - @emp.PositionName, @emp.DepartmentName</option>
+                            }
+                        </select>
+                        <p class="text-[10px] text-[#4C4546] italic">Pre-filtered for active employee status, APPROVE_LEAVE_REQUEST permission, and department / company scope.</p>
+                    </div>
+
+                    <div class="space-y-1 text-xs">
+                        <label class="font-semibold text-black uppercase block text-[11px]">Reason for Unassign / Reassignment:</label>
+                        <input type="text" name="reason" value="Operator level slot unassignment via UI console" class="w-full px-3 py-1.5 bg-white text-black border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans text-xs" />
+                    </div>
+                </form>
+            }
         </div>
 
-        <!-- Footer Actions -->
-        <div class="bg-white border-t border-[#D1D1D1] p-4 flex flex-col md:flex-row justify-end gap-3 flex-shrink-0">
-            <button type="button" onclick="closeImpactModal()" class="px-5 py-2.5 bg-white border border-black text-black text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-black hover:text-white transition-colors">
+        <!-- Sticky Modal Footer Actions -->
+        <div class="bg-white border-t border-[#D1D1D1] px-4 sm:px-5 py-3 flex flex-row justify-end gap-2.5 flex-shrink-0">
+            <button type="button" onclick="window.closeImpactModal()" class="px-4 py-2 bg-white border border-black text-black text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-black hover:text-white transition-colors">
                 Cancel
             </button>
-            <button type="button" onclick="submitReassignmentExecution()" class="px-5 py-2.5 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-neutral-800 transition-colors border border-black">
-                Execute Reassignment & Deactivate Slot
+            <button type="button" onclick="window.submitReassignmentExecution()" class="px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-neutral-800 transition-colors border border-black">
+                @(hasImpact ? "Execute Reassignment & Deactivate Slot" : "Deactivate Slot")
             </button>
         </div>
     </div>
 </div>
-
-<script>
-    function toggleManualApprover(show) {
-        var container = document.getElementById('manualApproverSelectContainer');
-        if (show) {
-            container.classList.remove('hidden');
-        } else {
-            container.classList.add('hidden');
-        }
-    }
-
-    function showModalError(msg) {
-        var errBox = document.getElementById('modalErrorMessage');
-        errBox.textContent = msg;
-        errBox.classList.remove('hidden');
-    }
-
-    function submitReassignmentExecution() {
-        var form = document.getElementById('reassignmentExecutionForm');
-        var formData = new FormData(form);
-        var strategy = formData.get('strategy');
-
-        var postData = new FormData();
-        postData.append('levelAssignmentId', formData.get('levelAssignmentId'));
-        postData.append('employeeId', formData.get('employeeId'));
-        postData.append('reason', formData.get('reason'));
-
-        if (strategy === 'AUTO') {
-            postData.append('autoRerouteUsingResolver', 'true');
-        } else {
-            postData.append('autoRerouteUsingResolver', 'false');
-            var newApprover = formData.get('newApproverEmployeeId');
-            if (!newApprover) {
-                showModalError('Please select a manual replacement approver.');
-                return;
-            }
-            postData.append('newApproverEmployeeId', newApprover);
-        }
-
-        fetch('/approval-routing/execute-reassignment', {
-            method: 'POST',
-            body: postData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                closeImpactModal();
-                if (typeof showRoutingMessage === 'function') {
-                    showRoutingMessage('Success: ' + data.message, false);
-                }
-                setTimeout(function() { window.location.reload(); }, 1200);
-            } else {
-                showModalError('Error executing reassignment: ' + data.message);
-            }
-        })
-        .catch(err => {
-            showModalError('Execution error: ' + err);
-        });
-    }
-</script>

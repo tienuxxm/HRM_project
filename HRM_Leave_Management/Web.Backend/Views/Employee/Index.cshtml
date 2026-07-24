@@ -375,27 +375,19 @@
         // Create Employee handler
         $(document).on('click', '#saveEmpButton', function (){
             const toastContainer = $('#toast-container');
-            const empCodeError = $('#empCodeError');
             const empFullNameError = $('#empFullNameError');
-            empCodeError.addClass('hidden');
             empFullNameError.addClass('hidden');
-            const empCode = $('#empCode').val();
             const empFullName = $('#empFullName').val();
             const empDepartment = $('#empDepartment').val();
             const empPosition = $('#empPosition').val();
             const empJoinDate = $('#empJoinDate').val();
 
-            if(!empCode || empCode.trim() === ''){
-                empCodeError.removeClass('hidden').text("Please enter employee code");
-                return;
-            }
             if(!empFullName || empFullName.trim() === ''){
                 empFullNameError.removeClass('hidden').text("Please enter full name");
                 return;
             }
 
             const formData = new FormData();
-            formData.append('EmployeeCode', empCode);
             formData.append('FullName', empFullName);
             if(empDepartment) formData.append('DepartmentId', empDepartment);
             if(empPosition) formData.append('PositionId', empPosition);

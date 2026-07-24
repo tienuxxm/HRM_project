@@ -5,6 +5,99 @@
     var data = Model.Data;
 }
 
+<script>
+    function closeImpactModal() {
+        if (window.handleImpactModalKeyDown) {
+            document.removeEventListener('keydown', window.handleImpactModalKeyDown);
+        }
+        var container = document.getElementById('impactModalContainer');
+        if (container) {
+            container.innerHTML = '';
+        }
+    }
+    window.closeImpactModal = closeImpactModal;
+    var handleBackdropClick = function(e) {
+        if (e && e.target && e.target.id === 'impactModalBackdrop') {
+            closeImpactModal();
+        }
+    };
+    window.handleBackdropClick = handleBackdropClick;
+
+    var handleImpactModalKeyDown = function(e) {
+        if (e && e.key === 'Escape') {
+            closeImpactModal();
+        }
+    };
+    window.handleImpactModalKeyDown = handleImpactModalKeyDown;
+
+    var toggleManualApprover = function(show) {
+        var container = document.getElementById('manualApproverSelectContainer');
+        if (container) {
+            if (show) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+    };
+    window.toggleManualApprover = toggleManualApprover;
+
+    var showModalError = function(msg) {
+        var errBox = document.getElementById('modalErrorMessage');
+        if (errBox) {
+            errBox.textContent = msg;
+            errBox.classList.remove('hidden');
+        }
+    };
+    window.showModalError = showModalError;
+
+    var submitReassignmentExecution = function() {
+        var form = document.getElementById('reassignmentExecutionForm');
+        if (!form) return;
+
+        var formData = new FormData(form);
+        var strategy = formData.get('strategy');
+
+        var postData = new FormData();
+        postData.append('levelAssignmentId', formData.get('levelAssignmentId'));
+        postData.append('employeeId', formData.get('employeeId'));
+        postData.append('reason', formData.get('reason'));
+
+        if (strategy === 'AUTO') {
+            postData.append('autoRerouteUsingResolver', 'true');
+        } else {
+            postData.append('autoRerouteUsingResolver', 'false');
+            var newApprover = formData.get('newApproverEmployeeId');
+            if (!newApprover) {
+                showModalError('Please select a manual replacement approver.');
+                return;
+            }
+            postData.append('newApproverEmployeeId', newApprover);
+        }
+
+        fetch('/approval-routing/execute-reassignment', {
+            method: 'POST',
+            body: postData
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                closeImpactModal();
+                if (typeof showRoutingMessage === 'function') {
+                    showRoutingMessage('Success: ' + data.message, false);
+                }
+                setTimeout(function() { window.location.reload(); }, 1200);
+            } else {
+                showModalError('Error executing reassignment: ' + data.message);
+            }
+        })
+        .catch(function(err) {
+            showModalError('Execution error: ' + err);
+        });
+    };
+    window.submitReassignmentExecution = submitReassignmentExecution;
+</script>
+
 <div class="w-full min-h-screen bg-[#FAF9F9] text-[#111111] p-4 lg:p-8 font-sans">
     <!-- Inline Notification Feedback Container -->
     <div id="routingMessageContainer" class="hidden mb-4 p-4 border text-xs rounded-none font-sans"></div>
@@ -221,17 +314,16 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
-            .then(html => {
+            .then(function(response) { return response.text(); })
+            .then(function(html) {
                 document.getElementById('impactModalContainer').innerHTML = html;
+                if (window.handleImpactModalKeyDown) {
+                    document.addEventListener('keydown', window.handleImpactModalKeyDown);
+                }
             })
-            .catch(err => {
+            .catch(function(err) {
                 showRoutingMessage('Error loading dry-run impact preview: ' + err, true);
             });
         });
-
-        function closeImpactModal() {
-            document.getElementById('impactModalContainer').innerHTML = '';
-        }
     </script>
 }

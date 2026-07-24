@@ -34,8 +34,10 @@ internal sealed class GetLevelAssignmentUnassignImpactQueryHandler
     {
         var targetAssignmentId = new ApprovalRouteLevelAssignmentId(request.LevelAssignmentId);
 
-        // Load policy levels and assignments
+        // Load policy rules, candidates, levels and assignments
         var policies = await _policyRepository.GetEntitiesAsQueryable()
+            .Include(p => p.Rules)
+                .ThenInclude(r => r.Candidates)
             .Include(p => p.Levels)
                 .ThenInclude(l => l.Assignments)
             .AsNoTracking()
@@ -44,6 +46,7 @@ internal sealed class GetLevelAssignmentUnassignImpactQueryHandler
 
         ApprovalRouteLevelAssignment? targetAssignment = null;
         ApprovalRouteLevel? targetLevel = null;
+        ApprovalRoutePolicy? targetPolicy = null;
 
         foreach (var policy in policies)
         {
@@ -53,13 +56,14 @@ internal sealed class GetLevelAssignmentUnassignImpactQueryHandler
                 if (targetAssignment != null)
                 {
                     targetLevel = level;
+                    targetPolicy = policy;
                     break;
                 }
             }
             if (targetAssignment != null) break;
         }
 
-        if (targetAssignment == null || targetLevel == null)
+        if (targetAssignment == null || targetLevel == null || targetPolicy == null)
         {
             return Result.Failure<LevelAssignmentUnassignImpactResponse>(
                 new Error("ApprovalRouting.LevelAssignmentNotFound", "The specified level slot assignment was not found."));
@@ -68,13 +72,27 @@ internal sealed class GetLevelAssignmentUnassignImpactQueryHandler
         var assignedEmployee = await _employeeRepository.GetByIdAsync(targetAssignment.AssignedEmployeeId, cancellationToken);
         string assignedEmployeeName = assignedEmployee?.FullName ?? "Assigned Employee";
 
-        // Query pending leave request assignments strictly linked to THIS level slot assignment ID
+        // Collect Candidate IDs matching targetLevel.Id under targetPolicy
+        var targetCandidateIds = targetPolicy.Rules
+            .SelectMany(r => r.Candidates)
+            .Where(c => c.ApprovalRouteLevelId == targetLevel.Id)
+            .Select(c => c.Id)
+            .ToHashSet();
+
+        // Query pending leave request assignments currently assigned to target employee
         var pendingAssignments = await _leaveAssignmentRepository.GetPendingAssignmentsByApproverAsync(targetAssignment.AssignedEmployeeId, cancellationToken);
 
+        // Scope-strict filtering:
+        // 1. SnapshotLevelAssignmentId == targetAssignment.Id
+        // 2. OR (AssignedApproverEmployeeId == targetAssignment.AssignedEmployeeId AND SnapshotPolicyId == targetPolicy.Id AND Candidate matches targetLevel.Id)
         var slotPendingAssignments = pendingAssignments
             .Where(a => a.LeaveRequest != null &&
                         a.LeaveRequest.Status == LeaveRequestStatus.Pending &&
-                        a.SnapshotLevelAssignmentId == targetAssignment.Id)
+                        (a.SnapshotLevelAssignmentId == targetAssignment.Id ||
+                         (a.SnapshotPolicyId == targetPolicy.Id &&
+                          a.AssignedApproverEmployeeId == targetAssignment.AssignedEmployeeId &&
+                          a.SnapshotCandidateId != null &&
+                          targetCandidateIds.Contains(a.SnapshotCandidateId))))
             .ToList();
 
         var affectedDtos = new List<AffectedUnassignRequestDto>();

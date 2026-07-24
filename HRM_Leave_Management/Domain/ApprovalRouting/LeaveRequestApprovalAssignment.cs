@@ -115,7 +115,7 @@ public class LeaveRequestApprovalAssignment : Entity<LeaveRequestApprovalAssignm
         SnapshotPolicyId = policyId ?? SnapshotPolicyId;
         SnapshotRuleId = ruleId ?? SnapshotRuleId;
         SnapshotCandidateId = candidateId ?? SnapshotCandidateId;
-        SnapshotLevelAssignmentId = levelAssignmentId ?? SnapshotLevelAssignmentId;
+        SnapshotLevelAssignmentId = levelAssignmentId;
         AssignedAt = DateTime.UtcNow;
     }
 

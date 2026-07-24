@@ -13,4 +13,6 @@ public sealed record ReassignPendingLeaveRequestsCommand(
     Guid? NewApproverEmployeeId,
     bool AutoRerouteUsingResolver,
     string Reason,
-    Guid? TargetLevelAssignmentId = null) : ICommand<ReassignPendingLeaveRequestsResponse>;
+    Guid? TargetLevelAssignmentId = null,
+    Guid? TargetPolicyId = null,
+    Guid? TargetLevelId = null) : ICommand<ReassignPendingLeaveRequestsResponse>;

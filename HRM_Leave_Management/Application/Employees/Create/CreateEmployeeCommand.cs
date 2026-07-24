@@ -5,7 +5,7 @@ namespace Application.Employees.Create;
 
 public sealed record CreateEmployeeCommand(
     string FullName,
-    string EmployeeCode,
+    string? EmployeeCode,
     Guid? DepartmentId,
     Guid? UserId,
     Guid? PositionId,

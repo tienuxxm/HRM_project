@@ -16,6 +16,7 @@ internal sealed class ApprovalReassignmentService : IApprovalReassignmentService
     private readonly IUserContext _userContext;
     private readonly IUserRepository _userRepository;
     private readonly IEmployeeRepository _employeeRepository;
+    private readonly IApprovalRoutePolicyRepository _policyRepository;
     private readonly ILeaveRequestApprovalAssignmentRepository _assignmentRepository;
     private readonly IApprovalRouteAuditLogRepository _auditLogRepository;
     private readonly IApprovalRouteResolverService _resolverService;
@@ -25,6 +26,7 @@ internal sealed class ApprovalReassignmentService : IApprovalReassignmentService
         IUserContext userContext,
         IUserRepository userRepository,
         IEmployeeRepository employeeRepository,
+        IApprovalRoutePolicyRepository policyRepository,
         ILeaveRequestApprovalAssignmentRepository assignmentRepository,
         IApprovalRouteAuditLogRepository auditLogRepository,
         IApprovalRouteResolverService resolverService,
@@ -33,6 +35,7 @@ internal sealed class ApprovalReassignmentService : IApprovalReassignmentService
         _userContext = userContext;
         _userRepository = userRepository;
         _employeeRepository = employeeRepository;
+        _policyRepository = policyRepository;
         _assignmentRepository = assignmentRepository;
         _auditLogRepository = auditLogRepository;
         _resolverService = resolverService;
@@ -85,14 +88,54 @@ internal sealed class ApprovalReassignmentService : IApprovalReassignmentService
             .FirstOrDefaultAsync(u => u.IdentityId == new IdentityId(adminIdentityId), cancellationToken);
         Guid adminUserId = adminUser?.Id.Value ?? Guid.Empty;
 
-        // 3. Fetch pending assignments
+        // 3. Fetch pending assignments currently assigned to target employee
         var pendingAssignments = await _assignmentRepository.GetPendingAssignmentsByApproverAsync(targetEmployeeId, cancellationToken);
 
-        // Filter strictly for Pending requests and optional TargetLevelAssignmentId scope
+        // Scope-strict filtering:
+        // If TargetLevelAssignmentId / TargetPolicyId is provided (unassigning a specific level slot):
+        // Match SnapshotLevelAssignmentId == TargetLevelAssignmentId OR (SnapshotPolicyId == TargetPolicyId AND SnapshotCandidateId belongs to TargetLevelId candidate set)
+        // If no target level slot or policy scope is provided (e.g. Employee Inactivation), process all pending requests of target employee.
+        var targetAssignmentId = request.TargetLevelAssignmentId.HasValue ? new ApprovalRouteLevelAssignmentId(request.TargetLevelAssignmentId.Value) : null;
+        var targetPolicyId = request.TargetPolicyId.HasValue ? new ApprovalRoutePolicyId(request.TargetPolicyId.Value) : null;
+        var targetLevelId = request.TargetLevelId.HasValue ? new ApprovalRouteLevelId(request.TargetLevelId.Value) : null;
+
+        HashSet<ApprovalRouteRuleCandidateId>? candidateIds = null;
+        if (targetPolicyId != null && targetLevelId != null)
+        {
+            var policy = await _policyRepository.GetEntitiesAsQueryable()
+                .Include(p => p.Rules)
+                    .ThenInclude(r => r.Candidates)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == targetPolicyId, cancellationToken);
+
+            if (policy != null)
+            {
+                candidateIds = policy.Rules
+                    .SelectMany(r => r.Candidates)
+                    .Where(c => c.ApprovalRouteLevelId == targetLevelId)
+                    .Select(c => c.Id)
+                    .ToHashSet();
+            }
+        }
+
         var assignmentsToProcess = pendingAssignments
             .Where(a => a.LeaveRequest != null && a.LeaveRequest.Status == LeaveRequestStatus.Pending)
-            .Where(a => !request.TargetLevelAssignmentId.HasValue
-                        || (a.SnapshotLevelAssignmentId != null && a.SnapshotLevelAssignmentId.Value == request.TargetLevelAssignmentId.Value))
+            .Where(a => a.AssignedApproverEmployeeId == targetEmployeeId)
+            .Where(a => {
+                // If no slot/policy scope is specified -> Employee Inactivation Scope (process all)
+                if (targetAssignmentId == null && targetPolicyId == null) return true;
+
+                // 1. Direct match on SnapshotLevelAssignmentId
+                if (targetAssignmentId != null && a.SnapshotLevelAssignmentId == targetAssignmentId) return true;
+
+                // 2. Exact match on SnapshotPolicyId AND candidate level ID
+                if (targetPolicyId != null && a.SnapshotPolicyId == targetPolicyId && a.SnapshotCandidateId != null && candidateIds != null && candidateIds.Contains(a.SnapshotCandidateId))
+                {
+                    return true;
+                }
+
+                return false;
+            })
             .ToList();
 
         if (!assignmentsToProcess.Any())
@@ -242,9 +285,6 @@ internal sealed class ApprovalReassignmentService : IApprovalReassignmentService
                 }
             }
         }
-
-        // NOTE: SaveChangesAsync is NOT called here!
-        // Calling Handler is the SOLE COMMIT OWNER for UnitOfWork!
 
         return Result.Success(new ReassignPendingLeaveRequestsResponse(
             assignmentsToProcess.Count,
