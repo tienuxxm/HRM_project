@@ -271,6 +271,22 @@ Khi bao UAT, phai ghi ro:
 - Permission da seed chua
 - Route test cu the
 
+### Luu Tru Evidence UAT
+
+- Moi screenshot, browser evidence, console log, network log, hoac file debug can dung de chung minh UAT phai duoc luu trong workspace cua du an, khong chi luu trong global brain/cache cua agent.
+- Thu muc mac dinh:
+  - Screenshot/evidence: `MD_memory/evidence/YYYY-MM-DD_<phase-or-feature>/`
+  - Debug script/log tam: `MD_memory/debug/`
+  - Bao cao tong hop: `MD_memory/reports/`
+- Ten file evidence phai co y nghia, vi du:
+  - `TC1_admin_dashboard_w4_w5.png`
+  - `TC3_ceo_dashboard_scoped_queue.png`
+  - `TC5_employee_no_approval_widgets_console.txt`
+- Bao cao UAT phai link hoac liet ke duong dan relative cua evidence trong project.
+- Khong duoc chi dan evidence bang duong dan global nhu `.gemini/antigravity-ide/brain/...`, vi Codex/user khac co the khong co permission doc va evidence se mat khoi history du an.
+- Neu browser tool tu dong luu anh vao global brain, agent phai copy/luu lai evidence can thiet vao `MD_memory/evidence/...` truoc khi bao UAT PASS.
+- Evidence khong duoc chua secret, access token, cookie, password, hoac thong tin nhay cam. Neu screenshot co thong tin nhay cam, phai crop/che hoac bao user xac nhan truoc khi dua vao repo.
+
 ## Database Va Migration
 
 - Du an moi nen co database rieng cho HRM.

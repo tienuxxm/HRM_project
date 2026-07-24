@@ -314,10 +314,25 @@
         </div>
     </section>
 
+    <!-- Routing Attention Banner if needed -->
+    @if (Model.NeedsRoutingAttention)
+    {
+        <section class="audit-warning">
+            <span class="material-symbols-outlined text-[#E62429] text-xl">error</span>
+            <div class="flex flex-col">
+                <span class="detail-label text-[#E62429] font-bold">NEEDS ROUTING ATTENTION</span>
+                <p class="text-sm text-black mt-1 leading-snug">
+                    This leave request cannot find a valid active approver under current department routing rules.
+                    HR or System Admin needs to visit <a href="/approval-routing/policies" class="font-bold underline text-[#E62429]">Approval Routing Policies</a> to assign an eligible approver.
+                </p>
+            </div>
+        </section>
+    }
+
     <!-- Bento Layout -->
     <div class="detail-grid">
 
-        <!-- LEFT RAIL (Employee + History) -->
+        <!-- LEFT RAIL (Employee + Approval Routing + History) -->
         <div class="flex flex-col gap-6">
 
             <!-- Employee Particulars -->
@@ -332,6 +347,63 @@
                         <span class="detail-label">ID (Code)</span>
                         <span class="text-sm font-mono font-medium text-black">@Model.EmployeeCode</span>
                     </div>
+                </div>
+            </section>
+
+            <!-- Approval Routing Panel -->
+            <section class="detail-card">
+                <h3 class="detail-section-title flex items-center justify-between">
+                    <span>Approval Routing</span>
+                    <span class="material-symbols-outlined text-sm text-[#4c4546]">alt_route</span>
+                </h3>
+                <div class="particulars-list">
+                    <div class="particulars-item">
+                        <span class="detail-label">Current Approver</span>
+                        <span class="text-sm font-semibold text-black">
+                            @if (!string.IsNullOrEmpty(Model.AssignedApproverName))
+                            {
+                                @Model.AssignedApproverName <span class="font-mono text-xs text-[#4c4546]">(@Model.AssignedApproverCode)</span>
+                            }
+                            else if (Model.NeedsRoutingAttention)
+                            {
+                                <span class="text-[#E62429] font-bold font-mono text-xs">UNASSIGNED (ATTENTION)</span>
+                            }
+                            else
+                            {
+                                <span class="text-gray-400 italic text-xs">Legacy / Unassigned</span>
+                            }
+                        </span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.AssignmentStatus))
+                    {
+                        <div class="particulars-item">
+                            <span class="detail-label">Routing Status</span>
+                            <span class="text-xs font-mono font-bold uppercase text-black">@Model.AssignmentStatus</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.AssignmentReason))
+                    {
+                        <div class="particulars-item">
+                            <span class="detail-label">Assignment Reason</span>
+                            <span class="text-xs font-mono text-[#4c4546]">@Model.AssignmentReason</span>
+                        </div>
+                    }
+                    @if (Model.SnapshotPolicyId.HasValue || Model.SnapshotRuleId.HasValue)
+                    {
+                        <div class="particulars-item">
+                            <span class="detail-label">Snapshot Audit</span>
+                            <div class="text-[10px] font-mono text-gray-600 flex flex-col gap-0.5">
+                                @if (Model.SnapshotPolicyId.HasValue)
+                                {
+                                    <span>Policy: @Model.SnapshotPolicyId.Value.ToString().Substring(0, 8)...</span>
+                                }
+                                @if (Model.SnapshotRuleId.HasValue)
+                                {
+                                    <span>Rule: @Model.SnapshotRuleId.Value.ToString().Substring(0, 8)...</span>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
             </section>
 
@@ -486,7 +558,7 @@
                         <span class="material-symbols-outlined text-sm">hourglass_empty</span>
                         Processing Status
                     </h3>
-                    <p class="text-sm text-gray-500">This request is currently awaiting review by an authorized approver.</p>
+                    <p class="text-sm text-gray-500">This request is currently awaiting review by its assigned approver.</p>
                 </section>
             }
 

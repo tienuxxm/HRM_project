@@ -8,19 +8,10 @@
 
 <div class="w-full">
     <div class="w-full flex flex-col">
-        <!-- Minimal Breadcrumb -->
-        <div class="flex items-center gap-2 mb-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
-            <span>HRM Management</span>
-            <span class="text-[10px] opacity-50">/</span>
-            <span>Work Calendar</span>
-            <span class="text-[10px] opacity-50">/</span>
-            <span class="text-primary font-bold">Import Preview</span>
-        </div>
-
         <!-- Main Card Wrapper -->
         <div style="min-height: 543px" class="bg-white w-full p-6 rounded-none border border-[#D1D1D1] flex flex-col justify-between">
             <div class="w-full">
-                
+
                 <!-- Batch Summary Card -->
                 <div class="bg-white border-2 border-black p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 rounded-none">
                     <div class="text-sm">
@@ -42,18 +33,18 @@
                                 }
                                 else
                                 {
-                                    <span class="inline-flex items-center rounded-none border border-green-500 bg-green-50 px-2 py-0.5 text-xs font-bold text-green-800">Verification Passed</span>
+                                    <span class="inline-flex items-center rounded-none border border-black bg-white px-2 py-0.5 text-xs font-bold text-black">Verification Passed</span>
                                 }
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center gap-3">
                         <a href="/work-calendar" class="bg-white border border-black text-black px-6 py-2.5 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors rounded-none text-center">
                             Cancel
                         </a>
-                        <form asp-action="ConfirmImport" method="post" id="confirmImportForm">
-                            <input type="hidden" name="batchId" value="@Model.BatchId" />
+                        <div id="confirmImportForm">
+                            <input type="hidden" id="confirmBatchId" value="@Model.BatchId" />
                             @if (hasErrors)
                             {
                                 <button type="button" disabled id="confirmImportBtn"
@@ -63,12 +54,12 @@
                             }
                             else
                             {
-                                <button type="submit" id="confirmImportBtn"
+                                <button type="button" onclick="confirmImport()" id="confirmImportBtn"
                                         class="bg-black border border-black text-white px-6 py-2.5 font-semibold text-sm uppercase tracking-wider hover:bg-white hover:text-black rounded-none transition-colors">
                                     Apply Import
                                 </button>
                             }
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -113,15 +104,15 @@
                                         }
                                         else if (row.DayType == "CompanyCustomNonWorkingDay")
                                         {
-                                            <span class="inline-flex items-center rounded-none border border-amber-500 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">Company Non-Working</span>
+                                            <span class="inline-flex items-center rounded-none border border-gray-400 bg-gray-50 px-2 py-0.5 text-xs font-semibold text-gray-800">Company Non-Working</span>
                                         }
                                         else if (row.DayType == "StandardWorkingDayOverride")
                                         {
-                                            <span class="inline-flex items-center rounded-none border border-green-500 bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-800">Working Override</span>
+                                            <span class="inline-flex items-center rounded-none border border-black bg-white px-2 py-0.5 text-xs font-semibold text-black">Working Override</span>
                                         }
                                         else if (row.DayType == "WorkingSaturdayOverride")
                                         {
-                                            <span class="inline-flex items-center rounded-none border border-blue-500 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-800">Working Saturday</span>
+                                            <span class="inline-flex items-center rounded-none border border-gray-600 bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-900">Working Saturday</span>
                                         }
                                         else
                                         {
@@ -133,7 +124,7 @@
                                     <td class="px-4 py-3 text-center border-r border-[#D1D1D1]">
                                         @if (row.IsValid)
                                         {
-                                            <span class="inline-flex items-center rounded-none border border-green-500 bg-green-50 px-2 py-0.5 text-xs font-bold text-green-800">Valid</span>
+                                            <span class="inline-flex items-center rounded-none border border-black bg-white px-2 py-0.5 text-xs font-bold text-black">Valid</span>
                                         }
                                         else
                                         {
@@ -162,3 +153,64 @@
         </div>
     </div>
 </div>
+
+<!-- Inline Error Banner for Confirm Import -->
+<div id="confirmErrorBanner" class="fixed top-5 right-5 z-50 max-w-sm p-4 bg-white border-2 border-[#E62429] text-red-800 text-sm font-semibold rounded-none shadow-none hidden">
+    <div class="flex items-start gap-2">
+        <span class="material-symbols-outlined text-[#E62429] text-[18px] flex-shrink-0">error</span>
+        <span id="confirmErrorMessage">An error occurred.</span>
+        <button type="button" onclick="document.getElementById('confirmErrorBanner').classList.add('hidden')" class="ml-auto text-gray-500 hover:text-black">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function confirmImport() {
+        var batchId = document.getElementById('confirmBatchId').value;
+        var btn = document.getElementById('confirmImportBtn');
+        var originalText = btn.textContent;
+
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+        btn.className = 'bg-gray-200 border border-gray-300 text-gray-500 px-6 py-2.5 font-semibold text-sm uppercase tracking-wider rounded-none cursor-not-allowed';
+
+        // Hide any previous error
+        document.getElementById('confirmErrorBanner').classList.add('hidden');
+
+        $.ajax({
+            url: '/work-calendar/confirm',
+            type: 'POST',
+            contentType: 'application/x-www-form-urlencoded',
+            data: { batchId: batchId },
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = '/work-calendar/summary/' + batchId;
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                    btn.className = 'bg-black border border-black text-white px-6 py-2.5 font-semibold text-sm uppercase tracking-wider hover:bg-white hover:text-black rounded-none transition-colors';
+                    showConfirmError(response.message || 'Import confirmation failed.');
+                }
+            },
+            error: function() {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                btn.className = 'bg-black border border-black text-white px-6 py-2.5 font-semibold text-sm uppercase tracking-wider hover:bg-white hover:text-black rounded-none transition-colors';
+                showConfirmError('An error occurred during import confirmation.');
+            }
+        });
+    }
+
+    function showConfirmError(message) {
+        var banner = document.getElementById('confirmErrorBanner');
+        document.getElementById('confirmErrorMessage').textContent = message;
+        banner.classList.remove('hidden');
+        // Auto-hide after 8 seconds
+        setTimeout(function() {
+            banner.classList.add('hidden');
+        }, 8000);
+    }
+</script>
+}

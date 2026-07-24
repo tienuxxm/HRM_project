@@ -1,9 +1,11 @@
+using Application.Abstractions.ApprovalRouting;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Clock;
 using Application.Abstractions.Messaging;
 using Application.WorkCalendars;
 using Application.Response;
 using Domain.Abstractions;
+using Domain.ApprovalRouting;
 using Domain.Employees;
 using Domain.LeaveBalances;
 using Domain.LeaveRequests;
@@ -21,6 +23,9 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
     private readonly ILeaveTypeRepository _leaveTypeRepository;
     private readonly ILeaveBalanceRepository _leaveBalanceRepository;
     private readonly ILeaveRequestRepository _leaveRequestRepository;
+    private readonly IApprovalRouteResolverService _approvalRouteResolverService;
+    private readonly ILeaveRequestApprovalAssignmentRepository _leaveRequestApprovalAssignmentRepository;
+    private readonly IApprovalRouteAuditLogRepository _approvalRouteAuditLogRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IWorkCalendarService _workCalendarService;
     private readonly IUnitOfWork _unitOfWork;
@@ -32,6 +37,9 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         ILeaveTypeRepository leaveTypeRepository,
         ILeaveBalanceRepository leaveBalanceRepository,
         ILeaveRequestRepository leaveRequestRepository,
+        IApprovalRouteResolverService approvalRouteResolverService,
+        ILeaveRequestApprovalAssignmentRepository leaveRequestApprovalAssignmentRepository,
+        IApprovalRouteAuditLogRepository approvalRouteAuditLogRepository,
         IDateTimeProvider dateTimeProvider,
         IWorkCalendarService workCalendarService,
         IUnitOfWork unitOfWork)
@@ -42,6 +50,9 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         _leaveTypeRepository = leaveTypeRepository;
         _leaveBalanceRepository = leaveBalanceRepository;
         _leaveRequestRepository = leaveRequestRepository;
+        _approvalRouteResolverService = approvalRouteResolverService;
+        _leaveRequestApprovalAssignmentRepository = leaveRequestApprovalAssignmentRepository;
+        _approvalRouteAuditLogRepository = approvalRouteAuditLogRepository;
         _dateTimeProvider = dateTimeProvider;
         _workCalendarService = workCalendarService;
         _unitOfWork = unitOfWork;
@@ -49,7 +60,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
 
     public async Task<Result<BooleanResponse>> Handle(CreateLeaveRequestCommand request, CancellationToken cancellationToken)
     {
-        // 1. Lấy thông tin Employee từ UserContext.IdentityId
+        // 1. Fetch Employee from UserContext IdentityId
         var identityId = _userContext.IdentityId;
         var user = await _userRepository.GetEntitiesAsQueryable()
             .FirstOrDefaultAsync(u => u.IdentityId == new IdentityId(identityId), cancellationToken);
@@ -67,15 +78,14 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
         }
 
         var employeeId = employee.Id;
-        bool isCeo = employee.Position != null && employee.Position.Code == "CEO";
 
-        // 2. Validate ngày hợp lệ (V-2)
+        // 2. Validate Date order
         if (request.StartDate > request.EndDate)
         {
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.DateOrderInvalid);
         }
 
-        // 3. Validate không xin nghỉ quá khứ (V-3)
+        // 3. Validate past dates not allowed
         var utcNow = _dateTimeProvider.UtcNow;
         var businessToday = DateOnly.FromDateTime(utcNow);
         if (request.StartDate < businessToday)
@@ -83,7 +93,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.PastDateNotAllowed);
         }
 
-        // 4. Validate LeaveType tồn tại & active
+        // 4. Validate LeaveType active
         var leaveTypeId = new LeaveTypeId(request.LeaveTypeId);
         var leaveType = await _leaveTypeRepository.GetByIdAsync(leaveTypeId, cancellationToken);
         if (leaveType == null || !leaveType.IsActive)
@@ -91,8 +101,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.LeaveTypeNotFound);
         }
 
-        // 5. Tính toán Duration thông qua WorkCalendarService
-        // Đồng thời kiểm tra không cho phép đơn nghỉ bắc qua nhiều năm calendar.
+        // 5. Calculate Duration via WorkCalendarService
         if (request.StartDate.Year != request.EndDate.Year)
         {
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.CrossYearNotAllowed);
@@ -100,7 +109,6 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
 
         if (request.StartDate == request.EndDate)
         {
-            // Yêu cầu cùng ngày phải có StartDayPart == EndDayPart
             if (request.StartDayPart != request.EndDayPart)
             {
                 return Result.Failure<BooleanResponse>(LeaveRequestErrors.DayPartMismatch);
@@ -126,7 +134,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.OnlyNonWorkingDays);
         }
 
-        // 6. Kiểm tra trùng lịch nghỉ (V-4)
+        // 6. Check leave date overlap
         var isOverlapped = await _leaveRequestRepository.IsExistedAsync(lr =>
             lr.EmployeeId == employeeId &&
             (lr.Status == LeaveRequestStatus.Pending || lr.Status == LeaveRequestStatus.Approved) &&
@@ -139,7 +147,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.OverlapDetected);
         }
 
-        // 7. Kiểm tra Leave Balance theo năm của ngày bắt đầu nghỉ (V-1)
+        // 7. Check Leave Balance
         int targetYear = request.StartDate.Year;
         var leaveBalance = await _leaveBalanceRepository.GetEntitiesAsQueryable()
             .FirstOrDefaultAsync(lb =>
@@ -154,7 +162,7 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.NoLeaveBalance);
         }
 
-        // 8. Tính số ngày phép đang ở trạng thái Pending trong targetYear (V-6)
+        // 8. Calculate Pending Duration
         var pendingDuration = await _leaveRequestRepository.GetEntitiesAsQueryable()
             .Where(lr =>
                 lr.EmployeeId == employeeId &&
@@ -165,13 +173,61 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
 
         decimal availableDays = leaveBalance.AllocatedDays - leaveBalance.UsedDays - pendingDuration;
 
-        // Kiểm tra số dư khả dụng (V-6)
         if (duration > availableDays)
         {
             return Result.Failure<BooleanResponse>(LeaveRequestErrors.InsufficientBalance);
         }
 
-        // 9. Tạo đơn nghỉ phép mới
+        // 9. Resolve Approver via ApprovalRouteResolverService
+        var resolutionResult = await _approvalRouteResolverService.ResolveApproverAsync(employee, cancellationToken);
+        if (!resolutionResult.IsSuccess)
+        {
+            return Result.Failure<BooleanResponse>(LeaveRequestErrors.ApprovalRouteNotConfigured);
+        }
+
+        // Rule 4: Handle AutoApprove for Terminal Company-Level Approver
+        if (resolutionResult.IsAutoApproved)
+        {
+            var autoLeaveRequest = LeaveRequest.Create(
+                employeeId,
+                leaveTypeId,
+                request.StartDate,
+                request.EndDate,
+                request.StartDayPart,
+                request.EndDayPart,
+                duration,
+                request.Reason,
+                utcNow);
+
+            autoLeaveRequest.AutoApprove(utcNow);
+            leaveBalance.AddUsedDays(duration);
+
+            var autoAuditLog = ApprovalRouteAuditLog.LogAction(
+                autoLeaveRequest.Id,
+                assignmentId: null,
+                previousApproverId: null,
+                newApproverId: null,
+                ApprovalRouteAuditActionType.AutoApproved,
+                oldStatus: null,
+                newStatus: LeaveRequestStatus.Approved.ToString(),
+                reasonCode: "ConfiguredTerminalApproverAutoApproved",
+                createdByUserId: user.Id.Value,
+                note: "Leave request auto-approved for terminal approver per routing configuration.");
+
+            _leaveRequestRepository.Add(autoLeaveRequest);
+            _leaveBalanceRepository.Update(leaveBalance);
+            _approvalRouteAuditLogRepository.Add(autoAuditLog);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(new BooleanResponse
+            {
+                Result = true,
+                Message = "Leave request auto-approved successfully."
+            });
+        }
+
+        // 10. Standard Routing Path: Create LeaveRequest (Pending) and routing metadata
         var leaveRequest = LeaveRequest.Create(
             employeeId,
             leaveTypeId,
@@ -183,14 +239,38 @@ internal sealed class CreateLeaveRequestCommandHandler : ICommandHandler<CreateL
             request.Reason,
             utcNow);
 
-        if (isCeo)
-        {
-            leaveRequest.SetApprovedForCeo(utcNow);
-            leaveBalance.AddUsedDays(duration);
-            _leaveBalanceRepository.Update(leaveBalance);
-        }
+        var assignedApprover = resolutionResult.AssignedApprover!;
+        var reason = resolutionResult.CandidateId == null
+            ? ApprovalAssignmentReason.SpecificEmployeeOverride
+            : (resolutionResult.PriorityOrder == 1
+                ? ApprovalAssignmentReason.DirectLevelMatch
+                : ApprovalAssignmentReason.SuperiorLevelEscalated);
+
+        var assignment = LeaveRequestApprovalAssignment.CreateAssigned(
+            leaveRequest.Id,
+            assignedApprover.Id,
+            reason,
+            resolutionResult.PolicyId,
+            resolutionResult.RuleId,
+            resolutionResult.CandidateId,
+            resolutionResult.LevelAssignmentId);
+
+        var auditLog = ApprovalRouteAuditLog.LogAction(
+            leaveRequest.Id,
+            assignment.Id,
+            previousApproverId: null,
+            newApproverId: assignedApprover.Id,
+            ApprovalRouteAuditActionType.Created,
+            oldStatus: null,
+            newStatus: ApprovalAssignmentStatus.Assigned.ToString(),
+            reasonCode: reason.ToString(),
+            createdByUserId: user.Id.Value,
+            note: $"Initial routing assigned to approver employee ID {assignedApprover.Id.Value} (Priority {resolutionResult.PriorityOrder}).");
 
         _leaveRequestRepository.Add(leaveRequest);
+        _leaveRequestApprovalAssignmentRepository.Add(assignment);
+        _approvalRouteAuditLogRepository.Add(auditLog);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new BooleanResponse

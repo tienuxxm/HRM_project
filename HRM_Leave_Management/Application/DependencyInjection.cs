@@ -1,4 +1,5 @@
-﻿using Application.Abstractions.Behaviors;
+using Application.Abstractions.Behaviors;
+using Application.ApprovalRouting.Services;
 using Domain.Orders;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         services.AddTransient<PricingService>();
+        services.AddScoped<IApprovalReassignmentService, ApprovalReassignmentService>();
 
         return services;
     }

@@ -1,0 +1,26 @@
+==================================================
+BROWSER CONSOLE OBSERVATION REPORT — TC6
+==================================================
+Date: 2026-07-22
+Target: HRM Dashboard Phase A2B (http://localhost:5300/dashboard)
+
+Accounts Tested:
+1. admin (Global approval view)
+   - Route: http://localhost:5300/dashboard
+   - Console Error Count: 0
+   - Console Warning Count: 0
+
+2. ceo.test (Scoped approval view)
+   - Route: http://localhost:5300/dashboard
+   - Console Error Count: 0
+   - Console Warning Count: 0
+
+3. nv.test (Employee view - no approval permission)
+   - Route: http://localhost:5300/dashboard
+   - Console Error Count: 0
+   - Console Warning Count: 0
+
+Summary:
+- Total JavaScript errors: 0
+- Total unhandled exceptions: 0
+- Swiss UI layout rendering clean across all tested viewports.

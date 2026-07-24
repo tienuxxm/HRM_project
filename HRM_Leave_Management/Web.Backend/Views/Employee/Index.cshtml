@@ -95,14 +95,14 @@
         <table id="employeeTable" class="w-full border-collapse text-[11px] leading-[14px]">
             <thead class="bg-[#F5F5F5]">
                 <tr class="border-b border-[#D1D1D1]">
-                    <th class="px-3 py-2 font-bold text-[#4c4546] text-left border-r border-[#D1D1D1] uppercase tracking-wider w-[120px] text-[12px]" style="font-family: 'Geist', sans-serif;">CODE</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] text-left border-r border-[#D1D1D1] uppercase tracking-wider w-[100px] text-[12px]" style="font-family: 'Geist', sans-serif;">CODE</th>
                     <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">NAME</th>
                     <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">EMAIL</th>
                     <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">DEPT</th>
                     <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">POSITION</th>
-                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">MANAGER</th>
-                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-center w-[120px] text-[12px]" style="font-family: 'Geist', sans-serif;">STATUS</th>
-                    <th class="px-3 py-2 font-bold text-[#4c4546] uppercase tracking-wider text-right w-[200px] text-[12px]" style="font-family: 'Geist', sans-serif;">ACTIONS</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-left text-[12px]" style="font-family: 'Geist', sans-serif;">SYSTEM ACCOUNT</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] border-r border-[#D1D1D1] uppercase tracking-wider text-center w-[90px] text-[12px]" style="font-family: 'Geist', sans-serif;">STATUS</th>
+                    <th class="px-3 py-2 font-bold text-[#4c4546] uppercase tracking-wider text-right w-[180px] text-[12px]" style="font-family: 'Geist', sans-serif;">ACTIONS</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#D1D1D1]">
@@ -124,9 +124,28 @@
                     <td class="emp-position whitespace-nowrap px-3 py-2 text-black border-r border-[#D1D1D1] text-[11px]">
                         @(emp.Position?.Name ?? "—")
                     </td>
-                    <td class="whitespace-nowrap px-3 py-2 text-black font-medium border-r border-[#D1D1D1] uppercase text-[11px]">
-                        @(emp.Manager?.FullName ?? "—")
+                    <td class="whitespace-nowrap px-3 py-2 border-r border-[#D1D1D1] text-[11px]">
+                        @if (emp.UserId == null)
+                        {
+                            <span class="inline-block border border-[#D1D1D1] bg-[#F5F5F5] text-[#666666] px-[6px] py-[2px] text-[9px] font-mono font-bold uppercase tracking-wider">NO SYSTEM ACCOUNT</span>
+                        }
+                        else
+                        {
+                            <div class="flex flex-col gap-0.5">
+                                <span class="inline-block border border-black bg-black text-white px-[6px] py-[2px] text-[9px] font-mono font-bold uppercase tracking-wider w-fit">LINKED ACCOUNT</span>
+                                @if (emp.User != null && emp.User.Username != null && !string.IsNullOrEmpty(emp.User.Username.Value))
+                                {
+                                    <span class="font-mono text-[9px] text-black font-bold">Username: @emp.User.Username.Value</span>
+                                    @if (emp.User.Email != null && !string.IsNullOrEmpty(emp.User.Email.Value))
+                                    {
+                                        <span class="font-mono text-[9px] text-[#666666]">Email: @emp.User.Email.Value</span>
+                                    }
+                                }
+
+                            </div>
+                        }
                     </td>
+
                     <td class="whitespace-nowrap px-3 py-2 text-center border-r border-[#D1D1D1]">
                         <span class="emp-status hidden">@(emp.IsActive ? "ACTIVE" : "INACTIVE")</span>
                         @if (emp.IsActive)
@@ -143,11 +162,11 @@
                             @if (emp.UserId == null)
                             {
                                 <button type="button" data-modal-target="provisionAccountModal-@emp.Id.Value" data-modal-toggle="provisionAccountModal-@emp.Id.Value"
-                                        class="text-black hover:underline cursor-pointer">PROVISION</button>
+                                        class="text-black hover:underline cursor-pointer">PROVISION ACCOUNT</button>
                             }
                             else
                             {
-                                <span class="text-gray-400 cursor-default" title="Account Provisioned">PROVISIONED</span>
+                                <span class="text-gray-400 cursor-default font-mono text-[10px]" title="Employee linked to system user account">[LINKED]</span>
                             }
                             <button type="button" data-modal-target="updateEmployeeModal-@emp.Id.Value" data-modal-toggle="updateEmployeeModal-@emp.Id.Value"
                                     class="text-black hover:underline cursor-pointer">EDIT</button>
@@ -183,13 +202,24 @@
                 <!-- Card Body -->
                 <div class="p-4 space-y-3">
                     <h3 class="font-bold text-lg uppercase leading-none card-name @(emp.val.IsActive ? "" : "text-gray-500")">@emp.val.FullName</h3>
-                    <div class="grid grid-cols-[80px_1fr] gap-x-2 gap-y-1 text-[11px]">
+                    <div class="grid grid-cols-[90px_1fr] gap-x-2 gap-y-1 text-[11px]">
                         <span class="text-gray-500 uppercase font-semibold">Dept:</span>
                         <span class="font-medium text-black card-dept uppercase">@(emp.val.Department?.Name ?? "—")</span>
                         <span class="text-gray-500 uppercase font-semibold">Role:</span>
                         <span class="font-medium text-black card-position uppercase">@(emp.val.Position?.Name ?? "—")</span>
                         <span class="text-gray-500 uppercase font-semibold">Email:</span>
                         <span class="font-mono text-[10px] text-black card-email">@(emp.val.EmployeeCode.ToLower() + "@hrm.local")</span>
+                        <span class="text-gray-500 uppercase font-semibold">Account:</span>
+                        <div>
+                            @if (emp.val.UserId == null)
+                            {
+                                <span class="border border-[#D1D1D1] bg-[#F5F5F5] text-[#666666] px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase">NO SYSTEM ACCOUNT</span>
+                            }
+                            else
+                            {
+                                <span class="border border-black bg-black text-white px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase">LINKED ACCOUNT</span>
+                            }
+                        </div>
                         <span class="text-gray-500 uppercase font-semibold">Report To:</span>
                         <span class="font-medium text-black uppercase">@(emp.val.Manager?.FullName ?? "—")</span>
                     </div>
@@ -203,7 +233,7 @@
                     }
                     else
                     {
-                        <button type="button" disabled class="py-3 text-gray-400 cursor-not-allowed">[PROVISIONED]</button>
+                        <button type="button" disabled class="py-3 text-gray-400 cursor-not-allowed">[LINKED]</button>
                     }
                     <button type="button" data-modal-target="updateEmployeeModal-@emp.val.Id.Value" data-modal-toggle="updateEmployeeModal-@emp.val.Id.Value" class="py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">[EDIT]</button>
                     <button type="button" data-modal-target="confirmDelete-@emp.val.Id.Value" data-modal-toggle="confirmDelete-@emp.val.Id.Value" class="py-3 text-[#bb0015] hover:bg-[#bb0015] hover:text-white transition-colors cursor-pointer">[DELETE]</button>
@@ -211,6 +241,7 @@
             </div>
         }
     </div>
+
 
     <!-- Desktop Pagination: visible on large screens and up -->
     <div class="hidden lg:flex items-center justify-between border-t border-[#D1D1D1] pt-6 mt-4">
@@ -353,7 +384,7 @@
             const empDepartment = $('#empDepartment').val();
             const empPosition = $('#empPosition').val();
             const empJoinDate = $('#empJoinDate').val();
-            
+
             if(!empCode || empCode.trim() === ''){
                 empCodeError.removeClass('hidden').text("Please enter employee code");
                 return;
@@ -362,7 +393,7 @@
                 empFullNameError.removeClass('hidden').text("Please enter full name");
                 return;
             }
-        
+
             const formData = new FormData();
             formData.append('EmployeeCode', empCode);
             formData.append('FullName', empFullName);
@@ -395,13 +426,13 @@
             const empFullNameError = $(`#empFullNameError-${empId}`);
             empCodeError.addClass('hidden');
             empFullNameError.addClass('hidden');
-            
+
             const empCode = $(`#empCode-${empId}`).val();
             const empFullName = $(`#empFullName-${empId}`).val();
             const empDepartment = $(`#empDepartment-${empId}`).val();
             const empPosition = $(`#empPosition-${empId}`).val();
             const empJoinDate = $(`#empJoinDate-${empId}`).val();
-            
+
             if(!empCode || empCode.trim() === ''){
                 empCodeError.removeClass('hidden').text("Please enter employee code");
                 return;
@@ -410,7 +441,7 @@
                 empFullNameError.removeClass('hidden').text("Please enter full name");
                 return;
             }
-        
+
             const formData = new FormData();
             formData.append('Id', empId);
             formData.append('EmployeeCode', empCode);

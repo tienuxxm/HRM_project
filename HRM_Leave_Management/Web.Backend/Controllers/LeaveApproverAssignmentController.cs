@@ -1,19 +1,21 @@
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Role;
-using Application.LeaveApproverAssignments.Create;
-using Application.LeaveApproverAssignments.Update;
-using Application.LeaveApproverAssignments.Delete;
 using Application.LeaveApproverAssignments.GetAll;
 using Application.Employees.GetAll;
 using Application.Departments.GetAll;
 using Application.Positions.GetAll;
-using Domain.LeaveApproverAssignments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Backend.Controllers;
 
+/// <summary>
+/// Legacy Leave Approver Assignment Controller (Phase 8 Deprecated / Read-Only):
+///   - Retained strictly for Read-Only Audit history.
+///   - All Create, Update, Delete actions are permanently disabled.
+///   - Source of Truth: Dynamic Approval Routing (/approval-routing/policies).
+/// </summary>
 [Authorize]
 [Route("leave-approver-assignment")]
 public class LeaveApproverAssignmentController : Controller
@@ -39,10 +41,11 @@ public class LeaveApproverAssignmentController : Controller
             return Redirect("/NoPermission");
         }
 
-        var checkUpdatePerm = await _roleService.checkRoleExist(identityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
-        ViewBag.CanUpdate = checkUpdatePerm.Value;
+        // Phase 8: Legacy module is strictly READ-ONLY. Disable mutation flag.
+        ViewBag.CanUpdate = false;
+        ViewBag.IsLegacyReadOnly = true;
 
-        // Load assignments
+        // Load legacy assignments for audit history
         var query = new GetAllLeaveApproverAssignmentsQuery();
         var assignmentsResult = await _sender.Send(query, cancellationToken);
         if (assignmentsResult.IsFailure)
@@ -50,7 +53,7 @@ public class LeaveApproverAssignmentController : Controller
             return BadRequest(assignmentsResult.Error);
         }
 
-        // Load metadata for dropdowns
+        // Load metadata for dropdowns (read-only view)
         var employeesResult = await _sender.Send(new GetAllEmployeesQuery(), cancellationToken);
         ViewBag.Employees = employeesResult.Value ?? new();
 
@@ -64,63 +67,20 @@ public class LeaveApproverAssignmentController : Controller
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create([FromForm] CreateLeaveApproverAssignmentCommand command, CancellationToken cancellationToken)
+    public IActionResult Create()
     {
-        var checkUpdatePerm = await _roleService.checkRoleExist(_userContext.IdentityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
-        if (!checkUpdatePerm.Value)
-        {
-            return Redirect("/NoPermission");
-        }
-
-        var result = await _sender.Send(command, cancellationToken);
-        if (result.IsFailure)
-        {
-            var msg = result.Error == LeaveApproverAssignmentErrors.DuplicateAssignment
-                ? "Cấu hình phê duyệt này đã tồn tại (cùng người duyệt, phòng ban và chức vụ)."
-                : result.Error.Name;
-            return Json(new { success = false, message = msg });
-        }
-
-        return Json(new { success = true, message = "Thêm cấu hình phê duyệt thành công." });
+        return Json(new { success = false, message = "This feature has been retired (LEGACY READ-ONLY). Please manage dynamic superior routing under Dynamic Approval Routing Policies at /approval-routing/policies." });
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> Update([FromForm] UpdateLeaveApproverAssignmentCommand command, CancellationToken cancellationToken)
+    public IActionResult Update()
     {
-        var checkUpdatePerm = await _roleService.checkRoleExist(_userContext.IdentityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
-        if (!checkUpdatePerm.Value)
-        {
-            return Redirect("/NoPermission");
-        }
-
-        var result = await _sender.Send(command, cancellationToken);
-        if (result.IsFailure)
-        {
-            var msg = result.Error == LeaveApproverAssignmentErrors.DuplicateAssignment
-                ? "Cấu hình phê duyệt này đã tồn tại (cùng người duyệt, phòng ban và chức vụ)."
-                : result.Error.Name;
-            return Json(new { success = false, message = msg });
-        }
-
-        return Json(new { success = true, message = "Cập nhật cấu hình phê duyệt thành công." });
+        return Json(new { success = false, message = "This feature has been retired (LEGACY READ-ONLY). Please manage dynamic superior routing under Dynamic Approval Routing Policies at /approval-routing/policies." });
     }
 
     [HttpPost("delete")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    public IActionResult Delete()
     {
-        var checkUpdatePerm = await _roleService.checkRoleExist(_userContext.IdentityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
-        if (!checkUpdatePerm.Value)
-        {
-            return Redirect("/NoPermission");
-        }
-
-        var command = new DeleteLeaveApproverAssignmentCommand(id);
-        var result = await _sender.Send(command, cancellationToken);
-        if (result.IsFailure)
-        {
-            return Json(new { success = false, message = result.Error.Name });
-        }
-
-        return Json(new { success = true, message = "Xóa cấu hình phê duyệt thành công." });
+        return Json(new { success = false, message = "This feature has been retired (LEGACY READ-ONLY). Please manage dynamic superior routing under Dynamic Approval Routing Policies at /approval-routing/policies." });
     }
 }

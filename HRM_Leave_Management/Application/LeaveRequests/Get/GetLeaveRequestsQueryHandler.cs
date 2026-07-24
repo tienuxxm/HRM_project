@@ -2,20 +2,26 @@ using Application.Abstractions.Authentication;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.Role;
 using Domain.Abstractions;
+using Domain.ApprovalRouting;
 using Domain.Employees;
 using Domain.LeaveRequests;
-using Domain.LeaveApproverAssignments;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.LeaveRequests.Get;
 
+/// <summary>
+/// Get Leave Requests Query Handler (Phase 8 Deprecation & Dynamic Routing):
+///   - Dynamic Approval Routing (LeaveRequestApprovalAssignment) is the SOLE SOURCE OF TRUTH for runtime approval scoping and CanApprove evaluation.
+///   - Legacy LeaveApproverAssignment fallback is completely retired.
+///   - Admin/HR role provides global request visibility for administration/reassignment, but does not calculate CanApprove unless assigned.
+/// </summary>
 internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveRequestsQuery, PagedList<LeaveRequestResponse>>
 {
     private readonly ILeaveRequestRepository _leaveRequestRepository;
     private readonly IUserRepository _userRepository;
     private readonly IEmployeeRepository _employeeRepository;
-    private readonly ILeaveApproverAssignmentRepository _approverAssignmentRepository;
+    private readonly ILeaveRequestApprovalAssignmentRepository _approvalAssignmentRepository;
     private readonly IUserContext _userContext;
     private readonly IRoleService _roleService;
 
@@ -23,14 +29,14 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
         ILeaveRequestRepository leaveRequestRepository,
         IUserRepository userRepository,
         IEmployeeRepository employeeRepository,
-        ILeaveApproverAssignmentRepository approverAssignmentRepository,
+        ILeaveRequestApprovalAssignmentRepository approvalAssignmentRepository,
         IUserContext userContext,
         IRoleService roleService)
     {
         _leaveRequestRepository = leaveRequestRepository;
         _userRepository = userRepository;
         _employeeRepository = employeeRepository;
-        _approverAssignmentRepository = approverAssignmentRepository;
+        _approvalAssignmentRepository = approvalAssignmentRepository;
         _userContext = userContext;
         _roleService = roleService;
     }
@@ -39,19 +45,18 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
     {
         string identityId = _userContext.IdentityId;
 
-        // 1. Kiểm tra xem user có quyền APPROVE_LEAVE_REQUEST hay không
+        // 1. Check APPROVE_LEAVE_REQUEST permission
         var hasApprovePermissionResult = await _roleService.checkRoleExist(identityId, "APPROVE_LEAVE_REQUEST", cancellationToken);
         bool hasApprovePermission = hasApprovePermissionResult.Value;
 
-        // 2. Kiểm tra xem user có quyền VIEW_LEAVE_REQUEST (Employee) hay không
+        // 2. Check VIEW_LEAVE_REQUEST permission (Employee self-view)
         var hasViewPermissionResult = await _roleService.checkRoleExist(identityId, "VIEW_LEAVE_REQUEST", cancellationToken);
         bool hasViewPermission = hasViewPermissionResult.Value;
 
-        // 3. UPDATE_LEAVE_APPROVER_ASSIGNMENT đang được dùng làm quyền quản trị cấu hình và global leave request visibility trong MVP Phase 3B.
+        // 3. Check UPDATE_LEAVE_APPROVER_ASSIGNMENT permission (Admin/HR global oversight capability)
         var isAdminOrHRResult = await _roleService.checkRoleExist(identityId, "UPDATE_LEAVE_APPROVER_ASSIGNMENT", cancellationToken);
         bool isAdminOrHR = isAdminOrHRResult.Value;
 
-        // Nếu không có bất kỳ quyền nào (bao gồm quyền quản trị cấu hình / global visibility của Admin/HR), trả về danh sách rỗng
         if (!hasApprovePermission && !hasViewPermission && !isAdminOrHR)
         {
             return Result.Success(new PagedList<LeaveRequestResponse>(new List<LeaveRequestResponse>(), 0, 1, request.PageSize));
@@ -62,12 +67,9 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             .Include(lr => lr.LeaveType)
             .AsQueryable();
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        // 4. Phân quyền truy cập dữ liệu
+        // 4. Data access scoping
         if (!isAdminOrHR)
         {
-            // Lấy employee hiện tại của user
             var user = await _userRepository.GetEntitiesAsQueryable()
                 .FirstOrDefaultAsync(u => u.IdentityId == new IdentityId(identityId), cancellationToken);
 
@@ -86,44 +88,38 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
 
             if (hasViewPermission && !hasApprovePermission)
             {
-                // Nhân viên thường chỉ thấy đơn của mình
+                // Regular Employee: own requests only
                 query = query.Where(lr => lr.EmployeeId == employee.Id);
             }
             else if (!hasViewPermission && hasApprovePermission)
             {
-                // Chỉ có quyền duyệt (approver): thấy các đơn mình được phân công duyệt (không bao gồm đơn của bản thân vì không có quyền view)
+                // Approver only: requests where current employee is the assigned approver in LeaveRequestApprovalAssignment (excludes own)
                 query = query.Where(lr =>
                     lr.EmployeeId != employee.Id &&
-                    _approverAssignmentRepository.GetEntitiesAsQueryable().Any(a =>
-                        a.ApproverEmployeeId == employee.Id &&
-                        a.IsActive &&
-                        (!a.EffectiveFrom.HasValue || a.EffectiveFrom.Value <= today) &&
-                        (!a.EffectiveTo.HasValue || a.EffectiveTo.Value >= today) &&
-                        (a.TargetDepartmentId == null || a.TargetDepartmentId == lr.Employee.DepartmentId) &&
-                        (a.TargetPositionId == null || a.TargetPositionId == lr.Employee.PositionId)
+                    _approvalAssignmentRepository.GetEntitiesAsQueryable().Any(a =>
+                        a.LeaveRequestId == lr.Id &&
+                        a.AssignedApproverEmployeeId == employee.Id &&
+                        a.AssignmentStatus == ApprovalAssignmentStatus.Assigned
                     )
                 );
             }
             else if (hasViewPermission && hasApprovePermission)
             {
-                // Vừa có quyền view vừa có quyền duyệt: thấy đơn của chính mình HOẶC các đơn được phân công duyệt
+                // Employee + Approver: own requests OR requests assigned in LeaveRequestApprovalAssignment
                 query = query.Where(lr =>
                     lr.EmployeeId == employee.Id ||
                     (lr.EmployeeId != employee.Id &&
-                     _approverAssignmentRepository.GetEntitiesAsQueryable().Any(a =>
-                         a.ApproverEmployeeId == employee.Id &&
-                         a.IsActive &&
-                         (!a.EffectiveFrom.HasValue || a.EffectiveFrom.Value <= today) &&
-                         (!a.EffectiveTo.HasValue || a.EffectiveTo.Value >= today) &&
-                         (a.TargetDepartmentId == null || a.TargetDepartmentId == lr.Employee.DepartmentId) &&
-                         (a.TargetPositionId == null || a.TargetPositionId == lr.Employee.PositionId)
+                     _approvalAssignmentRepository.GetEntitiesAsQueryable().Any(a =>
+                         a.LeaveRequestId == lr.Id &&
+                         a.AssignedApproverEmployeeId == employee.Id &&
+                         a.AssignmentStatus == ApprovalAssignmentStatus.Assigned
                      ))
                 );
             }
         }
         else
         {
-            // Admin/HR có thể lọc theo EmployeeId nếu có filter
+            // Admin/HR filter by EmployeeId if requested
             if (request.EmployeeId.HasValue)
             {
                 var filterEmployeeId = new EmployeeId(request.EmployeeId.Value);
@@ -131,7 +127,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             }
         }
 
-        // 4. Áp dụng các filter chung khác
+        // Apply general filters
         if (request.LeaveTypeId.HasValue)
         {
             var filterLeaveTypeId = new Domain.LeaveTypes.LeaveTypeId(request.LeaveTypeId.Value);
@@ -144,7 +140,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             query = query.Where(lr => lr.Status == filterStatus);
         }
 
-        // 5. Áp dụng phân trang (Pagination)
+        // Pagination
         int page = request.Page > 0 ? request.Page : 1;
         int pageSize = request.PageSize > 0 ? Math.Min(request.PageSize, 100) : 5;
 
@@ -162,7 +158,7 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        // 6. Lấy danh sách processedBy user IDs
+        // Fetch processedBy user names
         var processedByUserGuids = rawList
             .Where(lr => lr.ProcessedBy.HasValue)
             .Select(lr => lr.ProcessedBy.Value)
@@ -180,34 +176,35 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
             userDict = processedUsers.ToDictionary(u => u.Id.Value, u => u.Name.Value);
         }
 
-        // 7. Lấy danh sách assignment của user hiện tại để tính CanApprove
+        // Fetch Dynamic Approval Routing Assignments for response items
+        var rawLeaveRequestIds = rawList.Select(lr => lr.Id).ToList();
+        var approvalAssignments = await _approvalAssignmentRepository.GetEntitiesAsQueryable()
+            .Include(a => a.AssignedApprover)
+            .Where(a => rawLeaveRequestIds.Contains(a.LeaveRequestId))
+            .ToListAsync(cancellationToken);
+
+        var approvalAssignmentDict = approvalAssignments.ToDictionary(a => a.LeaveRequestId.Value);
+
+        // Resolve current employee identity for CanApprove calculation
         Employee? currentEmployee = null;
-        List<LeaveApproverAssignment> currentEmployeeAssignments = new();
         var currentUser = await _userRepository.GetEntitiesAsQueryable()
             .FirstOrDefaultAsync(u => u.IdentityId == new IdentityId(identityId), cancellationToken);
         if (currentUser != null)
         {
             currentEmployee = await _employeeRepository.GetEntitiesAsQueryable()
                 .FirstOrDefaultAsync(e => e.UserId == currentUser.Id && e.IsActive, cancellationToken);
-            if (currentEmployee != null)
-            {
-                var todayDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                currentEmployeeAssignments = await _approverAssignmentRepository.GetEntitiesAsQueryable()
-                    .Where(a => a.ApproverEmployeeId == currentEmployee.Id && a.IsActive)
-                    .ToListAsync(cancellationToken);
-            }
         }
 
         var response = rawList.Select(lr => {
             bool canApprove = false;
-            if (hasApprovePermission && currentEmployee != null && lr.Status == LeaveRequestStatus.Pending && lr.EmployeeId != currentEmployee.Id && lr.Employee != null)
+            approvalAssignmentDict.TryGetValue(lr.Id.Value, out var dynamicAssignment);
+
+            // CanApprove is strictly calculated from dynamic LeaveRequestApprovalAssignment (NO legacy fallback)
+            if (hasApprovePermission && currentEmployee != null && lr.Status == LeaveRequestStatus.Pending && lr.EmployeeId != currentEmployee.Id)
             {
-                canApprove = currentEmployeeAssignments.Any(a =>
-                    (a.TargetDepartmentId == null || a.TargetDepartmentId == lr.Employee.DepartmentId) &&
-                    (a.TargetPositionId == null || a.TargetPositionId == lr.Employee.PositionId) &&
-                    (!a.EffectiveFrom.HasValue || a.EffectiveFrom.Value <= today) &&
-                    (!a.EffectiveTo.HasValue || a.EffectiveTo.Value >= today)
-                );
+                canApprove = dynamicAssignment != null &&
+                             dynamicAssignment.AssignmentStatus == ApprovalAssignmentStatus.Assigned &&
+                             dynamicAssignment.AssignedApproverEmployeeId == currentEmployee.Id;
             }
 
             return new LeaveRequestResponse
@@ -230,7 +227,17 @@ internal sealed class GetLeaveRequestsQueryHandler : IQueryHandler<GetLeaveReque
                 ProcessedBy = lr.ProcessedBy,
                 ProcessedByName = lr.ProcessedBy.HasValue && userDict.TryGetValue(lr.ProcessedBy.Value, out var name) ? name : null,
                 Comment = lr.Comment,
-                CanApprove = canApprove
+                CanApprove = canApprove,
+
+                // Approval Routing Assignment Info
+                AssignedApproverEmployeeId = dynamicAssignment?.AssignedApproverEmployeeId?.Value,
+                AssignedApproverName = dynamicAssignment?.AssignedApprover?.FullName,
+                AssignedApproverCode = dynamicAssignment?.AssignedApprover?.EmployeeCode,
+                AssignmentStatus = dynamicAssignment?.AssignmentStatus.ToString(),
+                AssignmentReason = dynamicAssignment?.AssignmentReason.ToString(),
+                NeedsRoutingAttention = dynamicAssignment?.AssignmentStatus == ApprovalAssignmentStatus.NeedsAdminAttention,
+                SnapshotPolicyId = dynamicAssignment?.SnapshotPolicyId?.Value,
+                SnapshotRuleId = dynamicAssignment?.SnapshotRuleId?.Value
             };
         }).ToList();
 

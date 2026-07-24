@@ -75,4 +75,8 @@ public static class LeaveRequestErrors
     public static Error InvalidShiftRegistration = new(
         "LeaveRequest.InvalidShiftRegistration",
         "The selected leave session does not match the configured working shift.");
+
+    public static Error ApprovalRouteNotConfigured = new(
+        "LeaveRequest.ApprovalRouteNotConfigured",
+        "Approval route is not configured for this department/position. Please assign an approver before submitting leave request.");
 }

@@ -303,10 +303,11 @@
                 </text>
             }
             {
-                name: 'Approver Assignments',
-                icon: 'how_to_reg',
-                url: 'leave-approver-assignment',
-                mobileLabel: 'Approvers'
+                name: 'APPROVAL ROUTING',
+                icon: 'alt_route',
+                url: 'approval-routing/policies',
+                basePath: 'approval-routing',
+                mobileLabel: 'Routing'
             },
             {
                 name: 'SYSTEM',
@@ -338,8 +339,8 @@
                         </div>
                     </div>`)
             }else{
-                const path = location.pathname.split('/')[1]?.toLowerCase()
-                const isActive = path === i.url?.toLowerCase();
+                const path = location.pathname.split('/')[1]?.toLowerCase();
+                const isActive = i.basePath ? path === i.basePath.toLowerCase() : path === i.url?.toLowerCase();
 
                 menuContainer.append(
                     `<div class="flex flex-col justify-start items-start w-full">
@@ -356,7 +357,7 @@
         menuItems.forEach(i => {
             if (!i.isTab) {
                 const path = location.pathname.split('/')[1]?.toLowerCase();
-                const isActive = path === i.url?.toLowerCase();
+                const isActive = i.basePath ? path === i.basePath.toLowerCase() : path === i.url?.toLowerCase();
 
                 mobileNavContainer.append(
                     `<a href="/${i.url}" class="mobile-nav-item flex-shrink-0 w-20 h-full flex flex-col items-center justify-center gap-1 transition-colors duration-150 ${isActive ? 'bg-black text-white font-bold' : 'text-[#4c4546] hover:bg-[#eeeeee] hover:text-black'}" style="border-radius: 0px !important; text-decoration: none !important;">

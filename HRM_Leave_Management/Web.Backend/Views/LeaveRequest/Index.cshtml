@@ -160,7 +160,7 @@
                     <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-24 text-center">Duration</th>
                     <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1]">Reason</th>
                     <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-28 text-center">Status</th>
-                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1]">Process Info</th>
+                    <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1]">Process Info / Approver</th>
                     <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-32 text-center">Actions</th>
                 </tr>
             </thead>
@@ -224,7 +224,23 @@
                                 }
                                 else
                                 {
-                                    <span class="text-gray-400 italic text-[10px]">Waiting approval</span>
+                                    if (lr.val.NeedsRoutingAttention)
+                                    {
+                                        <span class="px-2 py-0.5 font-mono text-[9px] font-bold bg-[#E62429] text-white uppercase border border-[#E62429] inline-block">
+                                            NEEDS ROUTING ATTENTION
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(lr.val.AssignedApproverName))
+                                    {
+                                        <div class="text-[10px] text-black">
+                                            <p class="font-bold text-[#4c4546] uppercase text-[9px]">Assigned Approver:</p>
+                                            <p class="font-bold">@lr.val.AssignedApproverName <span class="font-mono text-[9px] text-[#4c4546]">(@lr.val.AssignedApproverCode)</span></p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400 italic text-[10px]">Waiting approval</span>
+                                    }
                                 }
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap text-center">
@@ -397,7 +413,7 @@
                                     <p class="text-[11px] text-gray-700 max-w-full truncate" title="@lr.Reason">@lr.Reason</p>
                                 </div>
                             }
-                            
+
                             @if (lr.Status != "Pending")
                             {
                                 <div class="flex flex-col col-span-2 bg-[#F9F9F9] p-2 border border-[#EBEBEB]">
@@ -416,8 +432,23 @@
                             else
                             {
                                 <div class="flex flex-col col-span-2">
-                                    <span class="font-mono text-[9px] text-[#4c4546] uppercase">Process Info</span>
-                                    <span class="text-[11px] text-gray-400 italic">Waiting approval</span>
+                                    <span class="font-mono text-[9px] text-[#4c4546] uppercase">Assigned Approver</span>
+                                    @if (lr.NeedsRoutingAttention)
+                                    {
+                                        <span class="px-2 py-0.5 font-mono text-[9px] font-bold bg-[#E62429] text-white uppercase border border-[#E62429] inline-block mt-1 w-fit">
+                                            NEEDS ROUTING ATTENTION
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(lr.AssignedApproverName))
+                                    {
+                                        <span class="text-[11px] font-bold text-black mt-0.5">
+                                            @lr.AssignedApproverName <span class="font-mono text-[10px] text-[#4c4546]">(@lr.AssignedApproverCode)</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-[11px] text-gray-400 italic">Waiting approval</span>
+                                    }
                                 </div>
                             }
                         </div>
@@ -494,7 +525,7 @@
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
                 const formData = new FormData(form);
-                
+
                 fetch("/leave-request/create", {
                     method: "POST",
                     body: formData
@@ -519,7 +550,7 @@
     function cancelLeaveRequest(id) {
         const formData = new FormData();
         formData.append("id", id);
-        
+
         // Get anti-forgery token if available
         const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
         if (tokenElement) {

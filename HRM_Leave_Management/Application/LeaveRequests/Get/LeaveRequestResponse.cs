@@ -1,4 +1,4 @@
-﻿namespace Application.LeaveRequests.Get;
+namespace Application.LeaveRequests.Get;
 
 public sealed class LeaveRequestResponse
 {
@@ -21,4 +21,14 @@ public sealed class LeaveRequestResponse
     public string? ProcessedByName { get; set; }
     public string? Comment { get; set; }
     public bool CanApprove { get; set; }
+
+    // Approval Routing Integration Properties
+    public Guid? AssignedApproverEmployeeId { get; set; }
+    public string? AssignedApproverName { get; set; }
+    public string? AssignedApproverCode { get; set; }
+    public string? AssignmentStatus { get; set; }
+    public string? AssignmentReason { get; set; }
+    public bool NeedsRoutingAttention { get; set; }
+    public Guid? SnapshotPolicyId { get; set; }
+    public Guid? SnapshotRuleId { get; set; }
 }

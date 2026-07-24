@@ -47,10 +47,11 @@
                     <tr class="border-b border-[#D1D1D1]">
                         <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-16 text-center">No</th>
                         <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Full Name</th>
-                        <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-48">Username</th>
+                        <th class="px-4 py-3 font-mono text-[10px] font-bold text-[#4c4546] uppercase border-r border-[#D1D1D1] w-40">Username</th>
                         <th class="px-4 py-3 font-bold text-[11px] text-black uppercase border-r border-[#D1D1D1]">Email</th>
+                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase border-r border-[#D1D1D1]">Linked Employee</th>
                         <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase border-r border-[#D1D1D1]">Permission</th>
-                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-40">Actions</th>
+                        <th class="px-4 py-3 font-bold text-[10px] text-[#4c4546] uppercase w-36">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#D1D1D1]">
@@ -71,6 +72,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Mobile Stacked List -->
     <div class="lg:hidden flex flex-col gap-4">
@@ -214,6 +216,18 @@
                         "className": "px-4 py-3 border-r border-[#D1D1D1]",
                         "targets": [4],
                         "render": function(data, type, row, meta) {
+                            if (row.employeeCode || row.employeeName) {
+                                const code = row.employeeCode || '';
+                                const name = row.employeeName ? ` (${row.employeeName})` : '';
+                                return `<span class="bg-black text-white px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded-none">LINKED EMPLOYEE</span> <span class="font-mono text-[10px] font-bold text-black">${code}${name}</span>`;
+                            }
+                            return `<span class="bg-[#F5F5F5] border border-[#D1D1D1] text-[#666666] px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded-none">SYSTEM ONLY</span>`;
+                        }
+                    },
+                    {
+                        "className": "px-4 py-3 border-r border-[#D1D1D1]",
+                        "targets": [5],
+                        "render": function(data, type, row, meta) {
                             if (!data) return '<span class="text-gray-400 font-mono text-[9px]">NO ROLES</span>';
                             const roles = Array.isArray(data) ? data : [data];
                             return roles.map(r => `<span class="bg-[#F5F5F5] border border-[#D1D1D1] text-black px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded-none">${r}</span>`).join(' ');
@@ -221,7 +235,7 @@
                     },
                     {
                         "className": "px-4 py-3 whitespace-nowrap",
-                        "targets": [5],
+                        "targets": [6],
                         "render": function(data, type, row, meta) {
                             return `
                                 <div class="flex space-x-3">
@@ -239,7 +253,7 @@
                             `;
                         }
                     },
-                    { "orderable": false, "targets": [0, 4, 5] },
+                    { "orderable": false, "targets": [0, 4, 5, 6] },
                     { "defaultContent": "-", "targets": [1, 2, 3] }
                 ],
                 columns: [
@@ -247,6 +261,7 @@
                     { "data": "fullname" },
                     { "data": "username" },
                     { "data": "email" },
+                    { "data": null },
                     { "data": "rolesResponse" },
                     { "data": null }
                 ]
@@ -346,6 +361,15 @@
                         rolesHtml = `<span class="text-gray-400 font-mono text-[9px]">NO ROLES</span>`;
                     }
 
+                    let employeeHtml = '';
+                    if (row.employeeCode || row.employeeName) {
+                        const code = row.employeeCode || '';
+                        const name = row.employeeName ? ` (${row.employeeName})` : '';
+                        employeeHtml = `<span class="bg-black text-white px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase">LINKED EMPLOYEE</span> <span class="font-mono text-[10px] font-bold text-black">${code}${name}</span>`;
+                    } else {
+                        employeeHtml = `<span class="bg-[#F5F5F5] border border-[#D1D1D1] text-[#666666] px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase">SYSTEM ONLY</span>`;
+                    }
+
                     const cardHtml = `
                         <div class="bg-white border border-[#D1D1D1] p-4 flex flex-col gap-3">
                             <div class="flex justify-between items-start">
@@ -359,6 +383,10 @@
                                 <div class="flex justify-between">
                                     <span class="text-[#4c4546] font-mono text-[10px] uppercase">Email:</span>
                                     <span class="font-bold text-black select-all">${email}</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-[#4c4546] font-mono text-[10px] uppercase">Account Type:</span>
+                                    <div>${employeeHtml}</div>
                                 </div>
                                 <div class="flex justify-between items-center mt-1">
                                     <span class="text-[#4c4546] font-mono text-[10px] uppercase">Roles:</span>

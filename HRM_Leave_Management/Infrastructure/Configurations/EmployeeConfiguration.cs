@@ -37,7 +37,8 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.HasOne(e => e.Position)
             .WithMany()
             .HasForeignKey(e => e.PositionId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("fk_employee_positions_position_temp_id1");
 
         // Nullable FK — DepartmentId
         builder.Property(e => e.DepartmentId)
@@ -48,7 +49,8 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.HasOne(e => e.Department)
             .WithMany()
             .HasForeignKey(e => e.DepartmentId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("fk_employee_department_department_temp_id1");
 
         // Nullable FK — UserId
         builder.Property(e => e.UserId)
@@ -75,6 +77,7 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.HasOne(e => e.Manager)
             .WithMany()
             .HasForeignKey(e => e.ManagerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("fk_employee_employee_manager_temp_id2");
     }
 }

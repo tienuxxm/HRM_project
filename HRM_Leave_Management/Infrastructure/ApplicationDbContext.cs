@@ -5,6 +5,7 @@ using Domain.Abstractions;
 using Domain.Positions;
 using Domain.LeaveApproverAssignments;
 using Domain.WorkCalendars;
+using Domain.ApprovalRouting;
 using Infrastructure.Outbox;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -114,4 +115,11 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IDataProtecti
     public DbSet<CalendarImportBatch> CalendarImportBatches { get; set; } = null!;
     public DbSet<CalendarImportBatchRow> CalendarImportBatchRows { get; set; } = null!;
     public DbSet<LeaveRequestRecalculationAudit> LeaveRequestRecalculationAudits { get; set; } = null!;
+    public DbSet<ApprovalRoutePolicy> ApprovalRoutePolicies { get; set; } = null!;
+    public DbSet<ApprovalRouteLevel> ApprovalRouteLevels { get; set; } = null!;
+    public DbSet<ApprovalRouteLevelAssignment> ApprovalRouteLevelAssignments { get; set; } = null!;
+    public DbSet<ApprovalRouteRule> ApprovalRouteRules { get; set; } = null!;
+    public DbSet<ApprovalRouteRuleCandidate> ApprovalRouteRuleCandidates { get; set; } = null!;
+    public DbSet<LeaveRequestApprovalAssignment> LeaveRequestApprovalAssignments { get; set; } = null!;
+    public DbSet<ApprovalRouteAuditLog> ApprovalRouteAuditLogs { get; set; } = null!;
 }

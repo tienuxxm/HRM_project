@@ -1,0 +1,689 @@
+/* ==========================================================================
+   Swiss International HR Design System - Operational Dashboard Shell
+   Palette: Swiss Monochrome (Black, Dark Gray, Mid Gray, Light Gray, White)
+   Alert accent: Swiss Red (#E62429) strictly for urgent alerts & rejections.
+   No blue, green, or yellow decorative accents.
+   ========================================================================== */
+
+:root {
+    --hrm-bg-main: #F9FAFB;
+    --hrm-card-bg: #FFFFFF;
+    --hrm-border-light: #E5E7EB;
+    --hrm-border-dark: #D1D5DB;
+    --hrm-text-primary: #111827;
+    --hrm-text-secondary: #374151;
+    --hrm-text-muted: #6B7280;
+    --hrm-text-light: #9CA3AF;
+    --hrm-alert-red: #E62429;
+    --hrm-alert-red-bg: #FEF2F2;
+    --hrm-alert-red-border: #FCA5A5;
+    --hrm-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Base Dashboard Layout */
+.hrm-dashboard-container {
+    font-family: var(--hrm-font-family);
+    background-color: var(--hrm-bg-main);
+    color: var(--hrm-text-primary);
+    padding: 1.5rem;
+    min-height: calc(100vh - 4rem);
+}
+
+/* Header Section */
+.hrm-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--hrm-text-primary);
+}
+
+.hrm-dashboard-title-group h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--hrm-text-primary);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.hrm-dashboard-title-group p {
+    font-size: 0.875rem;
+    color: var(--hrm-text-muted);
+    margin: 0.25rem 0 0 0;
+}
+
+.hrm-period-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hrm-filter-select {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--hrm-text-primary);
+    background-color: var(--hrm-card-bg);
+    border: 1px solid var(--hrm-border-dark);
+    border-radius: 2px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.hrm-filter-select:focus {
+    outline: none;
+    border-color: var(--hrm-text-primary);
+}
+
+/* Grid System */
+.hrm-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+/* Swiss Card Container (Flat Hairline Sharp Style) */
+.hrm-card {
+    background-color: var(--hrm-card-bg);
+    border: 1px solid var(--hrm-border-light);
+    border-radius: 2px;
+    padding: 1.25rem;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.hrm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--hrm-border-light);
+}
+
+.hrm-card-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--hrm-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hrm-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 2px;
+    background-color: var(--hrm-text-primary);
+    color: var(--hrm-card-bg);
+}
+
+.hrm-badge-alert {
+    background-color: var(--hrm-alert-red);
+    color: #FFFFFF;
+}
+
+.hrm-card-action {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--hrm-text-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    transition: color 0.15s ease-in-out;
+}
+
+.hrm-card-action:hover {
+    color: var(--hrm-text-primary);
+    text-decoration: underline;
+}
+
+/* Empty Skeleton Placeholder for Phase A1 */
+.hrm-skeleton-box {
+    border: 1px dashed var(--hrm-border-dark);
+    background-color: var(--hrm-bg-main);
+    border-radius: 2px;
+    padding: 1.5rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hrm-skeleton-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--hrm-text-secondary);
+}
+
+.hrm-skeleton-subtext {
+    font-size: 0.75rem;
+    color: var(--hrm-text-light);
+}
+
+/* Urgent Alert Box Style */
+.hrm-alert-box {
+    background-color: var(--hrm-alert-red-bg);
+    border: 1px solid var(--hrm-alert-red-border);
+    border-radius: 2px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.hrm-alert-box-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--hrm-alert-red);
+    margin-bottom: 0.25rem;
+}
+
+.hrm-alert-box-desc {
+    font-size: 0.75rem;
+    color: var(--hrm-text-secondary);
+}
+
+/* Responsive Grid Columns (Desktop default, Tablet/Mobile stack) */
+.col-span-12 { grid-column: span 12 / span 12; }
+.col-span-8  { grid-column: span 8 / span 8; }
+.col-span-6  { grid-column: span 6 / span 6; }
+.col-span-4  { grid-column: span 4 / span 4; }
+
+@media (max-width: 1024px) {
+    .col-span-8, .col-span-6, .col-span-4 {
+        grid-column: span 12 / span 12;
+    }
+}
+
+@media (max-width: 640px) {
+    .hrm-dashboard-container {
+        padding: 0.75rem;
+    }
+
+    .hrm-dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .hrm-dashboard-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .col-span-12, .col-span-8, .col-span-6, .col-span-4 {
+        grid-column: span 1 / span 1;
+    }
+}
+
+/* ==========================================================================
+   Phase A2A: Data-Driven Widget Styles
+   ========================================================================== */
+
+/* Empty State */
+.hrm-empty-state {
+    border: 1px dashed var(--hrm-border-dark);
+    background-color: var(--hrm-bg-main);
+    border-radius: 2px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hrm-empty-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.hrm-empty-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--hrm-text-muted);
+}
+
+/* Data Tables (W1, W8) */
+.hrm-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.hrm-data-table thead th {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hrm-text-muted);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--hrm-border-dark);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.hrm-data-table tbody td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--hrm-border-light);
+    color: var(--hrm-text-secondary);
+    vertical-align: middle;
+}
+
+.hrm-data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.hrm-data-table tbody tr:hover {
+    background-color: var(--hrm-bg-main);
+}
+
+/* Status Badges (W1 table & global) */
+.hrm-status {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 2px;
+}
+
+.hrm-status-approved {
+    background-color: var(--hrm-text-primary);
+    color: var(--hrm-card-bg);
+    border: 1px solid var(--hrm-text-primary);
+}
+
+.hrm-status-pending {
+    background-color: var(--hrm-card-bg);
+    color: var(--hrm-text-primary);
+    border: 1px solid var(--hrm-border-dark);
+}
+
+.hrm-status-rejected {
+    background-color: var(--hrm-alert-red);
+    color: #FFFFFF;
+    border: 1px solid var(--hrm-alert-red);
+}
+
+.hrm-status-canceled {
+    background-color: var(--hrm-bg-main);
+    color: var(--hrm-text-muted);
+    border: 1px solid var(--hrm-border-light);
+}
+
+/* W2: Distribution Bar */
+.hrm-distribution-bar {
+    display: flex;
+    height: 16px;
+    border-radius: 2px;
+    overflow: hidden;
+    background-color: var(--hrm-bg-main);
+    border: 1px solid var(--hrm-border-light);
+}
+
+.hrm-bar-segment {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+}
+
+.hrm-bar-approved { background-color: var(--hrm-text-primary); }
+.hrm-bar-pending { background-color: #D1D5DB; }
+.hrm-bar-rejected { background-color: var(--hrm-alert-red); }
+.hrm-bar-canceled { background-color: #F3F4F6; }
+
+.hrm-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--hrm-text-secondary);
+}
+
+/* W3: Trend Line SVG Chart Container */
+.hrm-trend-line-container {
+    min-height: 150px;
+    border: 1px solid var(--hrm-border-light);
+    background-color: var(--hrm-card-bg);
+    position: relative;
+    padding: 0.75rem 0.75rem 0.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* W6: Leave Balance Horizontal Progress */
+.hrm-balance-summary {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.hrm-balance-track {
+    height: 24px;
+    width: 100%;
+    background-color: var(--hrm-bg-main);
+    border: 1px solid var(--hrm-border-dark);
+    display: flex;
+    align-items: center;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hrm-balance-fill {
+    height: 100%;
+    background-color: var(--hrm-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+    transition: width 0.3s ease-in-out;
+}
+
+.hrm-balance-text-white {
+    color: #FFFFFF;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.hrm-balance-metadata {
+    display: flex;
+    justify-content: space-between;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--hrm-text-secondary);
+    margin-top: 0.25rem;
+}
+
+.hrm-balance-bold {
+    color: var(--hrm-text-primary);
+    font-weight: 700;
+}
+
+/* W8: Timeline List */
+.hrm-timeline {
+    position: relative;
+    padding-left: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.hrm-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background-color: var(--hrm-border-dark);
+}
+
+.hrm-timeline-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hrm-timeline-dot {
+    position: absolute;
+    left: -1.75rem;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--hrm-card-bg);
+    border: 2px solid var(--hrm-text-primary);
+    z-index: 1;
+}
+
+/* W10: Department Leave Load Bar List */
+.hrm-dept-load-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.hrm-dept-load-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.hrm-dept-load-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--hrm-text-primary);
+}
+
+.hrm-dept-load-track {
+    height: 12px;
+    width: 100%;
+    background-color: var(--hrm-bg-main);
+    border: 1px solid var(--hrm-border-light);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hrm-dept-load-bar {
+    height: 100%;
+    background-color: var(--hrm-text-primary);
+    transition: width 0.3s ease-in-out;
+}
+
+
+/* Responsive adjustments for A2A widgets */
+@media (max-width: 640px) {
+    .hrm-status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hrm-trend-chart {
+        height: 120px;
+    }
+
+    .hrm-balance-numbers {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ==========================================================================
+   Phase A2B: Approval Widget Styles (W4, W5)
+   ========================================================================== */
+
+/* W4: Approval Queue Cards */
+.hrm-approval-queue {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.hrm-approval-card {
+    border: 1px solid var(--hrm-border-light);
+    border-radius: 2px;
+    padding: 0.75rem;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.hrm-approval-card:hover {
+    border-color: var(--hrm-text-primary);
+}
+
+.hrm-approval-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.375rem;
+}
+
+.hrm-approval-name {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--hrm-text-primary);
+}
+
+.hrm-approval-age {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--hrm-text-muted);
+    text-transform: uppercase;
+}
+
+.hrm-age-overdue {
+    color: var(--hrm-alert-red);
+    font-weight: 700;
+}
+
+.hrm-approval-card-body {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.hrm-approval-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--hrm-text-secondary);
+}
+
+.hrm-approval-dates {
+    font-size: 0.75rem;
+    color: var(--hrm-text-muted);
+}
+
+.hrm-approval-duration {
+    font-size: 0.75rem;
+    color: var(--hrm-text-muted);
+}
+
+.hrm-approval-link {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--hrm-text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+}
+
+.hrm-approval-link:hover {
+    color: var(--hrm-text-primary);
+    text-decoration: underline;
+}
+
+/* W5: Aging Buckets */
+.hrm-aging-buckets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.hrm-aging-bucket {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid var(--hrm-border-light);
+    border-radius: 2px;
+}
+
+.hrm-aging-count {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--hrm-text-primary);
+    line-height: 1.2;
+}
+
+.hrm-aging-label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hrm-text-muted);
+    margin-top: 0.25rem;
+}
+
+.hrm-aging-overdue {
+    border-left: 3px solid var(--hrm-alert-red);
+}
+
+.hrm-aging-overdue .hrm-aging-count {
+    color: var(--hrm-alert-red);
+}
+
+/* W5: Overdue List */
+.hrm-overdue-list {
+    border-top: 1px solid var(--hrm-border-light);
+    padding-top: 0.75rem;
+}
+
+.hrm-overdue-header {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hrm-alert-red);
+    margin-bottom: 0.5rem;
+}
+
+.hrm-overdue-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid var(--hrm-border-light);
+    font-size: 0.75rem;
+}
+
+.hrm-overdue-item:last-child {
+    border-bottom: none;
+}
+
+.hrm-overdue-name {
+    font-weight: 600;
+    color: var(--hrm-text-primary);
+}
+
+.hrm-overdue-type {
+    color: var(--hrm-text-muted);
+}
+
+.hrm-overdue-age {
+    font-weight: 700;
+    color: var(--hrm-alert-red);
+}
+
+/* Responsive adjustments for A2B widgets */
+@media (max-width: 640px) {
+    .hrm-aging-buckets {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

@@ -1,6 +1,7 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using Application.WorkCalendars;
+using Application.Abstractions.ApprovalRouting;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.AWS;
 using Application.Abstractions.Clock;
@@ -18,6 +19,7 @@ using Domain.Categories;
 using Domain.Departments;
 using Domain.Deliveries;
 using Domain.Employees;
+using Domain.ApprovalRouting;
 using Domain.Positions;
 using Domain.Districts;
 using Domain.FreeServices;
@@ -69,6 +71,7 @@ using Infrastructure.Jobs;
 using Infrastructure.Outbox;
 using Infrastructure.Repositories;
 using Infrastructure.RoleServices;
+using Infrastructure.Services;
 using Infrastructure.SmsServices;
 using Infrastructure.VnPay;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -158,6 +161,14 @@ public static class DependencyInjection
         services.AddScoped<ICalendarImportBatchRowRepository, CalendarImportBatchRowRepository>();
 
         services.AddScoped<ILeaveRequestRecalculationAuditRepository, LeaveRequestRecalculationAuditRepository>();
+
+        services.AddScoped<IApprovalRoutePolicyRepository, ApprovalRoutePolicyRepository>();
+
+        services.AddScoped<ILeaveRequestApprovalAssignmentRepository, LeaveRequestApprovalAssignmentRepository>();
+
+        services.AddScoped<IApprovalRouteAuditLogRepository, ApprovalRouteAuditLogRepository>();
+
+        services.AddScoped<IApprovalRouteResolverService, ApprovalRouteResolverService>();
 
         services.AddScoped<IProductRepository, ProductRepository>();
 

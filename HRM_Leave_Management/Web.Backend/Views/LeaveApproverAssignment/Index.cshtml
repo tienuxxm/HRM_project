@@ -8,9 +8,26 @@
 
 <div class="w-full flex flex-col font-geist pb-24">
     <!-- Header Section -->
-    <div class="mb-6">
-        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">APPROVAL CONFIGURATIONS</h2>
-        <p class="text-[14px] text-[#4c4546]">Configure the assignment process for leave request approvers based on department and position.</p>
+    <div class="mb-4">
+        <h2 class="text-[32px] font-bold text-black uppercase tracking-tight">APPROVAL CONFIGURATIONS (LEGACY)</h2>
+        <p class="text-[14px] text-[#4c4546]">Legacy approver assignment records maintained strictly for audit history.</p>
+    </div>
+
+    <!-- Legacy Deprecation Banner (Phase 8) -->
+    <div class="mb-6 bg-gray-100 border-l-4 border-black p-4 text-black font-sans">
+        <div class="flex items-center gap-3 mb-1">
+            <span class="px-2 py-0.5 bg-black text-white font-mono text-[10px] font-bold uppercase tracking-wider">LEGACY READ-ONLY</span>
+            <span class="font-bold text-[13px] uppercase tracking-tight">LEGACY APPROVER ASSIGNMENTS - READ-ONLY AUDIT MODE</span>
+        </div>
+        <p class="text-[12px] text-gray-700 leading-relaxed mb-3">
+            This legacy configuration module has been retired and is maintained strictly for historical audit records. Superior routing policies are now managed exclusively under Dynamic Approval Routing Policies.
+        </p>
+        <div>
+            <a href="/approval-routing/policies" class="inline-flex items-center gap-2 px-4 py-2 bg-black text-white font-bold text-[11px] uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                <span>GO TO DYNAMIC APPROVAL ROUTING POLICIES</span>
+                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
+        </div>
     </div>
 
     <!-- Search & Action Bar -->
@@ -332,6 +349,7 @@
     </div>
 }
 
+@section Scripts {
 <script>
     let currentPage = 1;
     const pageSize = 5;
@@ -645,3 +663,4 @@
         applyFilterAndPagination();
     });
 </script>
+}

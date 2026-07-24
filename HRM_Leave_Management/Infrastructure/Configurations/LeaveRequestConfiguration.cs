@@ -67,7 +67,8 @@ internal sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<Leave
         builder.HasOne(lr => lr.Employee)
             .WithMany()
             .HasForeignKey(lr => lr.EmployeeId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("fk_leave_request_employee_employee_temp_id3");
 
         builder.HasOne(lr => lr.LeaveType)
             .WithMany()

@@ -115,12 +115,17 @@ public class LeaveRequest : Entity<LeaveRequestId>
         Comment = comment;
     }
 
-    public void SetApprovedForCeo(DateTime utcNow)
+    public void AutoApprove(DateTime processedAt, string? comment = null)
     {
+        if (Status != LeaveRequestStatus.Pending)
+        {
+            throw new InvalidOperationException("Only pending leave requests can be auto-approved.");
+        }
+
         Status = LeaveRequestStatus.Approved;
         ProcessedBy = null;
-        ProcessedAt = utcNow;
-        Comment = "Auto approved for CEO";
+        ProcessedAt = processedAt;
+        Comment = comment ?? "Auto-approved for terminal approver per routing configuration.";
     }
 
     public void UpdateDurationOnly(decimal newDuration)
@@ -136,4 +141,3 @@ public class LeaveRequest : Entity<LeaveRequestId>
         ProcessedAt = null;
     }
 }
-

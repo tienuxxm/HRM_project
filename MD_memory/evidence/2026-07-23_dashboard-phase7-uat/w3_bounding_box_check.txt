@@ -1,0 +1,45 @@
+================================================================================
+Dashboard Widget W3 Bounding Box & Layout Verification Log
+Timestamp: 2026-07-24T08:36:45Z
+User Account: uat.provision81@hrm.local (Approver)
+Page URL: http://localhost:5300/dashboard
+Root Cause Layer: Web.Backend Presentation (Index.cshtml + dashboard.css)
+================================================================================
+
+1. DOM Selectors Used for Measurement:
+   - w3Card: document.querySelector('.col-span-8')
+   - w4Card: document.querySelector('.col-span-6')
+   - chartContainer: document.querySelector('.hrm-trend-line-container')
+
+2. Raw Measured Values (Desktop Viewport 1536x730):
+   - w3Card.top: 67.0 px
+   - w3Card.bottom: 471.0 px
+   - w3Card.height: 404.0 px
+   - w4Card.top: 495.0 px
+   - w4Card.bottom: 865.0 px
+   - gap (w4Card.top - w3Card.bottom): 24.0 px (Matches Tailwind gap-6)
+   - chartContainer.bottom: 447.0 px
+
+3. Raw Measured Values (Mobile Viewport 390x844):
+   - w3Card.top: 331.0 px
+   - w3Card.bottom: 641.0 px
+   - w3Card.height: 310.0 px
+   - w4Card.top: 665.0 px
+   - gap (w4Card.top - w3Card.bottom): 24.0 px
+   - chartContainer.bottom: 617.0 px
+
+4. Condition Evaluation:
+   - Condition 1: w3Card.bottom < w4Card.top
+     => 471.0 px < 495.0 px => TRUE (24px clean vertical margin, zero overlap)
+   - Condition 2: chartContainer.bottom <= w3Card.bottom
+     => 447.0 px <= 471.0 px => TRUE (Chart container sits 24px inside W3 Card)
+   - Condition 3: Month labels visible and not clipped
+     => Month labels (Feb - Jul) sit in dedicated flex row above W3 Card bottom border => TRUE
+
+5. SVG Coordinate Padding Verification:
+   - ViewBox: 0 0 400 90 (Height = 90px)
+   - Zero Request Count Y-mapping: y = 72 (Circle cy = 72, r = 3, spans y = 69..75)
+   - Bottom Clearance inside SVG: 90 - 75 = 15px (Data points sit 15px inside SVG bottom edge)
+
+Status: VERIFIED PASS (Raw Bounding-Box Measurement & Single Full-Boundary Screenshot Confirmation OK)
+================================================================================

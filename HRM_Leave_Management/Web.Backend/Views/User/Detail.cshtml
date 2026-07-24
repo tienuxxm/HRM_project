@@ -278,25 +278,33 @@
                 data: {
                     ...request
                 },
-                dataType: 'multipart/form-data',
                 success: function () {
                     loadingOverlay.hide();
-                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Save Success" }, null)')
+                    toastContainer.load('@Url.Action("SuccessToastPartial", "Main", new { message = "Save Success" }, null)');
                     setTimeout(() => {
                         loadingOverlay.show();
-                    }, 1500)
-                    location.href = "/user"
-                },error: function (error){
+                    }, 1500);
+                    location.href = "/user";
+                },
+                error: function (error){
                     if (error.status === 200){
                         loadingOverlay.hide();
-                        showToast('Add Success')
+                        showToast('Save Success');
                         setTimeout(() => {
                             loadingOverlay.show();
-                        }, 1500)
-                        location.href = "/user"
-                    }else{
+                        }, 1500);
+                        location.href = "/user";
+                    } else {
                         loadingOverlay.hide();
-                        showToast('Add Failed')
+                        let errorMsg = 'Save Failed';
+                        if (error.responseJSON) {
+                            errorMsg = error.responseJSON.message || error.responseJSON.Message ||
+                                       error.responseJSON.name || error.responseJSON.Name ||
+                                       error.responseJSON.code || error.responseJSON.Code || errorMsg;
+                        } else if (error.responseText) {
+                            errorMsg = error.responseText;
+                        }
+                        showToast(errorMsg);
                     }
                 }
             })

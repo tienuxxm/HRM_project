@@ -1,4 +1,4 @@
-﻿using Domain.LeaveApproverAssignments;
+using Domain.LeaveApproverAssignments;
 using Domain.Employees;
 using Domain.Departments;
 using Domain.Positions;
@@ -58,7 +58,8 @@ internal sealed class LeaveApproverAssignmentConfiguration : IEntityTypeConfigur
         builder.HasOne(a => a.TargetPosition)
             .WithMany()
             .HasForeignKey(a => a.TargetPositionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("fk_leave_approver_assignment_positions_target_position_temp_id");
 
         // Indexes
         builder.HasIndex(a => new { a.ApproverEmployeeId, a.TargetDepartmentId, a.TargetPositionId });

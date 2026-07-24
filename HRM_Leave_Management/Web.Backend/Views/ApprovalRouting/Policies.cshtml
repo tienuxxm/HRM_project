@@ -1,0 +1,176 @@
+@model Web.Backend.Models.ApprovalRouting.PolicyListViewModel
+@{
+    ViewData["Title"] = "Approval Routing Policies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="w-full min-h-screen bg-[#FAF9F9] text-[#111111] p-4 lg:p-8 font-sans">
+    <!-- Top Navigation & Breadcrumb -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between border-b border-[#D1D1D1] pb-4">
+        <div>
+            <div class="text-[11px] font-mono text-[#4C4546] uppercase tracking-wider mb-1">
+                HRM Admin / Approval Routing / Policies
+            </div>
+            <h1 class="text-2xl lg:text-3xl font-bold uppercase tracking-tight text-black">
+                APPROVAL ROUTING POLICIES
+            </h1>
+            <p class="text-xs lg:text-sm text-[#4C4546] mt-1">
+                Department-specific superior routing policies and single-step approval configurations.
+            </p>
+        </div>
+        @if (Model.CanUpdate)
+        {
+            <div class="mt-4 md:mt-0">
+                <a href="/approval-routing/policies/create" class="inline-block w-full md:w-auto px-5 py-2.5 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-neutral-800 border border-black cursor-pointer">
+                    + Create Department Policy
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Actions & Filters Bar -->
+    <form method="get" action="/approval-routing/policies" class="mb-6 flex flex-col md:flex-row gap-3">
+        <div class="flex-1 flex gap-2">
+            <input type="text" name="search" value="@Model.SearchTerm" placeholder="Filter by department or policy name..." class="flex-1 px-3 py-2 bg-white text-black text-xs border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans" />
+            <select name="department" class="px-3 py-2 bg-white text-black text-xs border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans">
+                <option value="">All Departments</option>
+                @foreach (var dept in Model.Departments)
+                {
+                    <option value="@dept.Name" selected="@(Model.DepartmentFilter == dept.Name ? "selected" : null)">@dept.Name</option>
+                }
+            </select>
+            <button type="submit" class="px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-none hover:bg-neutral-800 border border-black">
+                Filter
+            </button>
+        </div>
+    </form>
+
+    <!-- Desktop Data Grid / Ledger Table (Hidden on Mobile) -->
+    <div class="hidden md:block bg-white border border-[#D1D1D1] rounded-none overflow-x-auto mb-6">
+        <table class="w-full text-left border-collapse font-sans">
+            <thead>
+                <tr class="bg-[#F4F3F3] border-b border-[#D1D1D1] text-[11px] font-semibold text-black uppercase tracking-wider">
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Policy Name</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Department</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Active Rules</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Level Slots</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Status</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Created Date</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1] text-xs">
+                @if (!Model.Policies.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-[#4C4546] text-xs italic">
+                            No approval policies configured yet.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var policy in Model.Policies)
+                    {
+                        <tr class="hover:bg-[#FAF9F9] transition-colors">
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-semibold text-black">
+                                @policy.PolicyName
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] text-[#4C4546]">
+                                @policy.DepartmentName
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] text-black">
+                                @policy.ActiveRulesCount Rules
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] text-[#4C4546]">
+                                @policy.LevelSlotsSummary
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1]">
+                                @if (policy.IsActive)
+                                {
+                                    <span class="inline-block px-2.5 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase rounded-none">
+                                        ACTIVE
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-block px-2.5 py-0.5 bg-white text-[#E62429] border border-[#E62429] text-[10px] font-mono font-bold uppercase rounded-none">
+                                        INACTIVE
+                                    </span>
+                                }
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-mono text-[11px] text-[#4C4546]">
+                                @policy.CreatedAt.ToString("yyyy-MM-dd")
+                            </td>
+                            <td class="py-3 px-4 text-right space-x-2">
+                                <a href="/approval-routing/policies/detail/@policy.PolicyId" class="inline-block px-3 py-1 bg-white border border-black text-black text-[11px] font-semibold uppercase rounded-none hover:bg-black hover:text-white transition-colors">
+                                    Configure Rules
+                                </a>
+                                <a href="/approval-routing/levels/assignments?policyId=@policy.PolicyId" class="inline-block px-3 py-1 bg-white border border-[#D1D1D1] text-black text-[11px] font-semibold uppercase rounded-none hover:border-black transition-colors">
+                                    Level Slots
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Stacked Policy Cards (Visible on Mobile only) -->
+    <div class="block md:hidden space-y-4 mb-6">
+        @if (!Model.Policies.Any())
+        {
+            <div class="p-6 bg-white border border-[#D1D1D1] text-center text-xs text-[#4C4546]">
+                No approval policies configured yet.
+            </div>
+        }
+        else
+        {
+            @foreach (var policy in Model.Policies)
+            {
+                <div class="bg-white border border-[#D1D1D1] p-4 rounded-none space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-sm text-black uppercase">@policy.PolicyName</h3>
+                            <p class="text-xs text-[#4C4546]">Dept: @policy.DepartmentName</p>
+                        </div>
+                        <div>
+                            @if (policy.IsActive)
+                            {
+                                <span class="inline-block px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase rounded-none">
+                                    ACTIVE
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-block px-2 py-0.5 bg-white text-[#E62429] border border-[#E62429] text-[10px] font-mono font-bold uppercase rounded-none">
+                                    INACTIVE
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    <div class="text-xs text-[#4C4546] border-t border-b border-[#D1D1D1] py-2 space-y-1">
+                        <p><span class="font-semibold text-black">Active Rules:</span> @policy.ActiveRulesCount Rules</p>
+                        <p><span class="font-semibold text-black">Slots:</span> @policy.LevelSlotsSummary</p>
+                        <p><span class="font-semibold text-black">Created:</span> <span class="font-mono text-[11px]">@policy.CreatedAt.ToString("yyyy-MM-dd")</span></p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="/approval-routing/policies/detail/@policy.PolicyId" class="flex-1 text-center py-2 bg-white border border-black text-black text-xs font-semibold uppercase rounded-none hover:bg-black hover:text-white transition-colors">
+                            Configure
+                        </a>
+                        <a href="/approval-routing/levels/assignments?policyId=@policy.PolicyId" class="flex-1 text-center py-2 bg-white border border-[#D1D1D1] text-black text-xs font-semibold uppercase rounded-none">
+                            Slots
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Bottom Operational Note -->
+    <div class="bg-[#F4F3F3] border-t border-[#D1D1D1] p-4 text-xs text-[#4C4546]">
+        <p class="font-semibold text-black mb-1">SYSTEM OPERATIONAL PROTOCOL:</p>
+        <p>Department-specific policy controls single-step superior routing. Legacy LeaveApproverAssignment table is deprecated and locked for read-only audit history.</p>
+    </div>
+</div>

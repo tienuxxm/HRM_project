@@ -7,15 +7,6 @@
 
 <div class="w-full">
     <div class="w-full flex flex-col">
-        <!-- Minimal Breadcrumb -->
-        <div class="flex items-center gap-2 mb-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
-            <span>HRM Management</span>
-            <span class="text-[10px] opacity-50">/</span>
-            <span>Work Calendar</span>
-            <span class="text-[10px] opacity-50">/</span>
-            <span class="text-primary font-bold">Import Summary</span>
-        </div>
-
         <!-- Summary Card Wrapper -->
         <div style="min-height: 543px" class="bg-white w-full p-6 rounded-none border border-[#D1D1D1] flex flex-col justify-between">
             <div class="w-full">
@@ -46,11 +37,11 @@
                         </div>
                         <div>
                             <span class="block text-xs font-semibold text-gray-500 uppercase mb-1">Calendar Days Modified</span>
-                            <span class="inline-flex items-center rounded-none bg-blue-50 border border-blue-500 px-2.5 py-0.5 text-xs font-bold text-blue-800">@Model.UpdatedDaysCount days</span>
+                            <span class="inline-flex items-center rounded-none bg-white border border-black px-2.5 py-0.5 text-xs font-bold text-black">@Model.UpdatedDaysCount days</span>
                         </div>
                         <div>
                             <span class="block text-xs font-semibold text-gray-500 uppercase mb-1">Affected Leave Requests</span>
-                            <span class="inline-flex items-center rounded-none bg-amber-50 border border-amber-500 px-2.5 py-0.5 text-xs font-bold text-amber-800">@Model.AffectedRequests.Count requests</span>
+                            <span class="inline-flex items-center rounded-none bg-gray-50 border border-gray-400 px-2.5 py-0.5 text-xs font-bold text-gray-800">@Model.AffectedRequests.Count requests</span>
                         </div>
                     </div>
                 </div>
@@ -84,7 +75,7 @@
                                     foreach (var audit in Model.AffectedRequests)
                                     {
                                         decimal diff = audit.NewDuration - audit.OldDuration;
-                                        string diffClass = diff < 0 ? "text-green-600 font-bold font-mono mono" : (diff > 0 ? "text-red-600 font-bold font-mono mono" : "text-gray-500 font-mono mono");
+                                        string diffClass = diff < 0 ? "text-black font-bold font-mono mono" : (diff > 0 ? "text-red-600 font-bold font-mono mono" : "text-gray-500 font-mono mono");
                                         string diffText = diff > 0 ? $"+{diff:0.#}" : $"{diff:0.#}";
 
                                         <tr class="bg-white hover:bg-[#F1F5F9] transition-colors">
@@ -94,7 +85,7 @@
                                             <td class="px-4 py-3 text-center border-r border-[#D1D1D1]">
                                                 <span class="text-gray-500">@audit.OldStatus</span>
                                                 <span class="mx-2 text-gray-400">&rarr;</span>
-                                                <span class="font-semibold text-indigo-700">@audit.NewStatus</span>
+                                                <span class="font-semibold text-black">@audit.NewStatus</span>
                                             </td>
                                             <td class="px-4 py-3 text-center text-gray-700 border-r border-[#D1D1D1] font-mono mono">
                                                 <span>@audit.OldDuration.ToString("0.#")</span>

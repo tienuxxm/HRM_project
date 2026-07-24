@@ -1,0 +1,237 @@
+@model Web.Backend.Models.ApprovalRouting.LevelAssignmentViewModel
+@{
+    ViewData["Title"] = "Level Slot Assignments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var data = Model.Data;
+}
+
+<div class="w-full min-h-screen bg-[#FAF9F9] text-[#111111] p-4 lg:p-8 font-sans">
+    <!-- Inline Notification Feedback Container -->
+    <div id="routingMessageContainer" class="hidden mb-4 p-4 border text-xs rounded-none font-sans"></div>
+
+    <!-- Header Block -->
+    <div class="mb-6 border-b border-[#D1D1D1] pb-4">
+        <div class="text-[11px] font-mono text-[#4C4546] uppercase tracking-wider mb-1">
+            <a href="/approval-routing/policies" class="underline hover:text-black">HRM Admin</a> / <a href="/approval-routing/policies" class="underline hover:text-black">Approval Routing</a> / Level Assignments
+        </div>
+        <h1 class="text-2xl lg:text-3xl font-bold uppercase tracking-tight text-black">
+            LEVEL SLOT ASSIGNMENTS - @data.PolicyName.ToUpper()
+        </h1>
+        <p class="text-xs text-[#4C4546] mt-1">
+            Assign active employees to department level slots (@data.DepartmentName Department). Each level slot must have exactly 1 active assignment.
+        </p>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-black uppercase">Level Filter:</span>
+            <select onchange="filterLevelSlot(this.value)" class="px-3 py-1.5 bg-white text-black text-xs border border-[#D1D1D1] rounded-none focus:outline-none focus:border-black font-sans">
+                <option value="ALL">All Level Slots (@data.LevelSlots.Count)</option>
+                @foreach (var slot in data.LevelSlots)
+                {
+                    <option value="@slot.LevelId">Level @slot.LevelRank: @slot.LevelName</option>
+                }
+            </select>
+        </div>
+        @if (Model.CanUpdate)
+        {
+            <div>
+                <button type="button" disabled class="w-full md:w-auto px-4 py-2 bg-[#F4F3F3] text-[#4C4546] text-xs font-semibold uppercase tracking-wider rounded-none border border-[#D1D1D1] cursor-not-allowed">
+                    + Assign Employee (Phase 5 Read-Only Scope)
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Spreadsheet Data Grid Table (Desktop) -->
+    <div class="hidden md:block bg-white border border-[#D1D1D1] rounded-none overflow-x-auto mb-6">
+        <table class="w-full text-left border-collapse font-sans">
+            <thead>
+                <tr class="bg-[#F4F3F3] border-b border-[#D1D1D1] text-[11px] font-semibold text-black uppercase tracking-wider">
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Level Slot</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Currently Assigned Employee</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Effective From</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Effective To</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Assignment Status</th>
+                    <th class="py-3 px-4 border-r border-[#D1D1D1]">Impacted Pending Requests</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D1D1D1] text-xs">
+                @if (!data.LevelSlots.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-[#4C4546] text-xs italic">
+                            No level slots defined in this policy.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var row in data.LevelSlots)
+                    {
+                        <tr class="hover:bg-[#FAF9F9] transition-colors level-slot-row" data-level-id="@row.LevelId">
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-semibold text-black">
+                                Level @row.LevelRank: @row.LevelName
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1]">
+                                @if (row.IsActive && row.AssignedEmployeeId.HasValue)
+                                {
+                                    <span class="font-medium text-black">@row.AssignedEmployeeName</span>
+                                    <span class="font-mono text-[11px] text-[#4C4546] ml-1">(@row.AssignedEmployeeCode)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-[#E62429] font-mono text-xs italic">-- Vacant Slot --</span>
+                                }
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-mono text-[11px] text-[#4C4546]">
+                                @(row.EffectiveFrom?.ToString("yyyy-MM-dd") ?? "--")
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-mono text-[11px] text-[#4C4546]">
+                                @(row.EffectiveTo?.ToString("yyyy-MM-dd") ?? "Indefinite (Active)")
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1]">
+                                @if (row.IsActive)
+                                {
+                                    <span class="inline-block px-2.5 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase rounded-none">
+                                        ACTIVE
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-block px-2.5 py-0.5 bg-white text-[#E62429] border border-[#E62429] text-[10px] font-mono font-bold uppercase rounded-none">
+                                        UNASSIGNED
+                                    </span>
+                                }
+                            </td>
+                            <td class="py-3 px-4 border-r border-[#D1D1D1] font-mono text-xs font-semibold text-black">
+                                @row.ImpactedPendingRequestsCount Pending Requests
+                            </td>
+                            <td class="py-3 px-4 text-right space-x-2">
+                                @if (row.IsActive && row.AssignmentId.HasValue && row.AssignedEmployeeId.HasValue)
+                                {
+                                    <button type="button" data-assignment-id="@row.AssignmentId.Value" class="btn-unassign-slot px-3 py-1 bg-white border border-[#E62429] text-[#E62429] text-[11px] font-semibold uppercase rounded-none hover:bg-[#E62429] hover:text-white transition-colors">
+                                        Unassign Slot
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" disabled class="px-3 py-1 bg-[#F4F3F3] text-[#4C4546] text-[11px] font-semibold uppercase rounded-none cursor-not-allowed border border-[#D1D1D1]">
+                                        Vacant
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Stacked Slot Cards (Visible on Mobile) -->
+    <div class="block md:hidden space-y-4 mb-6">
+        @foreach (var row in data.LevelSlots)
+        {
+            <div class="bg-white border border-[#D1D1D1] p-4 rounded-none space-y-3">
+                <div class="flex justify-between items-start border-b border-[#D1D1D1] pb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-black">Level @row.LevelRank: @row.LevelName</h3>
+                    </div>
+                    <div>
+                        @if (row.IsActive)
+                        {
+                            <span class="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase rounded-none">ACTIVE</span>
+                        }
+                        else
+                        {
+                            <span class="px-2 py-0.5 bg-white text-[#E62429] border border-[#E62429] text-[10px] font-mono font-bold uppercase rounded-none">UNASSIGNED</span>
+                        }
+                    </div>
+                </div>
+                <div class="text-xs text-[#4C4546] space-y-1">
+                    <p><span class="font-semibold text-black">Assigned:</span> @(row.AssignedEmployeeName ?? "-- Vacant --") @(row.AssignedEmployeeCode != null ? $"({row.AssignedEmployeeCode})" : "")</p>
+                    <p><span class="font-semibold text-black">Effective:</span> <span class="font-mono text-[11px]">@(row.EffectiveFrom?.ToString("yyyy-MM-dd") ?? "--") -> @(row.EffectiveTo?.ToString("yyyy-MM-dd") ?? "Indefinite")</span></p>
+                    <p><span class="font-semibold text-black">Impact:</span> <span class="font-mono font-bold text-black">@row.ImpactedPendingRequestsCount Pending Requests</span></p>
+                </div>
+                <div>
+                    @if (row.IsActive && row.AssignmentId.HasValue && row.AssignedEmployeeId.HasValue)
+                    {
+                        <button type="button" data-assignment-id="@row.AssignmentId.Value" class="btn-unassign-slot w-full py-2 bg-white border border-[#E62429] text-[#E62429] text-xs font-semibold uppercase rounded-none">
+                            Unassign Slot
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" disabled class="w-full py-2 bg-[#F4F3F3] text-[#4C4546] text-xs font-semibold uppercase rounded-none border border-[#D1D1D1]">
+                            Vacant
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Bottom Operational Warning Banner -->
+    <div class="bg-[#F4F3F3] border-l-4 border-[#E62429] border-y border-r border-[#D1D1D1] p-4 text-xs text-[#4C4546] mb-6">
+        <p class="font-bold text-[#E62429] uppercase mb-1">OPERATIONAL PROTOCOL WARNING:</p>
+        <p>Unassigning an employee from a level slot will trigger an automatic dry-run impact preview and reassign/reroute all affected pending leave requests.</p>
+    </div>
+</div>
+
+<!-- Modal Container Target -->
+<div id="impactModalContainer"></div>
+
+@section Scripts {
+    <script>
+        function filterLevelSlot(levelId) {
+            var rows = document.querySelectorAll('.level-slot-row');
+            rows.forEach(function(row) {
+                if (levelId === 'ALL' || row.getAttribute('data-level-id') === levelId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function showRoutingMessage(msg, isError) {
+            var box = document.getElementById('routingMessageContainer');
+            box.classList.remove('hidden', 'bg-black', 'text-white', 'bg-white', 'text-[#E62429]', 'border-[#E62429]', 'border-black');
+            if (isError) {
+                box.classList.add('bg-white', 'text-[#E62429]', 'border-[#E62429]');
+            } else {
+                box.classList.add('bg-black', 'text-white', 'border-black');
+            }
+            box.textContent = msg;
+        }
+
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.btn-unassign-slot');
+            if (!btn) return;
+
+            var assignmentId = btn.getAttribute('data-assignment-id');
+            if (!assignmentId) return;
+
+            var formData = new FormData();
+            formData.append('levelAssignmentId', assignmentId);
+
+            fetch('/approval-routing/impact-preview', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('impactModalContainer').innerHTML = html;
+            })
+            .catch(err => {
+                showRoutingMessage('Error loading dry-run impact preview: ' + err, true);
+            });
+        });
+
+        function closeImpactModal() {
+            document.getElementById('impactModalContainer').innerHTML = '';
+        }
+    </script>
+}

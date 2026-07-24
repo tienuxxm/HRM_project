@@ -1,4 +1,4 @@
-﻿using Domain.Users;
+using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
@@ -37,7 +37,8 @@ internal sealed class UserRepository : Repository<User, UserId>, IUserRepository
     {
         var result = await DbContext.Set<User>().FirstOrDefaultAsync(v => (
             !v.Id.Equals(userId)
-            && v.Email == email), cancellationToken);
+            && v.Email == email
+            && !(v.IsDeleted.HasValue && v.IsDeleted.Value)), cancellationToken);
 
         return result;
     }

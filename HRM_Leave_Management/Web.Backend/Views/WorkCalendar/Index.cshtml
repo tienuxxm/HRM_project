@@ -10,13 +10,6 @@
 
 <div class="w-full">
     <div class="w-full flex flex-col">
-        <!-- Minimal Breadcrumb -->
-        <div class="flex items-center gap-2 mb-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
-            <span>HRM Management</span>
-            <span class="text-[10px] opacity-50">/</span>
-            <span class="text-primary font-bold">Work Calendar</span>
-        </div>
-
         <!-- Main Card Wrapper -->
         <div style="min-height: 543px" class="bg-white w-full p-6 rounded-none border border-[#D1D1D1] flex flex-col justify-between">
             <div class="w-full">
@@ -25,7 +18,7 @@
                     <form method="get" action="/work-calendar" class="flex flex-wrap items-end gap-4">
                         <div class="flex flex-col gap-2">
                             <label class="font-label-sm text-label-sm uppercase text-gray-500">Year</label>
-                            <input type="number" name="year" value="@currentYear" min="2000" max="2100" 
+                            <input type="number" name="year" value="@currentYear" min="2000" max="2100"
                                    class="border border-black bg-white px-4 py-2 w-32 font-body-md rounded-none focus:ring-0 focus:border-black outline-none" />
                         </div>
                         <div class="flex flex-col gap-2">
@@ -113,15 +106,15 @@
                                             }
                                             else if (day.DayType == "CompanyCustomNonWorkingDay")
                                             {
-                                                <span class="inline-flex items-center rounded-none border border-amber-500 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Company Non-Working</span>
+                                                <span class="inline-flex items-center rounded-none border border-gray-400 bg-gray-50 px-2.5 py-0.5 text-xs font-semibold text-gray-800">Company Non-Working</span>
                                             }
                                             else if (day.DayType == "StandardWorkingDayOverride")
                                             {
-                                                <span class="inline-flex items-center rounded-none border border-green-500 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-800">Working Override</span>
+                                                <span class="inline-flex items-center rounded-none border border-black bg-white px-2.5 py-0.5 text-xs font-semibold text-black">Working Override</span>
                                             }
                                             else if (day.DayType == "WorkingSaturdayOverride")
                                             {
-                                                <span class="inline-flex items-center rounded-none border border-blue-500 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-800">Working Saturday</span>
+                                                <span class="inline-flex items-center rounded-none border border-gray-600 bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-900">Working Saturday</span>
                                             }
                                             else
                                             {
@@ -133,7 +126,7 @@
                                         <td class="px-4 py-3 text-center border-r border-[#D1D1D1]">
                                             @if (day.IsActive)
                                             {
-                                                <span class="inline-flex items-center rounded-none border border-green-500 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-800">Active</span>
+                                                <span class="inline-flex items-center rounded-none border border-black bg-white px-2.5 py-0.5 text-xs font-semibold text-black">Active</span>
                                             }
                                             else
                                             {
@@ -143,8 +136,8 @@
                                         @if (canUpdate)
                                         {
                                             <td class="px-4 py-3 text-center">
-                                                <button type="button" 
-                                                        class="js-edit-calendar text-blue-600 hover:text-blue-900 font-semibold hover:underline bg-transparent border-0 focus:outline-none" data-date="@day.Date.ToString("yyyy-MM-dd")" data-day-type="@day.DayType" data-work-shift="@day.WorkShift" data-description="@(day.Description ?? "")" data-is-active="@(day.IsActive ? "true" : "false")"
+                                                <button type="button"
+                                                        class="js-edit-calendar text-black underline hover:text-gray-600 font-semibold bg-transparent border-0 focus:outline-none" data-date="@day.Date.ToString("yyyy-MM-dd")" data-day-type="@day.DayType" data-work-shift="@day.WorkShift" data-description="@(day.Description ?? "")" data-is-active="@(day.IsActive ? "true" : "false")"
                                                         >
                                                     Edit
                                                 </button>
@@ -257,7 +250,7 @@
                     <div>
                         <label for="manualDescription" class="block mb-1 text-xs font-semibold uppercase text-gray-500">Description</label>
                         <textarea id="manualDescription" rows="2"
-                                  class="bg-white border border-black text-black text-sm rounded-none focus:ring-0 focus:border-black block w-full p-2.5" 
+                                  class="bg-white border border-black text-black text-sm rounded-none focus:ring-0 focus:border-black block w-full p-2.5"
                                   placeholder="E.g., National Day, Make up day..."></textarea>
                     </div>
 
@@ -266,7 +259,7 @@
                     <!-- Dynamic Preview Section inside Form -->
                     <div id="manualDynamicPreview" class="mt-6 pt-6 border-t border-black hidden">
                         <h4 class="text-sm font-bold uppercase tracking-wider text-black mb-3">Affected Leave Requests (Preview)</h4>
-                        
+
                         <div id="manualPreviewLoading" class="flex items-center justify-center py-4 hidden">
                             <svg class="animate-spin h-5 w-5 text-black mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -275,16 +268,16 @@
                             <span class="text-sm text-gray-600">Analyzing affected requests...</span>
                         </div>
 
-                        <div id="previewWarningBanner" class="p-4 mb-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm hidden rounded-none">
+                        <div id="previewWarningBanner" class="p-4 mb-4 bg-red-50 border-l-4 border-[#E62429] text-red-900 text-sm hidden rounded-none">
                             <div class="flex items-start">
-                                <span class="material-symbols-outlined text-amber-500 mr-2">warning</span>
+                                <span class="material-symbols-outlined text-[#E62429] mr-2">warning</span>
                                 <div>
                                     <span class="font-bold">Attention!</span> Some approved requests will be reopened to <span class="font-bold">Pending</span> and their leave balance will be restored.
                                 </div>
                             </div>
                         </div>
 
-                        <div id="previewNoEffects" class="p-3 bg-green-50 text-green-900 text-xs font-semibold hidden rounded-none border-l-4 border-green-500">
+                        <div id="previewNoEffects" class="p-3 bg-gray-50 text-gray-900 text-xs font-semibold hidden rounded-none border-l-4 border-gray-400">
                             No leave requests are affected by this calendar change.
                         </div>
 
@@ -338,7 +331,7 @@
     function openImportModal() {
         $('#excelFile').val('');
         $('#uploadError').addClass('hidden').text('');
-        
+
         const $targetEl = document.getElementById('importModal');
         const instanceOptions = {
             id: 'importModal',
@@ -378,7 +371,7 @@
         `;
 
         $('#customToastContainer').append(html);
-        
+
         // Animate slide in
         setTimeout(() => {
             $(`#${id}`).removeClass('translate-x-full');
@@ -534,7 +527,7 @@
 
             $('#manualValidationError').addClass('hidden').text('');
             $('#manualDynamicPreview').removeClass('hidden');
-            
+
             $('#manualPreviewLoading').removeClass('hidden');
             $('#previewWarningBanner').addClass('hidden');
             $('#previewNoEffects').addClass('hidden');
@@ -601,7 +594,7 @@
                     <td class="px-3 py-2 text-center text-black font-bold font-mono mono border-r border-[#D1D1D1]">${req.newDuration}</td>
                     <td class="px-3 py-2 text-center">
                         <span class="inline-flex items-center rounded-none px-2 py-0.5 text-xs font-semibold border ${
-                            req.oldStatus === 'Approved' ? 'bg-amber-50 text-amber-800 border-amber-500' : 'bg-gray-50 text-gray-800 border-gray-300'
+                            req.oldStatus === 'Approved' ? 'bg-red-50 text-red-800 border-[#E62429]' : 'bg-gray-50 text-gray-800 border-gray-300'
                         }">${req.oldStatus} &rarr; ${req.newStatus}</span>
                     </td>
                 </tr>
@@ -669,7 +662,7 @@
             const workShift = $(this).data('work-shift') || 'None';
             const description = $(this).data('description') || '';
             const isActive = $(this).data('is-active') === true || $(this).data('is-active') === 'true';
-            
+
             openManualModal(dateStr, dayType, workShift, description, isActive);
         });
     });

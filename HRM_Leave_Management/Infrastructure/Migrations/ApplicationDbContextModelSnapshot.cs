@@ -22,6 +22,349 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("ActionType")
+                        .HasColumnType("integer")
+                        .HasColumnName("action_type");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_date");
+
+                    b.Property<Guid?>("LeaveRequestApprovalAssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leave_request_approval_assignment_id");
+
+                    b.Property<Guid>("LeaveRequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leave_request_id");
+
+                    b.Property<Guid?>("NewApproverEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("new_approver_employee_id");
+
+                    b.Property<string>("NewAssignmentStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("new_assignment_status");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("OldAssignmentStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("old_assignment_status");
+
+                    b.Property<Guid?>("PreviousApproverEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("previous_approver_employee_id");
+
+                    b.Property<string>("ReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reason_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_audit_log");
+
+                    b.HasIndex("LeaveRequestApprovalAssignmentId")
+                        .HasDatabaseName("ix_approval_route_audit_log_leave_request_approval_assignment_");
+
+                    b.HasIndex("NewApproverEmployeeId")
+                        .HasDatabaseName("ix_approval_route_audit_log_new_approver_employee_id");
+
+                    b.HasIndex("PreviousApproverEmployeeId")
+                        .HasDatabaseName("ix_approval_route_audit_log_previous_approver_employee_id");
+
+                    b.HasIndex("LeaveRequestId", "CreatedDate")
+                        .HasDatabaseName("ix_approval_route_audit_log_leave_request_id_created_date");
+
+                    b.ToTable("approval_route_audit_log", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteLevel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("CanApproveLeave")
+                        .HasColumnType("boolean")
+                        .HasColumnName("can_approve_leave");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LevelName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("level_name");
+
+                    b.Property<int>("LevelRank")
+                        .HasColumnType("integer")
+                        .HasColumnName("level_rank");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_level");
+
+                    b.HasIndex("PolicyId", "LevelRank")
+                        .IsUnique()
+                        .HasDatabaseName("ix_approval_route_level_policy_id_level_rank")
+                        .HasFilter("is_active = true");
+
+                    b.ToTable("approval_route_level", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteLevelAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApprovalRouteLevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approval_route_level_id");
+
+                    b.Property<Guid>("AssignedEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_employee_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_from");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_to");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_level_assignment");
+
+                    b.HasIndex("ApprovalRouteLevelId", "IsActive")
+                        .HasDatabaseName("ix_approval_route_level_assignment_approval_route_level_id_is_");
+
+                    b.HasIndex("AssignedEmployeeId", "IsActive")
+                        .HasDatabaseName("ix_approval_route_level_assignment_assigned_employee_id_is_act");
+
+                    b.ToTable("approval_route_level_assignment", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRoutePolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("department_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_policy");
+
+                    b.HasIndex("DepartmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_approval_route_policy_department_id_active_dept")
+                        .HasFilter("is_active = true AND department_id IS NOT NULL");
+
+                    b.ToTable("approval_route_policy", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsAutoApprove")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_auto_approve");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.Property<Guid>("RequesterPositionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requester_position_id");
+
+                    b.Property<Guid?>("SpecificApproverEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("specific_approver_employee_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_rule");
+
+                    b.HasIndex("RequesterPositionId")
+                        .HasDatabaseName("ix_approval_route_rule_requester_position_id");
+
+                    b.HasIndex("SpecificApproverEmployeeId")
+                        .HasDatabaseName("ix_approval_route_rule_specific_approver_employee_id");
+
+                    b.HasIndex("PolicyId", "RequesterPositionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_approval_route_rule_policy_id_requester_position_id")
+                        .HasFilter("is_active = true");
+
+                    b.ToTable("approval_route_rule", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_approval_route_rule_auto_approve_no_specific_approver", "is_auto_approve = false OR specific_approver_employee_id IS NULL");
+                        });
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteRuleCandidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApprovalRouteLevelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approval_route_level_id");
+
+                    b.Property<Guid>("ApprovalRouteRuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approval_route_rule_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int>("PriorityOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority_order");
+
+                    b.HasKey("Id")
+                        .HasName("pk_approval_route_rule_candidate");
+
+                    b.HasIndex("ApprovalRouteLevelId")
+                        .HasDatabaseName("ix_approval_route_rule_candidate_approval_route_level_id");
+
+                    b.HasIndex("ApprovalRouteRuleId", "ApprovalRouteLevelId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_approval_route_rule_candidate_approval_route_rule_id_approv")
+                        .HasFilter("is_active = true");
+
+                    b.HasIndex("ApprovalRouteRuleId", "PriorityOrder")
+                        .IsUnique()
+                        .HasDatabaseName("ix_approval_route_rule_candidate_approval_route_rule_id_priori")
+                        .HasFilter("is_active = true");
+
+                    b.ToTable("approval_route_rule_candidate", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.LeaveRequestApprovalAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AssignedApproverEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_approver_employee_id");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
+
+                    b.Property<int>("AssignmentReason")
+                        .HasColumnType("integer")
+                        .HasColumnName("assignment_reason");
+
+                    b.Property<int>("AssignmentStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("assignment_status");
+
+                    b.Property<Guid>("LeaveRequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leave_request_id");
+
+                    b.Property<Guid?>("SnapshotCandidateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("snapshot_candidate_id");
+
+                    b.Property<Guid?>("SnapshotLevelAssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("snapshot_level_assignment_id");
+
+                    b.Property<Guid?>("SnapshotPolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("snapshot_policy_id");
+
+                    b.Property<Guid?>("SnapshotRuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("snapshot_rule_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_leave_request_approval_assignment");
+
+                    b.HasIndex("LeaveRequestId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_leave_request_approval_assignment_leave_request_id");
+
+                    b.HasIndex("AssignedApproverEmployeeId", "AssignmentStatus")
+                        .HasDatabaseName("ix_leave_request_approval_assignment_assigned_approver_employe");
+
+                    b.ToTable("leave_request_approval_assignment", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2510,6 +2853,156 @@ namespace Infrastructure.Migrations
                     b.ToTable("data_protection_keys", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteAuditLog", b =>
+                {
+                    b.HasOne("Domain.ApprovalRouting.LeaveRequestApprovalAssignment", "LeaveRequestApprovalAssignment")
+                        .WithMany()
+                        .HasForeignKey("LeaveRequestApprovalAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_approval_route_audit_log_assignment_id");
+
+                    b.HasOne("Domain.LeaveRequests.LeaveRequest", "LeaveRequest")
+                        .WithMany()
+                        .HasForeignKey("LeaveRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_audit_log_leave_request_id");
+
+                    b.HasOne("Domain.Employees.Employee", "NewApprover")
+                        .WithMany()
+                        .HasForeignKey("NewApproverEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_approval_route_audit_log_employee_new_approver_id");
+
+                    b.HasOne("Domain.Employees.Employee", "PreviousApprover")
+                        .WithMany()
+                        .HasForeignKey("PreviousApproverEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_approval_route_audit_log_employee_previous_approver_id");
+
+                    b.Navigation("LeaveRequest");
+
+                    b.Navigation("LeaveRequestApprovalAssignment");
+
+                    b.Navigation("NewApprover");
+
+                    b.Navigation("PreviousApprover");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteLevel", b =>
+                {
+                    b.HasOne("Domain.ApprovalRouting.ApprovalRoutePolicy", "Policy")
+                        .WithMany("Levels")
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_level_approval_route_policy_policy_id");
+
+                    b.Navigation("Policy");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteLevelAssignment", b =>
+                {
+                    b.HasOne("Domain.ApprovalRouting.ApprovalRouteLevel", "ApprovalRouteLevel")
+                        .WithMany("Assignments")
+                        .HasForeignKey("ApprovalRouteLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_level_assignment_level_level_id");
+
+                    b.HasOne("Domain.Employees.Employee", "AssignedEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_level_assignment_employee_assigned_employee_id");
+
+                    b.Navigation("ApprovalRouteLevel");
+
+                    b.Navigation("AssignedEmployee");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRoutePolicy", b =>
+                {
+                    b.HasOne("Domain.Departments.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_approval_route_policy_department_department_id");
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteRule", b =>
+                {
+                    b.HasOne("Domain.ApprovalRouting.ApprovalRoutePolicy", "Policy")
+                        .WithMany("Rules")
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_rule_approval_route_policy_policy_id");
+
+                    b.HasOne("Domain.Positions.Position", "RequesterPosition")
+                        .WithMany()
+                        .HasForeignKey("RequesterPositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_rule_position_requester_position_id");
+
+                    b.HasOne("Domain.Employees.Employee", "SpecificApprover")
+                        .WithMany()
+                        .HasForeignKey("SpecificApproverEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_approval_route_rule_employee_specific_approver_id");
+
+                    b.Navigation("Policy");
+
+                    b.Navigation("RequesterPosition");
+
+                    b.Navigation("SpecificApprover");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteRuleCandidate", b =>
+                {
+                    b.HasOne("Domain.ApprovalRouting.ApprovalRouteLevel", "ApprovalRouteLevel")
+                        .WithMany()
+                        .HasForeignKey("ApprovalRouteLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_rule_candidate_level_level_id");
+
+                    b.HasOne("Domain.ApprovalRouting.ApprovalRouteRule", "ApprovalRouteRule")
+                        .WithMany("Candidates")
+                        .HasForeignKey("ApprovalRouteRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_approval_route_rule_candidate_rule_rule_id");
+
+                    b.Navigation("ApprovalRouteLevel");
+
+                    b.Navigation("ApprovalRouteRule");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.LeaveRequestApprovalAssignment", b =>
+                {
+                    b.HasOne("Domain.Employees.Employee", "AssignedApprover")
+                        .WithMany()
+                        .HasForeignKey("AssignedApproverEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_leave_request_approval_assignment_employee_assigned_approver_id");
+
+                    b.HasOne("Domain.LeaveRequests.LeaveRequest", "LeaveRequest")
+                        .WithMany()
+                        .HasForeignKey("LeaveRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_leave_request_approval_assignment_leave_request_id");
+
+                    b.Navigation("AssignedApprover");
+
+                    b.Navigation("LeaveRequest");
+                });
+
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
                 {
                     b.HasOne("Domain.Members.Member", "Member")
@@ -3390,6 +3883,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("LeaveRequest");
 
                     b.Navigation("LeaveType");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteLevel", b =>
+                {
+                    b.Navigation("Assignments");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRoutePolicy", b =>
+                {
+                    b.Navigation("Levels");
+
+                    b.Navigation("Rules");
+                });
+
+            modelBuilder.Entity("Domain.ApprovalRouting.ApprovalRouteRule", b =>
+                {
+                    b.Navigation("Candidates");
                 });
 
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
